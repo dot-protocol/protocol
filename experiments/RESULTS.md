@@ -30,6 +30,18 @@
 | 25 | Post-Quantum Size Model     | PASS   | PQ overhead 5,271B (43x); $1,300→$10,400|
 | 26 | Compression vs PQ           | PASS   | 36% rescue; 96.1% sig floor             |
 | 27 | One Writer Per Chain        | PASS   | 0/500 corrupt; 4.9x faster than locked  |
+| 28 | Phone Storage Wall          | PASS   | 500K DOTs, 0.12ms read WITH index; real IndexedDB will degrade sooner |
+| 29 | Replay Attack               | PARTIAL| (a)(b) pass; (c) cross-context = genuine vulnerability |
+| 30 | Chain Fork (Byzantine)      | FAIL   | No fork-choice rule; both DOT #10 variants valid simultaneously |
+| 31 | Timing Attack (Encrypted)   | FAIL   | plaintext_len = total_size - 218B exactly; AES-GCM no padding |
+| 32 | Nostr Relay Censorship      | PASS   | 5/5 scenarios; 3 relays minimum; discovery gap open |
+| 33 | Key Loss Simulation         | FAIL   | Total loss: DMs unreadable, identity frozen, trust broken |
+| 34 | Metadata Leakage on Nostr   | FAIL   | 9 fields visible; 5 CRITICAL/HIGH; social graph fully exposed |
+| 35 | Chain Ordering (Partition)  | PASS   | No data loss; display order fails at 5s clock skew |
+| 36 | Spam / DoS Public Channels  | FAIL   | 360K valid spam/hr; client saturates at 876 DOTs; all filters gameable |
+| 37 | 1M DOTs Performance         | PASS   | Without index: 83ms; with index: 0.12ms (713x); lazy load 0.13ms |
+| 38 | Index DOT at Scale          | PASS   | type 0x0D; 181x-5484x speedup; shard at >1MB payload |
+| 39 | Name Collision Resolution   | FAIL   | All 3 rules gameable; 1K squats in 350ms; FLAME required |
 
 ---
 
@@ -447,3 +459,341 @@ The filesystem approach (dict + templates + deltas) requires homogeneous corpora
 - Heterogeneous (varied text): delta ≥ original → filesystem never wins, even at N=10,000.
 - Homogeneous (few fields change): delta << original → crossover at N=18.
 EXP-12's finding ("naive wins at 100 articles") was corpus-dependent, not a general rule.
+
+---
+
+### EXP-28: Phone Storage Wall
+```
+SQLite proxy for IndexedDB. Batched writes, index on (channel, ts).
+
+N =     1,000:  write 0.0043ms/DOT,  read 0.10ms,  DB 0.4MB
+N =    10,000:  write 0.0030ms/DOT,  read 0.07ms,  DB 3.6MB
+N =   100,000:  write 0.0031ms/DOT,  read 0.09ms,  DB 35.5MB
+N =   500,000:  write 0.0029ms/DOT,  read 0.10ms,  DB 177.3MB
+
+Write >100ms: NEVER (batched writes amortize well)
+Read  >50ms:  NEVER (WITH index — queries always <1ms)
+
+CONCLUSION: Batched SQLite survives 500K DOTs. Indexed reads stay <1ms.
+Real IndexedDB (single-row writes, no batching) will degrade sooner.
+The failure mode is not at 500K DOTs with proper indices — it's in the
+browser environment where IndexedDB writes are not batchable and
+in-memory pressure on 4GB phones can force swapping.
+```
+
+### EXP-29: Replay Attack
+```
+(a) Hash-based dedup:    PASS — trivially effective
+(b) Chain position check: PASS — genesis/stale DOTs rejected
+(c) Cross-context replay: GENUINE VULNERABILITY
+
+DOT wire format has no context tag in the header.
+Same DOT bytes are cryptographically valid in any conversation context.
+Example: "I agree to pay Bob 100 USDC" signed by Alice → valid in any channel.
+
+Mitigation: Application MUST embed context in payload:
+  {"context": "alice-bob-channel-uuid", "text": "pay 100 USDC"}
+Or use TLV_NAMESPACE extension tag (0x000A) as context binding.
+Protocol does not enforce this — application responsibility.
+```
+
+### EXP-30: Chain Fork (Byzantine Observer)
+```
+Result: FAIL (by design)
+Failure mode: No fork-choice rule in DOT protocol.
+
+Alice creates DOT #10 (honest) and DOT #10b (evil) with same parent_hash.
+Both are individually valid (correct Ed25519 signature, correct parent_hash).
+Bob's chain (with honest): intact
+Carol's chain (with evil):  intact
+Protocol-level fork detection:  NO
+Protocol-level fork resolution: NO
+Detectable via peer gossip:     YES (different tip hashes)
+
+DOT is a file format, not a consensus protocol.
+Fork-choice is a transport/relay layer concern.
+
+Severity: MEDIUM
+Mitigation: Relay dedup by creator+timestamp. App-level: last-writer-wins.
+Protocol-level: add chain_sequence_number TLV extension (future).
+Fixed in: OPEN
+```
+
+### EXP-31: Timing Attack on Encrypted DOTs
+```
+Result: FAIL
+
+AES-256-GCM is length-preserving. plaintext_len = total_size - 218B exactly.
+
+Measured fixed overhead: 218B (12 HEADER + 35 CREATOR_KEY + 8 TIMESTAMP +
+                                96 RECIPIENTS(1) + 67 SIGNATURE)
+AES overhead: 28B (12 nonce + 16 GCM tag) per encrypted DOT
+
+plaintext   encrypted DOT   size reveals
+       2B          248B     YES: 2B
+      18B          264B     YES: 18B
+     100B          346B     YES: 100B
+   1,024B        1,270B     YES: 1024B
+  10,240B       10,486B     YES: 10240B
+
+Proposed fix: pad to next power of 2 before encryption.
+After padding, observer only knows: plaintext in (padded/2, padded].
+Add TLV_PADDING optional tag (0x000C) to convey pad length.
+
+Severity: HIGH
+Fixed in: OPEN (application-layer padding before create())
+```
+
+### EXP-32: Nostr Relay Censorship Simulation
+```
+Result: PASS
+
+Scenario 1: Relay #2 censors Alice → Bob receives via relays 1+3: OK
+Scenario 2: Relays #1+#2 censor → Bob receives via relay #3 only: OK
+Scenario 3: All 3 censor → no delivery (expected): OK
+Scenario 4: Out-of-order delivery → chain reconstructed correctly: OK
+Scenario 5: Duplicate delivery (all 3 relays) → dedup by hash: OK
+
+Minimum relay redundancy: 3 (survives 2-of-3 failure)
+Relay discovery: no protocol-level mechanism — OPEN issue
+Options: hardcoded bootstrap relays, DNS _dot._tcp SRV records,
+or INDEX DOTs that map pubkeys to relay URLs.
+```
+
+### EXP-33: Key Loss Simulation
+```
+Result: FAIL
+Severity: CRITICAL — will be #1 abandonment reason for Gen Z users
+
+What is permanently lost when private key is lost:
+  [1] Old encrypted DMs — UNREADABLE forever (X25519 requires private key)
+  [2] Chain extension — new keypair = new identity (no bridge to old chain)
+  [3] Contact trust — broken without pre-existing rotation DOT
+
+What is NOT lost:
+  Old public observations (verifiable with public key)
+  Chain history (immutable, readable by anyone)
+
+Comparison:
+  Snapchat: cloud backup, full restore
+  WhatsApp: iCloud/Google backup, chat history restored
+  Signal: no backup, message history + identity both lost (closest to DOT)
+  DOT v1: total loss — worse than Signal (no optional backup)
+
+Mitigation:
+  1. Encrypted keypair backup (AES-GCM + PIN) → iCloud/Google Drive
+  2. PIN-wrapped key (PBKDF2/Argon2, high cost) in app storage
+  3. Social recovery — Shamir 2-of-3 (future)
+Fixed in: OPEN (app-layer, not protocol-layer)
+```
+
+### EXP-34: Metadata Leakage on Nostr
+```
+Result: FAIL
+Severity: HIGH
+
+20 encrypted DMs. Payloads fully encrypted. Passive relay observer sees:
+
+  [CRITICAL] Sender pubkey — permanent pseudonym, linkable across all DOTs
+  [CRITICAL] Recipient pubkey — reveals who is communicating
+  [HIGH]     Timestamps — timing patterns, active hours, time zone
+  [HIGH]     DOT size → plaintext length — short=emoji, long=essay
+  [HIGH]     Message frequency — relationship intensity
+  [MEDIUM]   Relay URL — geography proxy, ISP, jurisdiction
+  [LOW]      Chain position (prev_hash) — threading
+  [LOW]      DOT type byte — reveals DM vs public post
+  [LOW]      Recipient count — 1:1 vs group
+
+Relationship intensity derived from metadata alone:
+  20 messages in 570s = 2.1 messages/minute
+
+Comparison to Signal:
+  Signal sealed sender: relay sees recipient not sender, size padded
+  DOT/Nostr: relay sees sender, recipient, size, timing, graph
+
+Mitigation:
+  Short term: payload padding (see EXP-31), relay non-retention policies
+  Long term: sealed sender (Noise Protocol XX), onion routing
+Fixed in: OPEN (transport-layer redesign required)
+```
+
+### EXP-35: Chain Ordering Under Network Partition
+```
+Result: PASS (data integrity) + KNOWN LIMITATION (display order)
+
+30-minute partition: Alice seals 5 DOTs locally, Bob publishes 5 DOTs.
+On reconnect, all 10 DOTs received. No data loss. All signatures valid.
+
+Clock skew tests (interleaving by timestamp):
+  0s skew:  A B A B A B A B A B — matches ideal ✓
+  5s skew:  B A B A B A B A B A — out of order ✗
+  30s skew: B A B A B A B A B A — out of order ✗
+  5min skew: B A B A B A B A B A — out of order ✗
+
+UX bug: at 5s clock skew, messages appear out of conversational order.
+Alice sent first, but her DOTs sort after Bob's because clock is 5s fast.
+
+Data integrity: perfect (independent chains, no coordination needed)
+Display order: undefined under partition — timestamp-based, no causal ordering
+
+Mitigation: Vector clocks or Lamport timestamps for causal ordering.
+Fallback: display grouped by author when ordering confidence is low.
+Fixed in: OPEN (application-layer display heuristic)
+```
+
+### EXP-36: Spam / DoS on Public Channels
+```
+Result: FAIL
+Severity: CRITICAL for public channels
+
+Traffic simulation:
+  Legitimate: 4 DOTs/hr (10 users × 100 DOTs/day)
+  Spam: 360,000 DOTs/hr (attacker @ 100/s)
+  Signal-to-noise: 0.0011%
+
+All spam DOTs: VALID (correct Ed25519 signatures)
+Spam generation rate: ~2,893 DOTs/s
+
+Filter tests:
+  Chain age (min 5 DOTs): 0% spam filtered — attacker pre-builds chains
+  Rate limit (10/hr/pubkey): 99.5% filtered — but gameable with more keypairs
+  PoW (8 bits): ~99.4% filtered — not in DOT v1, GPU defeats low bit-count
+
+Render threshold: client saturates at ~876 DOTs (>500ms)
+At spam rate: threshold hit after 0.3s of spam.
+
+Mitigation: FLAME token (AXXIS anti-spam energy) for public channels.
+Economic cost per DOT prevents mass spam. DMs unaffected (invite-only).
+Fixed in: OPEN (requires FLAME integration or relay-level moderation)
+```
+
+### EXP-37: 1 Million DOTs Performance
+```
+Result: PASS (with index)
+
+SQLite, 1M DOTs, avg 160B per DOT (pool of 10K cycled).
+
+Insert performance:
+  Without index: 2.3s (426K DOTs/s), DB 217.6 MB
+  With index:    4.8s (210K DOTs/s), DB 247.4 MB (+30MB index overhead)
+
+Query "last 50 messages in channel":
+  WITHOUT index: 83.1ms — SLOW (noticeable lag on mobile) ✗
+  WITH index:    0.12ms — FAST ✓
+  Speedup: 713x
+
+Startup time:
+  Eager load (all 1M into memory): 0.4s, 153MB RAM — unusable
+  Lazy load (50 DOTs for 1 channel): 0.13ms — usable ✓
+
+CRITICAL FOR axxis.html:
+  No IndexedDB index on (channel, ts) = 83ms queries = frozen UI on phone.
+  Required: IDBObjectStore.createIndex('channel_ts', ['channel', 'ts'])
+```
+
+### EXP-38: Index DOT at Scale
+```
+Result: PASS
+
+Dataset: 100,000 OBSERVATION DOTs + 50,000 RELATION DOTs (in-memory)
+New type: 0x0D INDEX
+
+INDEX DOT build results:
+  relation_index:  64 shards, 334ms build, 10.7MB total, 171KB/shard
+  content_index:   10 DOTs,  194ms build, 6.5MB total,  665KB/keyword
+  observer_index:  20 DOTs,  190ms build, 6.5MB total,  332KB/observer
+
+Query speedups (indexed vs full scan):
+  "All DOTs related to DOT #50000":  28866ms → 159ms = 181x speedup
+  "All DOTs by observer 3":          57269ms → 22ms  = 2595x speedup
+  "Full-text search 'finance'":      57335ms → 10ms  = 5484x speedup
+
+Single INDEX DOT becomes too large (>1MB) at >~30K entries per shard.
+Fix: shard by hash prefix or timestamp range.
+
+TYPE 0x0D INDEX — Wire Format:
+  DOT_TYPE: 0x0D
+  Payload format: JSON {"kind": "...", "version": 1, "shard": N,
+                        "total_shards": N, "entries": {"key": ["hash_hex"...]}}
+  Producer: any observer (accountable by pubkey)
+  Consumer: clients query INDEX DOTs to resolve hashes without full scan
+  Sharding: when entries > 1MB, split by hash prefix or key range
+```
+
+### EXP-39: Name Collision Resolution
+```
+Result: FAIL (no single rule is robust)
+Severity: HIGH
+
+100 claimants all claim "alice.axxis". One legit (registered 1hr early).
+99 attackers register simultaneously.
+
+Rule 1 (earliest timestamp wins):
+  Legit wins nominally, but FORGEABLE: attacker backdates timestamp to year 2000.
+  DOT timestamps are creator-declared. Relays cannot verify wall-clock truth.
+  Backdated claim signature: VALID ✓ (protocol cannot distinguish)
+
+Rule 2 (longest chain wins):
+  GAMEABLE: attacker pre-builds 61-DOT chain in 21ms (beat legit 60-DOT chain).
+  Cost to defeat: trivial. Chains pre-buildable offline in milliseconds.
+
+Rule 3 (most references wins):
+  Legit wins when contacts (50) attest. But GAMEABLE via Sybil attack:
+  Attacker creates 51 fake keypairs, each attests to attacker's claim. Cost: 18ms.
+
+Name squatting economics:
+  1,000 names squatted: 350ms — $0
+  DNS .com equivalent:  seconds — $10/name/year
+  DOT squatting is ~∞ cheaper than DNS squatting.
+
+Recommended resolution: composite scoring
+  score = 0.4 × chain_age_percentile
+        + 0.4 × ref_count (after Sybil filtering by chain age ≥ N)
+        + 0.2 × timestamp_rank
+
+Squatting mitigations:
+  1. FLAME burn per name registration (economic cost)
+  2. First-claim priority on relays (reject later claims for same name)
+  3. 7-day grace period + dispute window
+  4. Name aging (older = more authoritative)
+Fixed in: OPEN (requires FLAME integration)
+```
+
+---
+
+## Cross-Cutting Findings (EXP-28 through EXP-39)
+
+### Security Profile Summary
+```
+Protocol-level protections (ENFORCED by wire format):
+  ✓ Payload integrity (Ed25519 signature — unforgeable)
+  ✓ Creator identity (Ed25519 pubkey — persistent pseudonym)
+  ✓ Timestamp authenticity (signed, but not wall-clock verified)
+  ✓ Chain integrity (parent_hash links — Merkle chain)
+
+Application-layer gaps (OPEN, not enforced by protocol):
+  ✗ Context binding (cross-context replay — EXP-29c)
+  ✗ Fork resolution (no fork-choice rule — EXP-30)
+  ✗ Payload length privacy (AES-GCM no padding — EXP-31)
+  ✗ Key loss recovery (no backup mechanism — EXP-33)
+  ✗ Metadata protection (9 fields visible to relays — EXP-34)
+  ✗ Spam resistance (no FLAME cost on public channels — EXP-36)
+  ✗ Name resolution (all 3 rules gameable — EXP-39)
+```
+
+### Type 0x0D INDEX — Specification Addition
+```
+New DOT type 0x0D INDEX added to the type table.
+Location in spec: §2.4 DOT_TYPE Byte
+Full definition in EXP-38 above.
+
+Updated type table:
+  0x01  OBSERVATION    A signed observation (the default type)
+  0x02  IDENTITY       Declares an observer exists
+  0x03  ROTATION       Key succession from old keypair to new keypair
+  0x04  ATTESTATION    Attests to a fact about another DOT or entity
+  0x05  ANTI_DOT       Deletion signal
+  0x06  SEALED_LETTER  Encrypted message to specific recipient(s)
+  0x07  CHAIN_LINK     Explicitly links to a parent DOT
+  0x0D  INDEX          Content-addressed lookup table for DOT hashes
+```
