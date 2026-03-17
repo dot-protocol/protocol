@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DOT">
+  <meta name="theme-color" content="#0A0A0F">
+  <title>DOT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://unpkg.com/simple-peer@9.11.1/simplepeer.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #0A0A0F;
+      --surface:  #0F0F1A;
+      --surface2: #13131F;
+      --border:   #1E1E2E;
+      --accent:   #00D4FF;
+      --accent-dim: rgba(0, 212, 255, 0.15);
+      --accent-glow: rgba(0, 212, 255, 0.4);
+      --text:     #E0E0F0;
+      --muted:    #5A5A7A;
+      --green:    #00FF88;
+      --red:      #FF3366;
+      --font:     'JetBrains Mono', 'Courier New', monospace;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bot: env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      line-height: 1.5;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      height: 100dvh;
+    }
+
+    .screen {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+      flex-direction: column;
+    }
+    .screen.active { display: flex; }
+
+    /* ── Bottom Nav ── */
+    #nav {
+      display: none;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding-bottom: var(--safe-bot);
+      flex-shrink: 0;
+    }
+    #nav.visible { display: flex; }
+
+    .nav-tabs {
+      display: flex;
+      width: 100%;
+    }
+
+    .nav-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 10px 4px 8px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav-tab.active { color: var(--accent); }
+    .nav-tab .tab-icon { font-size: 18px; margin-bottom: 3px; }
+
+    /* ── Common Components ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 12px 24px;
+      border: 1px solid var(--accent);
+      border-radius: 4px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .btn:active {
+      background: rgba(0, 212, 255, 0.3);
+      box-shadow: 0 0 16px var(--accent-glow);
+    }
+    .btn.green { border-color: var(--green); background: rgba(0,255,136,0.1); color: var(--green); }
+    .btn.full { width: 100%; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .mono { font-family: var(--font); word-break: break-all; }
+
+    /* ── Screen 1: Genesis ── */
+    #screen-genesis {
+      justify-content: center;
+      align-items: center;
+      padding: 32px 24px;
+      padding-top: calc(var(--safe-top) + 32px);
+      gap: 32px;
+      background: var(--bg);
+    }
+
+    .genesis-logo {
+      text-align: center;
+    }
+    .genesis-logo .dot-word {
+      font-size: 64px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.2em;
+      text-shadow: 0 0 40px var(--accent-glow), 0 0 80px rgba(0,212,255,0.2);
+    }
+    .genesis-logo .subtitle {
+      color: var(--muted);
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: 6px;
+    }
+
+    .genesis-key-box {
+      width: 100%;
+      max-width: 360px;
+    }
+    .genesis-key-box .key-value {
+      font-size: 11px;
+      color: var(--accent);
+      word-break: break-all;
+      line-height: 1.6;
+      opacity: 0.7;
+    }
+
+    .genesis-status {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      min-height: 18px;
+    }
+
+    /* ── Screen 2: Live ── */
+    #screen-live {
+      padding-top: var(--safe-top);
+    }
+
+    .live-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .live-header .page-title {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .dot-count {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+
+    .live-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sensor-card {
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .sensor-card.flash {
+      border-color: var(--accent);
+      box-shadow: 0 0 20px var(--accent-glow);
+    }
+
+    .sensor-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .sensor-item { }
+    .sensor-item .s-label {
+      font-size: 9px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .sensor-item .s-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      transition: color 0.1s, text-shadow 0.1s;
+    }
+    .sensor-item .s-value.pulse {
+      color: var(--accent);
+      text-shadow: 0 0 12px var(--accent-glow);
+    }
+    .sensor-item .s-unit {
+      font-size: 10px;
+      color: var(--muted);
+      margin-left: 3px;
+    }
+
+    .sensor-ts {
+      margin-top: 10px;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+    .sensor-ts .s-label { font-size: 9px; color: var(--muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 2px; }
+    .sensor-ts .s-value { font-size: 13px; color: var(--text); transition: color 0.1s; }
+    .sensor-ts .s-value.pulse { color: var(--accent); }
+
+    .dot-btn-wrap {
+      padding: 0 16px 12px;
+    }
+    .dot-btn {
+      width: 100%;
+      padding: 16px;
+      font-size: 16px;
+      letter-spacing: 0.15em;
+    }
+    .dot-btn.creating {
+      animation: pulse-btn 0.4s ease-out;
+    }
+
+    @keyframes pulse-btn {
+      0%   { box-shadow: 0 0 0px var(--accent-glow); }
+      50%  { box-shadow: 0 0 32px var(--accent-glow); }
+      100% { box-shadow: 0 0 0px var(--accent-glow); }
+    }
+
+    .peer-indicator {
+      padding: 8px 16px;
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .peer-indicator .dot-on { color: var(--green); }
+
+    /* ── Screen 3: Chain ── */
+    #screen-chain {
+      padding-top: var(--safe-top);
+    }
+
+    .chain-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .chain-header .page-title {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .chain-pubkey {
+      font-size: 10px;
+      color: var(--accent);
+      opacity: 0.6;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    .chain-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chain-empty {
+      text-align: center;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 40px 0;
+      letter-spacing: 0.08em;
+    }
+
+    .chain-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .chain-entry:active { border-color: var(--accent); }
+    .chain-entry.incoming { border-left: 2px solid var(--green); }
+
+    .chain-entry-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .chain-seq {
+      color: var(--muted);
+      font-size: 11px;
+      min-width: 28px;
+    }
+    .chain-time {
+      color: var(--text);
+      font-size: 12px;
+      flex: 1;
+    }
+    .chain-type {
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .chain-sig {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 4px;
+      opacity: 0.7;
+    }
+
+    .chain-entry-full {
+      display: none;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .chain-entry.expanded .chain-entry-full { display: block; }
+
+    .hex-dump {
+      font-size: 9px;
+      color: var(--accent);
+      word-break: break-all;
+      line-height: 1.8;
+      opacity: 0.8;
+    }
+
+    .entry-flash {
+      animation: entry-in 0.5s ease-out;
+    }
+    @keyframes entry-in {
+      0%   { border-color: var(--accent); box-shadow: 0 0 12px var(--accent-glow); }
+      100% { border-color: var(--border); box-shadow: none; }
+    }
+
+    /* ── Screen 4: Connect ── */
+    #screen-connect {
+      padding-top: var(--safe-top);
+    }
+
+    .connect-header {
+      padding: 14px 16px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .connect-header .page-title {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .connect-status {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+    .connect-status.disconnected { color: var(--muted); }
+    .connect-status.pending      { color: var(--accent); }
+    .connect-status.connected    { color: var(--green); }
+
+    .connect-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .qr-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .qr-wrap {
+      padding: 14px;
+      border-radius: 6px;
+      display: inline-flex;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.3s;
+    }
+    .qr-wrap.offer { border-color: var(--accent); }
+    .qr-wrap.answer { border-color: var(--green); }
+
+    #qr-canvas {
+      display: block;
+      max-width: 200px;
+      max-height: 200px;
+    }
+
+    .qr-hint {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-align: center;
+    }
+
+    .scan-btn-wrap {
+      display: flex;
+      justify-content: center;
+    }
+
+    .peer-dots-section { }
+    .peer-dots-section .section-title {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .peer-dot-entry {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 2px solid var(--green);
+      border-radius: 4px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      animation: entry-in 0.5s ease-out;
+    }
+    .peer-dot-prefix { color: var(--green); margin-right: 6px; }
+    .peer-dot-time { color: var(--muted); margin-right: 6px; }
+    .peer-dot-sig { color: var(--accent); opacity: 0.6; }
+
+    /* ── Video scanner overlay ── */
+    #scan-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: #000;
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    #scan-overlay.active { display: flex; }
+
+    #scan-video {
+      width: 100%;
+      max-width: 360px;
+      border: 2px solid var(--accent);
+      border-radius: 6px;
+    }
+
+    #scan-canvas { display: none; }
+
+    .scan-close-btn {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Util ── */
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ Screen 1: Genesis ══ -->
+  <div id="screen-genesis" class="screen">
+    <div class="genesis-logo">
+      <div class="dot-word">DOT</div>
+      <div class="subtitle">private worldline protocol</div>
+    </div>
+
+    <div class="genesis-key-box card">
+      <div class="label">your public key</div>
+      <div class="key-value mono" id="genesis-pubkey">generating…</div>
+    </div>
+
+    <div class="genesis-status" id="genesis-status">initializing…</div>
+
+    <button class="btn" id="genesis-begin-btn" disabled onclick="beginWorldline()">Begin</button>
+  </div>
+
+  <!-- ══ Screen 2: Live ══ -->
+  <div id="screen-live" class="screen">
+    <div class="live-header">
+      <span class="page-title">Live</span>
+      <span class="dot-count" id="live-dot-count">0 dots</span>
+    </div>
+
+    <div class="live-body">
+      <div class="card sensor-card" id="sensor-card">
+        <div class="sensor-grid">
+          <div class="sensor-item">
+            <div class="s-label">LAT</div>
+            <div class="s-value" id="sv-lat">—<span class="s-unit">°</span></div>
+          </div>
+          <div class="sensor-item">
+            <div class="s-label">LNG</div>
+            <div class="s-value" id="sv-lng">—<span class="s-unit">°</span></div>
+          </div>
+          <div class="sensor-item">
+            <div class="s-label">ACCEL</div>
+            <div class="s-value" id="sv-accel">—<span class="s-unit">m/s²</span></div>
+          </div>
+          <div class="sensor-item">
+            <div class="s-label">HEADING</div>
+            <div class="s-value" id="sv-heading">—<span class="s-unit">°</span></div>
+          </div>
+        </div>
+        <div class="sensor-ts">
+          <div class="s-label">TIMESTAMP</div>
+          <div class="s-value" id="sv-ts">—</div>
+        </div>
+      </div>
+
+      <div class="peer-indicator" id="peer-indicator-live">
+        <span id="peer-dot-indicator">○</span>
+        <span id="peer-status-text">not connected</span>
+      </div>
+    </div>
+
+    <div class="dot-btn-wrap">
+      <button class="btn dot-btn" id="dot-btn" onclick="createSensorDot()">● DOT</button>
+    </div>
+  </div>
+
+  <!-- ══ Screen 3: Chain ══ -->
+  <div id="screen-chain" class="screen">
+    <div class="chain-header">
+      <div class="page-title">Worldline</div>
+      <div class="chain-pubkey mono" id="chain-pubkey">—</div>
+    </div>
+    <div class="chain-list" id="chain-list">
+      <div class="chain-empty">no dots yet</div>
+    </div>
+  </div>
+
+  <!-- ══ Screen 4: Connect ══ -->
+  <div id="screen-connect" class="screen">
+    <div class="connect-header">
+      <span class="page-title">Connect</span>
+      <span class="connect-status disconnected" id="connect-status-text">disconnected</span>
+    </div>
+
+    <div class="connect-body">
+      <div class="qr-section">
+        <div class="qr-wrap" id="qr-wrap">
+          <canvas id="qr-canvas"></canvas>
+        </div>
+        <div class="qr-hint" id="qr-hint">tap "● DOT" to generate offer</div>
+      </div>
+
+      <div class="scan-btn-wrap">
+        <button class="btn" onclick="openScanner()">Scan Peer QR</button>
+      </div>
+
+      <div class="peer-dots-section" id="peer-dots-section">
+        <div class="section-title">incoming</div>
+        <div id="peer-dots-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Bottom Nav ══ -->
+  <nav id="nav">
+    <div class="nav-tabs">
+      <button class="nav-tab active" data-screen="live" onclick="switchScreen('live')">
+        <span class="tab-icon">◉</span>
+        Live
+      </button>
+      <button class="nav-tab" data-screen="chain" onclick="switchScreen('chain')">
+        <span class="tab-icon">⬡</span>
+        Chain
+      </button>
+      <button class="nav-tab" data-screen="connect" onclick="switchScreen('connect')">
+        <span class="tab-icon">⌁</span>
+        Connect
+      </button>
+    </div>
+  </nav>
+
+</div><!-- #app -->
+
+<!-- ══ QR Scanner Overlay ══ -->
+<div id="scan-overlay">
+  <video id="scan-video" autoplay playsinline muted></video>
+  <canvas id="scan-canvas"></canvas>
+  <button class="btn scan-close-btn" onclick="closeScanner()">✕ Cancel</button>
+</div>
+
+<script type="module">
+// ══════════════════════════════════════════════════════════
+// DOT App — single-file PWA
+// ══════════════════════════════════════════════════════════
+
+import {
+  createKeypair, createDot, verifyDot, toBytes, fromBytes, inspect,
+  TYPE, packSensorPayload, dotToHex, dotFromHex, dotToBase64, dotFromBase64,
+  openDotDB, dbStoreKeypair, dbLoadKeypair, dbAppendDot, dbLoadChain, dbLoadHead
+} from './dot_core.js';
+
+// ── State ──────────────────────────────────────────────────
+let db        = null;
+let keypair   = null;   // { publicKey, privateKey, publicKeyObj, privateKeyObj }
+let chain     = [];     // array of DOT objects (in order)
+let sensors   = { lat: null, lng: null, accel: null, heading: null };
+let peerInstance = null;
+let peerConnected = false;
+let motionPermAsked = false;
+let scanStream    = null;
+let scanAnimFrame = null;
+
+// Expose to global for inline onclick handlers
+window.beginWorldline   = beginWorldline;
+window.createSensorDot  = createSensorDot;
+window.switchScreen     = switchScreen;
+window.openScanner      = openScanner;
+window.closeScanner     = closeScanner;
+
+// ── Boot ──────────────────────────────────────────────────
+async function boot() {
+  // Service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {/* sw.js may not exist yet */});
+  }
+
+  db = await openDotDB();
+  keypair = await dbLoadKeypair(db);
+
+  if (keypair) {
+    // Returning user — reconstruct crypto objects
+    keypair = await hydrateKeypair(keypair);
+    chain = await dbLoadChain(db);
+    showMain();
+  } else {
+    // First launch — show genesis screen
+    showGenesis();
+  }
+
+  // Start clock
+  setInterval(tickClock, 1000);
+  // Start geolocation
+  startGeo();
+  // Start motion
+  startMotion();
+}
+
+// ── Keypair hydration ─────────────────────────────────────
+// dbLoadKeypair returns { publicKey: Uint8Array, privateKey: Uint8Array }
+// We need to import the CryptoKey objects for signing
+async function hydrateKeypair(raw) {
+  const { subtle } = crypto;
+  // Import public key
+  const pubKeyObj = await subtle.importKey('raw', raw.publicKey, { name: 'Ed25519' }, false, ['verify']);
+  // Import private key via PKCS8 header
+  const PKCS8_PREFIX = new Uint8Array([
+    0x30,0x2e,0x02,0x01,0x00,0x30,0x05,0x06,
+    0x03,0x2b,0x65,0x70,0x04,0x22,0x04,0x20,
+  ]);
+  const pkcs8 = new Uint8Array(PKCS8_PREFIX.length + 32);
+  pkcs8.set(PKCS8_PREFIX);
+  pkcs8.set(raw.privateKey, PKCS8_PREFIX.length);
+  const privKeyObj = await subtle.importKey('pkcs8', pkcs8, { name: 'Ed25519' }, false, ['sign']);
+  return {
+    publicKey:     raw.publicKey,
+    privateKey:    raw.privateKey,
+    publicKeyObj:  pubKeyObj,
+    privateKeyObj: privKeyObj,
+  };
+}
+
+// ── Genesis Screen ────────────────────────────────────────
+async function showGenesis() {
+  setStatus('generating keypair…');
+
+  const kp = await createKeypair();
+  keypair = kp;
+
+  const pubHex = dotToHex(kp.publicKey);
+  document.getElementById('genesis-pubkey').textContent = pubHex;
+  document.getElementById('genesis-begin-btn').disabled = false;
+  setStatus('ready · tap Begin to start your worldline');
+}
+
+function setStatus(msg) {
+  document.getElementById('genesis-status').textContent = msg;
+}
+
+async function beginWorldline() {
+  document.getElementById('genesis-begin-btn').disabled = true;
+  setStatus('saving…');
+
+  await dbStoreKeypair(db, keypair);
+  setStatus('creating genesis dot…');
+
+  const genesis = await createDot({ key: keypair, type: TYPE.PUBLIC });
+  const genesisBytes = toBytes(genesis);
+  await dbAppendDot(db, genesisBytes);
+  chain = [genesis];
+
+  setStatus('done');
+  showMain();
+}
+
+// ── Main App ──────────────────────────────────────────────
+function showMain() {
+  document.getElementById('screen-genesis').classList.remove('active');
+  document.getElementById('nav').classList.add('visible');
+  switchScreen('live');
+  renderChain();
+  updateLiveCount();
+
+  // Show pubkey in chain header
+  if (keypair) {
+    document.getElementById('chain-pubkey').textContent = dotToHex(keypair.publicKey);
+  }
+
+  // Init connect QR — generate offer
+  initOffer();
+}
+
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`screen-${name}`).classList.add('active');
+  document.querySelector(`[data-screen="${name}"]`).classList.add('active');
+}
+
+// ── Sensors ───────────────────────────────────────────────
+function startGeo() {
+  if (!navigator.geolocation) return;
+  navigator.geolocation.watchPosition(
+    pos => {
+      pulseValue('sv-lat',  fmtCoord(pos.coords.latitude));
+      pulseValue('sv-lng',  fmtCoord(pos.coords.longitude));
+      sensors.lat = pos.coords.latitude;
+      sensors.lng = pos.coords.longitude;
+      if (pos.coords.heading != null && pos.coords.heading >= 0) {
+        pulseValue('sv-heading', Math.round(pos.coords.heading).toString());
+        sensors.heading = pos.coords.heading;
+      }
+    },
+    () => {},
+    { enableHighAccuracy: true, maximumAge: 5000 }
+  );
+}
+
+function startMotion() {
+  window.addEventListener('devicemotion', e => {
+    const a = e.accelerationIncludingGravity;
+    if (!a) return;
+    const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
+    sensors.accel = mag;
+    pulseValue('sv-accel', mag.toFixed(1));
+  });
+}
+
+async function requestMotionPermission() {
+  if (motionPermAsked) return;
+  motionPermAsked = true;
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    try {
+      await DeviceMotionEvent.requestPermission();
+    } catch { /* user denied */ }
+  }
+}
+
+function tickClock() {
+  const now = new Date().toISOString();
+  const el = document.getElementById('sv-ts');
+  if (el) pulseValue('sv-ts', now.replace('T', ' ').slice(0, 23));
+}
+
+function fmtCoord(v) {
+  return v.toFixed(5);
+}
+
+function pulseValue(id, val) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  // Replace text while keeping any child .s-unit spans
+  const unit = el.querySelector('.s-unit');
+  if (unit) {
+    el.childNodes[0].textContent = val;
+  } else {
+    el.textContent = val;
+  }
+  el.classList.remove('pulse');
+  void el.offsetWidth; // force reflow
+  el.classList.add('pulse');
+  setTimeout(() => el.classList.remove('pulse'), 600);
+}
+
+// ── Create DOT ────────────────────────────────────────────
+async function createSensorDot() {
+  if (!keypair || !db) return;
+
+  // iOS motion permission on first tap
+  await requestMotionPermission();
+
+  const btn = document.getElementById('dot-btn');
+  btn.disabled = true;
+  btn.classList.add('creating');
+
+  try {
+    const payload = packSensorPayload({
+      lat:      sensors.lat     ?? 0,
+      lng:      sensors.lng     ?? 0,
+      accelMag: sensors.accel   ?? 0,
+      heading:  sensors.heading ?? 0,
+      pressure: 0,
+    });
+
+    const prev = chain.length > 0 ? chain[chain.length - 1] : undefined;
+    const dot  = await createDot({ key: keypair, payload, type: TYPE.PUBLIC, previous: prev });
+    const buf  = toBytes(dot);
+
+    await dbAppendDot(db, buf);
+    chain.push(dot);
+
+    // UI feedback
+    flashSensorCard();
+    updateLiveCount();
+    renderChain();
+
+    // Stream to peer if connected
+    if (peerInstance && peerConnected) {
+      try { peerInstance.send(buf); } catch { /* ignore send errors */ }
+    }
+  } finally {
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.classList.remove('creating');
+    }, 300);
+  }
+}
+
+function flashSensorCard() {
+  const card = document.getElementById('sensor-card');
+  card.classList.remove('flash');
+  void card.offsetWidth;
+  card.classList.add('flash');
+  setTimeout(() => card.classList.remove('flash'), 400);
+}
+
+function updateLiveCount() {
+  const el = document.getElementById('live-dot-count');
+  if (el) el.textContent = `${chain.length} dot${chain.length !== 1 ? 's' : ''}`;
+}
+
+// ── Chain Render ──────────────────────────────────────────
+function renderChain() {
+  const list = document.getElementById('chain-list');
+  if (!list) return;
+
+  if (chain.length === 0) {
+    list.innerHTML = '<div class="chain-empty">no dots yet</div>';
+    return;
+  }
+
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2,'0')).join('');
+  const TYPE_NAMES = { 0x00:'public', 0x01:'circle', 0x02:'private', 0x03:'ephemeral' };
+
+  // Render newest first
+  const items = [...chain].reverse();
+  list.innerHTML = '';
+
+  items.forEach((dot, revIdx) => {
+    const seq = chain.length - revIdx;
+    const time = new Date(dot.ts).toTimeString().slice(0, 8);
+    const typeName = TYPE_NAMES[dot.type] ?? `0x${dot.type.toString(16).padStart(2,'0')}`;
+    const sigPrefix = hex(dot.sig.slice(0, 8));
+    const fullHex = hex(toBytes(dot));
+
+    const el = document.createElement('div');
+    el.className = 'chain-entry';
+    el.dataset.seq = seq;
+    el.innerHTML = `
+      <div class="chain-entry-header">
+        <span class="chain-seq mono">#${seq}</span>
+        <span class="chain-time mono">${time}</span>
+        <span class="chain-type">${typeName}</span>
+      </div>
+      <div class="chain-sig mono">${sigPrefix}…</div>
+      <div class="chain-entry-full">
+        <div class="label">153-byte hex</div>
+        <div class="hex-dump mono">${fullHex}</div>
+      </div>
+    `;
+    el.addEventListener('click', () => el.classList.toggle('expanded'));
+    list.appendChild(el);
+  });
+}
+
+function appendChainEntry(dot, isIncoming) {
+  const list = document.getElementById('chain-list');
+  // Remove "no dots yet" placeholder
+  const empty = list.querySelector('.chain-empty');
+  if (empty) empty.remove();
+
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2,'0')).join('');
+  const TYPE_NAMES = { 0x00:'public', 0x01:'circle', 0x02:'private', 0x03:'ephemeral' };
+  const seq = isIncoming ? '↓' : chain.length;
+  const time = new Date(dot.ts).toTimeString().slice(0, 8);
+  const typeName = TYPE_NAMES[dot.type] ?? `0x${dot.type.toString(16).padStart(2,'0')}`;
+  const sigPrefix = hex(dot.sig.slice(0, 8));
+  const fullHex = hex(toBytes(dot));
+
+  const el = document.createElement('div');
+  el.className = `chain-entry entry-flash${isIncoming ? ' incoming' : ''}`;
+  el.innerHTML = `
+    <div class="chain-entry-header">
+      <span class="chain-seq mono">${seq}</span>
+      <span class="chain-time mono">${time}</span>
+      <span class="chain-type">${typeName}</span>
+    </div>
+    <div class="chain-sig mono">${sigPrefix}…</div>
+    <div class="chain-entry-full">
+      <div class="label">153-byte hex</div>
+      <div class="hex-dump mono">${fullHex}</div>
+    </div>
+  `;
+  el.addEventListener('click', () => el.classList.toggle('expanded'));
+  list.insertBefore(el, list.firstChild);
+}
+
+// ── WebRTC / Connect ──────────────────────────────────────
+function initOffer() {
+  if (peerInstance) return; // already initiated
+
+  const peer = new SimplePeer({
+    initiator: true,
+    trickle: false,
+    config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+  });
+
+  peerInstance = peer;
+
+  peer.on('signal', data => {
+    const sdpStr = JSON.stringify(data);
+    showQR(sdpStr, 'offer', 'blue — share with peer');
+    setConnectStatus('pending', 'show this to peer');
+  });
+
+  peer.on('connect', () => {
+    peerConnected = true;
+    setConnectStatus('connected', 'connected');
+    updatePeerIndicatorLive(true);
+    clearQR();
+  });
+
+  peer.on('data', buf => {
+    handleIncomingDotBytes(new Uint8Array(buf));
+  });
+
+  peer.on('close', () => {
+    peerConnected = false;
+    peerInstance = null;
+    setConnectStatus('disconnected', 'disconnected');
+    updatePeerIndicatorLive(false);
+    // Re-generate offer for reconnect
+    initOffer();
+  });
+
+  peer.on('error', () => {
+    peerConnected = false;
+    // allow re-init after error
+  });
+}
+
+async function handleIncomingDotBytes(bytes) {
+  if (bytes.length !== 153) return;
+  let dot;
+  try { dot = fromBytes(bytes); } catch { return; }
+  const valid = await verifyDot(dot);
+  if (!valid) return;
+
+  // Show in chain list
+  appendChainEntry(dot, true);
+
+  // Show in peer dots list
+  const peerList = document.getElementById('peer-dots-list');
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2,'0')).join('');
+  const time = new Date(dot.ts).toTimeString().slice(0, 8);
+  const sigPrefix = hex(dot.sig.slice(0, 8));
+  const el = document.createElement('div');
+  el.className = 'peer-dot-entry';
+  el.innerHTML = `<span class="peer-dot-prefix">↓</span><span class="peer-dot-time">${time}</span><span class="peer-dot-sig">${sigPrefix}…</span>`;
+  peerList.insertBefore(el, peerList.firstChild);
+}
+
+function setConnectStatus(cls, text) {
+  const el = document.getElementById('connect-status-text');
+  if (!el) return;
+  el.className = `connect-status ${cls}`;
+  el.textContent = text;
+}
+
+function updatePeerIndicatorLive(connected) {
+  const dot = document.getElementById('peer-dot-indicator');
+  const txt = document.getElementById('peer-status-text');
+  if (dot) dot.textContent = connected ? '●' : '○';
+  if (dot) dot.className = connected ? 'dot-on' : '';
+  if (txt) txt.textContent = connected ? 'peer connected' : 'not connected';
+}
+
+function showQR(data, type, hint) {
+  const canvas = document.getElementById('qr-canvas');
+  const wrap   = document.getElementById('qr-wrap');
+  const hintEl = document.getElementById('qr-hint');
+
+  const color = type === 'offer' ? '#00D4FF' : '#00FF88';
+
+  QRCode.toCanvas(canvas, data, {
+    width: 200,
+    margin: 1,
+    color: { dark: color, light: '#0F0F1A' },
+    errorCorrectionLevel: 'L',
+  }, err => {
+    if (err) { /* QR too large — SDP may be truncated. Gracefully skip. */ }
+  });
+
+  wrap.className = `qr-wrap ${type === 'offer' ? 'offer' : 'answer'}`;
+  if (hintEl) hintEl.textContent = hint;
+}
+
+function clearQR() {
+  const canvas = document.getElementById('qr-canvas');
+  const ctx = canvas.getContext('2d');
+  if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const hintEl = document.getElementById('qr-hint');
+  if (hintEl) hintEl.textContent = 'connected ✓';
+  const wrap = document.getElementById('qr-wrap');
+  if (wrap) wrap.className = 'qr-wrap';
+}
+
+// ── QR Scanner ────────────────────────────────────────────
+async function openScanner() {
+  const overlay = document.getElementById('scan-overlay');
+  const video   = document.getElementById('scan-video');
+  const canvas  = document.getElementById('scan-canvas');
+
+  try {
+    scanStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    video.srcObject = scanStream;
+    overlay.classList.add('active');
+
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+    function tick() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width  = video.videoWidth;
+        canvas.height = video.videoHeight;
+        ctx.drawImage(video, 0, 0);
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const code = jsQR(imgData.data, imgData.width, imgData.height, {
+          inversionAttempts: 'dontInvert',
+        });
+        if (code && code.data) {
+          handleScannedSDP(code.data);
+          closeScanner();
+          return;
+        }
+      }
+      scanAnimFrame = requestAnimationFrame(tick);
+    }
+    scanAnimFrame = requestAnimationFrame(tick);
+  } catch {
+    alert('Camera access denied or unavailable.');
+  }
+}
+
+function closeScanner() {
+  const overlay = document.getElementById('scan-overlay');
+  overlay.classList.remove('active');
+
+  if (scanAnimFrame) { cancelAnimationFrame(scanAnimFrame); scanAnimFrame = null; }
+  if (scanStream) {
+    scanStream.getTracks().forEach(t => t.stop());
+    scanStream = null;
+  }
+  const video = document.getElementById('scan-video');
+  if (video) video.srcObject = null;
+}
+
+function handleScannedSDP(raw) {
+  let sdpData;
+  try { sdpData = JSON.parse(raw); } catch { return; }
+
+  if (peerInstance && !peerConnected) {
+    // We are the initiator: signal the existing peer with the answer
+    try { peerInstance.signal(sdpData); } catch { /* malformed SDP */ }
+  } else if (!peerInstance) {
+    // We are the responder: create a new peer and signal with the offer
+    const peer = new SimplePeer({
+      initiator: false,
+      trickle: false,
+      config: { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] },
+    });
+
+    peerInstance = peer;
+
+    peer.on('signal', data => {
+      const ansStr = JSON.stringify(data);
+      showQR(ansStr, 'answer', 'green — show this to peer');
+      setConnectStatus('pending', 'show this to peer');
+      switchScreen('connect');
+    });
+
+    peer.on('connect', () => {
+      peerConnected = true;
+      setConnectStatus('connected', 'connected');
+      updatePeerIndicatorLive(true);
+      clearQR();
+    });
+
+    peer.on('data', buf => {
+      handleIncomingDotBytes(new Uint8Array(buf));
+    });
+
+    peer.on('close', () => {
+      peerConnected = false;
+      peerInstance = null;
+      setConnectStatus('disconnected', 'disconnected');
+      updatePeerIndicatorLive(false);
+      initOffer();
+    });
+
+    peer.on('error', () => { peerConnected = false; });
+
+    try { peer.signal(sdpData); } catch { /* malformed SDP */ }
+  }
+}
+
+// ── Start ─────────────────────────────────────────────────
+boot().catch(err => {
+  document.getElementById('genesis-status').textContent = `boot error: ${err.message}`;
+});
+
+</script>
+</body>
+</html>
