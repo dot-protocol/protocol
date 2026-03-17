@@ -47,7 +47,7 @@ const PKCS8_PREFIX = new Uint8Array([
 function _signedBytes(buf) {
   const out = new Uint8Array(SIGNED_SIZE);
   out.set(buf.subarray(PUBKEY_OFF, PUBKEY_OFF + 32), 0);   // pubkey
-  out.set(buf.subarray(CHAIN_OFF), 32);                    // chain + ts + type + payload
+  out.set(buf.subarray(CHAIN_OFF, CHAIN_OFF + 57), 32);    // chain + ts + type + payload
   return out;
 }
 
@@ -150,6 +150,7 @@ export function toBytes(dot) {
   buf.set(dot.sig,     SIG_OFF);
   buf.set(dot.chain,   CHAIN_OFF);
   const tsView = new DataView(buf.buffer, TS_OFF, 8);
+  if (dot.ts == null || !Number.isFinite(dot.ts)) throw new Error(`toBytes: invalid ts value: ${dot.ts}`);
   tsView.setBigInt64(0, BigInt(dot.ts), false);
   buf[TYPE_OFF] = dot.type;
   buf.set(dot.payload, PAYLOAD_OFF);
@@ -259,6 +260,7 @@ export function dotToHex(buf) {
 
 /** Decode hex string to Uint8Array */
 export function dotFromHex(hex) {
+  if (hex.length % 2 !== 0) throw new Error('dotFromHex: hex string must have even length');
   const out = new Uint8Array(hex.length / 2);
   for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
   return out;
@@ -283,6 +285,7 @@ export function packSensorPayload({ lat = 0, lng = 0, accelMag = 0, pressure = 0
 
 /** Unpack a 16-byte payload back into sensor readings */
 export function unpackSensorPayload(bytes) {
+  if (bytes.length < 16) throw new Error('unpackSensorPayload: payload must be at least 16 bytes');
   const v = new DataView(bytes.buffer, bytes.byteOffset, 16);
   return {
     lat:      v.getFloat32(0, false),

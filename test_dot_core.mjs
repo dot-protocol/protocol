@@ -129,8 +129,8 @@ await run('3. Signature verification', async () => {
   const tamperedTs = fromBytes(tamper(toBytes(dot), 128, (toBytes(dot)[128] ^ 0xff)));
   assert(!await verifyDot(tamperedTs), '3f tampered timestamp fails verify');
 
-  // tamper type byte (byte 136)
-  const tamperedType = fromBytes(tamper(toBytes(dot), 136, 0x03));
+  // tamper type byte (byte 136) — bit-flip guarantees change regardless of original type
+  const tamperedType = fromBytes(tamper(toBytes(dot), 136, dot.type ^ 0x01));
   assert(!await verifyDot(tamperedType), '3g tampered type byte fails verify');
 });
 
@@ -498,6 +498,48 @@ await run('20. Mixed-author chain', async () => {
   // Confirm they ARE different authors
   assert(!Array.from(dot0.pubkey).every((v, i) => v === dot1.pubkey[i]),
     '20d dot0 and dot1 have different pubkeys (different authors)');
+});
+
+// ── TEST 21: fromBytes bad input ───────────────────────────────────────────
+
+await run('21. fromBytes bad input', async () => {
+  let threw100 = false;
+  let msg100 = '';
+  try {
+    fromBytes(new Uint8Array(100));
+  } catch (e) {
+    threw100 = true;
+    msg100 = e.message;
+  }
+  assert(threw100, '21a fromBytes(100-byte array) throws');
+  assert(msg100.includes('153'), '21b error message mentions 153 bytes');
+
+  let threw200 = false;
+  let msg200 = '';
+  try {
+    fromBytes(new Uint8Array(200));
+  } catch (e) {
+    threw200 = true;
+    msg200 = e.message;
+  }
+  assert(threw200, '21c fromBytes(200-byte array) throws');
+  assert(msg200.includes('153'), '21d error message mentions 153 bytes');
+});
+
+// ── TEST 22: ping() ────────────────────────────────────────────────────────
+
+await run('22. ping()', async () => {
+  const kp = await createKeypair();
+  const dot = await ping(kp);
+
+  // chain field must be 32 zero bytes (genesis)
+  assert(dot.chain.every(b => b === 0), '22a ping() chain field is all zero bytes');
+
+  // payload must be all zeros
+  assert(dot.payload.every(b => b === 0), '22b ping() payload is all zeros');
+
+  // signature must verify
+  assert(await verifyDot(dot), '22c ping() signature verifies');
 });
 
 // ── Summary ────────────────────────────────────────────────────────────────
