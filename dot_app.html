@@ -762,6 +762,7 @@ function setStatus(msg) {
 }
 
 async function beginWorldline() {
+  if (!db) { setStatus('error: database unavailable'); return; }
   document.getElementById('genesis-begin-btn').disabled = true;
   setStatus('saving…');
 
@@ -802,9 +803,12 @@ function switchScreen(name) {
 }
 
 // ── Sensors ───────────────────────────────────────────────
+let _geoWatchId = null;
+
 function startGeo() {
   if (!navigator.geolocation) return;
-  navigator.geolocation.watchPosition(
+  if (_geoWatchId !== null) return;
+  _geoWatchId = navigator.geolocation.watchPosition(
     pos => {
       pulseValue('sv-lat',  fmtCoord(pos.coords.latitude));
       pulseValue('sv-lng',  fmtCoord(pos.coords.longitude));
@@ -821,13 +825,16 @@ function startGeo() {
 }
 
 function startMotion() {
-  window.addEventListener('devicemotion', e => {
-    const a = e.accelerationIncludingGravity;
-    if (!a) return;
-    const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
-    sensors.accel = mag;
-    pulseValue('sv-accel', mag.toFixed(1));
-  });
+  if (!window._dotMotionStarted) {
+    window._dotMotionStarted = true;
+    window.addEventListener('devicemotion', e => {
+      const a = e.accelerationIncludingGravity;
+      if (!a) return;
+      const mag = Math.sqrt((a.x||0)**2 + (a.y||0)**2 + (a.z||0)**2);
+      sensors.accel = mag;
+      pulseValue('sv-accel', mag.toFixed(1));
+    });
+  }
 }
 
 async function requestMotionPermission() {
@@ -897,7 +904,7 @@ async function createSensorDot() {
     // UI feedback
     flashSensorCard();
     updateLiveCount();
-    renderChain();
+    appendChainEntry(dot, false);
 
     // Stream to peer if connected
     if (peerInstance && peerConnected) {
@@ -1143,7 +1150,8 @@ async function openScanner() {
       scanAnimFrame = requestAnimationFrame(tick);
     }
     scanAnimFrame = requestAnimationFrame(tick);
-  } catch {
+  } catch (err) {
+    if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
     alert('Camera access denied or unavailable.');
   }
 }
@@ -1168,6 +1176,9 @@ function handleScannedSDP(raw) {
   if (peerInstance && !peerConnected) {
     // We are the initiator: signal the existing peer with the answer
     try { peerInstance.signal(sdpData); } catch { /* malformed SDP */ }
+  } else if (peerInstance && peerConnected) {
+    // Already connected — scan was ignored
+    setConnectStatus('connected', 'already connected');
   } else if (!peerInstance) {
     // We are the responder: create a new peer and signal with the offer
     const peer = new SimplePeer({
