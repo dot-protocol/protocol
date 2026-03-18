@@ -17,10 +17,17 @@
     "test:vectors": "vitest run src/tests/vectors.test.ts",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dot-protocol", "ed25519", "cryptography"],
+  "keywords": [
+    "dot-protocol",
+    "ed25519",
+    "cryptography"
+  ],
   "license": "MIT",
   "doi": "10.5281/zenodo.18946074",
   "devDependencies": {
     "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "@noble/curves": "^2.0.1"
   }
 }
