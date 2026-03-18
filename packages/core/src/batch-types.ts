@@ -7,7 +7,7 @@
 
 export const BATCH_VERSION_ED25519 = 0x01;
 export const BATCH_VERSION_BLS = 0x02;
-export const BATCH_HEADER_SIZE = 43; // 1 + 2 + 32 + 8
+export const BATCH_HEADER_SIZE = 44; // 1 + 2 + 32 + 8 + 1 (version + count + pubkey + baseTs + baseType)
 export const TS_DELTA_ESCAPE = 0xFF;
 
 export interface BatchHeader {
