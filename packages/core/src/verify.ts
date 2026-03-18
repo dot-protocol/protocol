@@ -1,14 +1,6 @@
 import type { DOT } from './types.js';
-import { toBytes, signedBytes } from './bytes.js';
+import { toBytes, signedBytes, toArrayBuffer } from './bytes.js';
 import { importPublicKey } from './keypair.js';
-
-/** Ensure a Uint8Array has its own ArrayBuffer (required by Web Crypto API under strict TS). */
-function toArrayBuffer(arr: Uint8Array): ArrayBuffer {
-  if (arr.byteOffset === 0 && arr.byteLength === arr.buffer.byteLength) {
-    return arr.buffer as ArrayBuffer;
-  }
-  return arr.slice(0).buffer as ArrayBuffer;
-}
 
 export async function verifyDOT(dot: DOT): Promise<boolean> {
   try {

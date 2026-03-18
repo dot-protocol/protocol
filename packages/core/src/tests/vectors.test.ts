@@ -2,12 +2,20 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { createKeypair } from '../index.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const vectorsPath = join(__dirname, '../../../../test_vectors/test_vectors.json');
 
+interface KeyMaterialEntry {
+  seed_hex: string;
+  ed25519_public_hex: string;
+  x25519_public_hex?: string;
+}
+
 interface VectorFile {
   meta?: { protocol?: string; version?: string };
+  key_material?: Record<string, KeyMaterialEntry>;
   vectors?: Array<{
     id: string;
     description: string;
@@ -53,5 +61,33 @@ describe('test vectors', () => {
     // v2 DOTs have variable size (133, 212, etc.) vs v1 fixed 153 bytes
     const isV2Format = v.expect.dot_size_bytes !== 153;
     expect(isV2Format).toBe(true);
+  });
+});
+
+describe('key_material vectors', () => {
+  const km = vectorFile.key_material;
+
+  it('derives Alice public key from seed', async () => {
+    if (!km?.alice) return;
+    const seedBytes = Uint8Array.from(
+      km.alice.seed_hex.match(/.{2}/g)!.map((b) => parseInt(b, 16))
+    );
+    const kp = await createKeypair(seedBytes);
+    const pubHex = Array.from(kp.publicKey)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    expect(pubHex).toBe(km.alice.ed25519_public_hex);
+  });
+
+  it('derives Bob public key from seed', async () => {
+    if (!km?.bob) return;
+    const seedBytes = Uint8Array.from(
+      km.bob.seed_hex.match(/.{2}/g)!.map((b) => parseInt(b, 16))
+    );
+    const kp = await createKeypair(seedBytes);
+    const pubHex = Array.from(kp.publicKey)
+      .map((b) => b.toString(16).padStart(2, '0'))
+      .join('');
+    expect(pubHex).toBe(km.bob.ed25519_public_hex);
   });
 });

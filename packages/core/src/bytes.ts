@@ -35,3 +35,11 @@ export function signedBytes(buf: Uint8Array): Uint8Array {
   out.set(buf.subarray(OFF.CHAIN, DOT_SIZE), 32);
   return out;
 }
+
+/** @internal Ensure a Uint8Array has its own ArrayBuffer (required by Web Crypto API under strict TS). */
+export function toArrayBuffer(arr: Uint8Array): ArrayBuffer {
+  if (arr.byteOffset === 0 && arr.byteLength === arr.buffer.byteLength) {
+    return arr.buffer as ArrayBuffer;
+  }
+  return arr.slice(0).buffer as ArrayBuffer;
+}

@@ -1,17 +1,9 @@
 import { DotType, OFF, DOT_SIZE, PAYLOAD_SIZE, CHAIN_SIZE } from './types.js';
 import type { DOT, CreateDOTInput } from './types.js';
-import { toBytes, fromBytes, signedBytes } from './bytes.js';
+import { toBytes, fromBytes, signedBytes, toArrayBuffer } from './bytes.js';
 import { importPrivateKey } from './keypair.js';
 
 const enc = new TextEncoder();
-
-/** Ensure a Uint8Array has its own ArrayBuffer (required by Web Crypto API under strict TS). */
-function toArrayBuffer(arr: Uint8Array): ArrayBuffer {
-  if (arr.byteOffset === 0 && arr.byteLength === arr.buffer.byteLength) {
-    return arr.buffer as ArrayBuffer;
-  }
-  return arr.slice(0).buffer as ArrayBuffer;
-}
 
 export async function createDOT(input: CreateDOTInput): Promise<DOT> {
   const { keypair, type = DotType.PUBLIC, ts = Date.now() } = input;
