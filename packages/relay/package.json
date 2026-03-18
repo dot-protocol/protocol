@@ -1,0 +1,34 @@
+{
+  "name": "@dot-protocol/relay",
+  "version": "1.0.0",
+  "description": "CHORUS relay client and server for DOT Protocol.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "default": "./dist/server.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts src/server.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*"
+  },
+  "optionalDependencies": {
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "ws": "^8.18.0",
+    "@types/ws": "^8.18.0"
+  },
+  "license": "MIT"
+}
