@@ -1,0 +1,26 @@
+{
+  "name": "@dot-protocol/core",
+  "version": "1.0.0",
+  "description": "153-byte cryptographic observation format. Ed25519 + SHA-256. Zero dependencies.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "test:vectors": "vitest run src/tests/vectors.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["dot-protocol", "ed25519", "cryptography"],
+  "license": "MIT",
+  "doi": "10.5281/zenodo.18946074",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
