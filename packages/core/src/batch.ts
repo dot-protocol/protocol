@@ -491,8 +491,6 @@ export async function batchUnpackBLS(
 
   // Parse all entries first
   const entries: Array<{ ts: bigint; type: number; payload: Uint8Array }> = [];
-  const entryStartPos = pos;
-  void entryStartPos; // pos advances as we read
 
   for (let i = 0; i < count; i++) {
     // tsDelta
