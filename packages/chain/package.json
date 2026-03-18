@@ -1,0 +1,23 @@
+{
+  "name": "@dot-protocol/chain",
+  "version": "1.0.0",
+  "description": "DOT Protocol chain — append-only DOT worldline with pluggable storage.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*"
+  },
+  "license": "MIT"
+}
