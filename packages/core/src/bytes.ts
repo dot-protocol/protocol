@@ -32,6 +32,6 @@ export function signedBytes(buf: Uint8Array): Uint8Array {
   // pubkey(32) + chain(32) + ts(8) + type(1) + payload(16) = 89 bytes
   const out = new Uint8Array(89);
   out.set(buf.subarray(OFF.PUBKEY, OFF.PUBKEY + 32), 0);
-  out.set(buf.subarray(OFF.CHAIN), 32);
+  out.set(buf.subarray(OFF.CHAIN, DOT_SIZE), 32);
   return out;
 }
