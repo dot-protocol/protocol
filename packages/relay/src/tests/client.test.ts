@@ -135,4 +135,46 @@ describe('RelayClient state machine', () => {
     const subMsg = mockWS.sent.find(s => typeof s === 'string' && s.includes('"subscribe"'));
     expect(subMsg).toBeDefined();
   }));
+
+  it('pre-connect subscribe is replayed after authentication', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    // Subscribe BEFORE connecting
+    client.subscribe('early-bird-circle');
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    // Should have sent the subscribe after authentication
+    const subMsg = mockWS.sent.find(s => typeof s === 'string' && s.includes('early-bird-circle'));
+    expect(subMsg).toBeDefined();
+  }));
+
+  it('onFrame unsubscribe function removes handler', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    let callCount = 0;
+    const unsubscribe = client.onFrame(() => callCount++);
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    const dotBytes = new Uint8Array(DOT_SIZE).fill(0x42);
+    const frame = packFrame('c', dotBytes);
+    mockWS.receiveBinary(frame.buffer as ArrayBuffer);
+    expect(callCount).toBe(1);
+
+    // Remove the handler
+    unsubscribe();
+    mockWS.receiveBinary(frame.buffer as ArrayBuffer);
+    expect(callCount).toBe(1); // Should not increase
+  }));
 });

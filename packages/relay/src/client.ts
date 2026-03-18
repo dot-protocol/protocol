@@ -85,6 +85,9 @@ export class RelayClient {
 
   unsubscribe(circleId: string): void {
     this.subscribedCircles.delete(circleId);
+    if (this.status === 'connected' && this.ws) {
+      this.ws.send(JSON.stringify({ type: 'unsubscribe', circleId }));
+    }
   }
 
   sendFrame(circleId: string, dotBytes: Uint8Array): boolean {
