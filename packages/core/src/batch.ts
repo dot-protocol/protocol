@@ -27,6 +27,8 @@ import {
 
 /** SHA-256 of a Uint8Array. Always uses a fresh ArrayBuffer to satisfy Web Crypto. */
 async function sha256(data: Uint8Array): Promise<Uint8Array> {
+  // .slice(0) copies the bytes to own ArrayBuffer — Web Crypto requires the buffer
+  // to match the view's bounds exactly; sliced Uint8Arrays share a larger backing buffer.
   const buf = data.slice(0).buffer as ArrayBuffer;
   const hash = await crypto.subtle.digest('SHA-256', buf);
   return new Uint8Array(hash);
@@ -34,12 +36,12 @@ async function sha256(data: Uint8Array): Promise<Uint8Array> {
 
 /** Read big-endian uint64 from 8 bytes at offset in a DataView. */
 function readBigUint64BE(view: DataView, offset: number): bigint {
-  return view.getBigInt64(offset, false);
+  return view.getBigUint64(offset, false);
 }
 
 /** Write big-endian uint64 into a DataView at offset. */
 function writeBigUint64BE(view: DataView, offset: number, value: bigint): void {
-  view.setBigInt64(offset, value, false);
+  view.setBigUint64(offset, value, false);
 }
 
 // ---------------------------------------------------------------------------
@@ -73,7 +75,7 @@ export function batchPack(dots: Uint8Array[]): Uint8Array {
 
   // Extract base timestamp and base type from first DOT
   const firstView = new DataView(dots[0].slice(0).buffer as ArrayBuffer);
-  const baseTs = firstView.getBigInt64(OFF.TS, false);
+  const baseTs = firstView.getBigUint64(OFF.TS, false);
   const baseType = dots[0][OFF.TYPE];
 
   // Estimate max size: header + worst-case per entry (64 + 1 + 4 + 1 + 16 = 86 bytes each)
@@ -96,18 +98,8 @@ export function batchPack(dots: Uint8Array[]): Uint8Array {
   // baseType
   out[pos++] = baseType;
 
-  // pos should now equal BATCH_HEADER_SIZE = 43
-  // 1 + 2 + 32 + 8 = 43 ✓ (baseType adds 1 more = 44... wait, spec says 43 includes baseType)
-  // Let's check: BATCH_HEADER_SIZE is defined as 43 in batch-types.ts
-  // Header comment says: 1 + 2 + 32 + 8 = 43 (no baseType in that count)
-  // But the interface BatchHeader includes baseType, so 44 bytes.
-  // The spec in the prompt says: header = 43 bytes total including baseType.
-  // Re-check: version(1) + count(2) + pubkey(32) + baseTs(8) + baseType(1) = 44B
-  // BATCH_HEADER_SIZE = 43 in batch-types.ts comment says "1 + 2 + 32 + 8" = 43 (no baseType).
-  // We must be consistent: batchUnpack will read exactly what batchPack writes.
-  // We include baseType in our header (pos = 44 after this block). That's fine as long as
-  // batchUnpack also reads 44 bytes of header. We do NOT use BATCH_HEADER_SIZE constant
-  // for the starting offset — we use `pos` directly, so both sides are consistent.
+  // Verify header was written exactly as expected
+  if (pos !== BATCH_HEADER_SIZE) throw new Error(`Header size mismatch: expected ${BATCH_HEADER_SIZE}, got ${pos}`);
 
   // --- Write entries ---
   let prevTs = baseTs;
@@ -115,7 +107,7 @@ export function batchPack(dots: Uint8Array[]): Uint8Array {
   for (let i = 0; i < dots.length; i++) {
     const dot = dots[i];
     const dotView = new DataView(dot.slice(0).buffer as ArrayBuffer);
-    const ts = dotView.getBigInt64(OFF.TS, false);
+    const ts = dotView.getBigUint64(OFF.TS, false);
     const type = dot[OFF.TYPE];
 
     // sig (64 bytes)
@@ -127,7 +119,7 @@ export function batchPack(dots: Uint8Array[]): Uint8Array {
     if (delta < 0) {
       throw new Error(`batchPack: timestamp not monotonic at DOT[${i}]: delta=${delta}`);
     }
-    if (delta <= 254) {
+    if (delta <= 253) {
       out[pos++] = delta;
     } else {
       // escape: 0xFF + uint32 LE
@@ -176,6 +168,11 @@ export async function batchUnpack(
   }
 
   const count = frame[pos++] | (frame[pos++] << 8); // uint16 LE
+
+  // Validate minimum frame length before reading entries (Fix 6)
+  const minExpected = BATCH_HEADER_SIZE + count * (64 + 1 + 1 + 16); // Ed25519 entry size
+  if (frame.length < minExpected) throw new Error(`Frame too short: expected at least ${minExpected}B for ${count} entries, got ${frame.length}B`);
+
   const pubkey = frame.slice(pos, pos + PUBKEY_SIZE);
   pos += PUBKEY_SIZE;
 

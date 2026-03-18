@@ -55,13 +55,20 @@ describe('batch compression', () => {
     expect(() => batchPack([dot1, dot2])).toThrow();
   });
 
-  it('handles timestamp deltas > 255ms', async () => {
+  it('handles timestamp deltas > 255ms (escape encoding)', async () => {
     const keypair = await createKeypair();
-    const dot1 = toBytes(await createDOT({ keypair, payload: new Uint8Array(16), type: DotType.PUBLIC }));
-    await new Promise(r => setTimeout(r, 300));
-    const dot2 = toBytes(await createDOT({ keypair, payload: new Uint8Array(16), type: DotType.PUBLIC, previous: dot1 }));
+    const baseTs = Date.now();
+    // Force a 400ms gap via ts override — deterministic, no setTimeout
+    const dot1 = toBytes(await createDOT({ keypair, payload: new Uint8Array(16), type: DotType.PUBLIC, ts: baseTs }));
+    const dot2 = toBytes(await createDOT({ keypair, payload: new Uint8Array(16), type: DotType.PUBLIC, previous: dot1, ts: baseTs + 400 }));
 
     const frame = batchPack([dot1, dot2]);
+
+    // Verify escape byte 0xFF is present in the second entry's ts_delta slot.
+    // Header: 44B. Entry 0: sig(64) + tsDelta(1) + typeDelta(1) + payload(16) = 82B.
+    // Entry 1 starts at 44+82=126. Sig is 64B, so ts_delta byte is at 126+64=190.
+    expect(frame[190]).toBe(0xFF); // escape sentinel
+
     const unpacked = await batchUnpack(frame);
     expect(unpacked.length).toBe(2);
     expect(unpacked[0]).toEqual(dot1);
@@ -110,5 +117,14 @@ describe('batch compression', () => {
 
   it('rejects empty array', () => {
     expect(() => batchPack([])).toThrow();
+  });
+
+  it('rejects truncated frame in batchUnpack', async () => {
+    const keypair = await createKeypair();
+    const dot = toBytes(await createDOT({ keypair, payload: new Uint8Array(16), type: DotType.PUBLIC }));
+    const frame = batchPack([dot]);
+    // Truncate to half — should throw, not return garbage
+    const truncated = frame.slice(0, Math.floor(frame.length / 2));
+    await expect(batchUnpack(truncated)).rejects.toThrow();
   });
 });
