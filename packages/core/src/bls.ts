@@ -83,6 +83,7 @@ export function verifyBLS(
  * @param signatures - Array of 48-byte compressed G1 signatures
  */
 export function aggregateSignatures(signatures: Uint8Array[]): Uint8Array {
+  if (signatures.length === 0) throw new Error('aggregateSignatures requires at least one signature');
   const sigPoints = signatures.map(s => bls12_381.G1.Point.fromBytes(s));
   const aggPoint = ss.aggregateSignatures(sigPoints);
   return aggPoint.toBytes();
