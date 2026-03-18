@@ -1,4 +1,4 @@
-import { verifyDOT, checkChain, toBytes } from '@dot-protocol/core';
+import { checkChain } from '@dot-protocol/core';
 import type { DOT } from '@dot-protocol/core';
 import type { IChainStorage } from './storage.js';
 import { MemoryStorage } from './storage.js';
@@ -30,20 +30,10 @@ export async function appendDOT(chain: Chain, dot: DOT): Promise<void> {
   const head = await chain.storage.getHead();
   if (!head) throw new Error('Chain is empty — cannot append');
 
-  // Verify the chain link
-  const headBytes = toBytes(head);
-  const expectedChain = new Uint8Array(
-    await crypto.subtle.digest('SHA-256', headBytes.buffer as ArrayBuffer)
-  );
-  const actualChain = dot.chain;
-  const chainOk = expectedChain.every((b, i) => b === actualChain[i]);
-  if (!chainOk) {
-    throw new Error('Chain link broken: dot.chain does not hash from current head');
-  }
-
-  // Verify signature
-  if (!await verifyDOT(dot)) {
-    throw new Error('Invalid DOT signature');
+  // Delegate validation to core's checkChain — avoids reimplementing the invariant
+  const result = await checkChain([head, dot]);
+  if (!result.valid) {
+    throw new Error(`Cannot append: ${result.reason}`);
   }
 
   await chain.storage.append(dot);
@@ -69,7 +59,7 @@ export async function verifyChain(chain: Chain): Promise<ChainVerifyResult> {
 
   const result = await checkChain(dots);
   if (!result.valid) {
-    errors.push(result.reason);
+    errors.push(`${result.reason} (at index ${result.brokenAt})`);
   }
 
   return { valid: result.valid, length, head, errors };

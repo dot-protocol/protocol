@@ -49,7 +49,7 @@ describe('appendDOT', () => {
     const chain = await createChain(genesis);
     // Create a DOT that is NOT chained from genesis
     const unlinked = await createDOT({ keypair: kp });
-    await expect(appendDOT(chain, unlinked)).rejects.toThrow('Chain link broken');
+    await expect(appendDOT(chain, unlinked)).rejects.toThrow('Cannot append:');
   });
 
   it('throws when DOT has invalid signature', async () => {
