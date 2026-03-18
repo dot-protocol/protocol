@@ -19,8 +19,6 @@
   "dependencies": {
     "@dot-protocol/core": "workspace:*"
   },
-  "devDependencies": {
-    "@types/node": "^20.0.0"
-  },
+  "devDependencies": {},
   "license": "MIT"
 }

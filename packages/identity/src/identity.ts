@@ -38,7 +38,11 @@ function fromHex(hex: string): Uint8Array {
   return bytes;
 }
 
-/** Export identity as hex strings for storage. */
+/**
+ * Export identity as hex strings for storage.
+ * WARNING: The returned object contains the raw private key as a hex string.
+ * Never log, transmit, or persist this to an untrusted location.
+ */
 export function exportIdentity(id: Identity): ExportedIdentity {
   return {
     publicKey: toHex(id.keypair.publicKey),
