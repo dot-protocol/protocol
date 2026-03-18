@@ -1,0 +1,47 @@
+{
+  "name": "dot-protocol-workspace",
+  "version": "1.0.0",
+  "description": "153-byte cryptographic observation format. Ed25519 + SHA-256. Zero dependencies.",
+  "private": true,
+  "type": "module",
+  "main": "./js/dot.mjs",
+  "browser": "./js/dot.browser.mjs",
+  "exports": {
+    ".": {
+      "browser": "./js/dot.browser.mjs",
+      "default": "./js/dot.mjs"
+    },
+    "./browser": "./js/dot.browser.mjs",
+    "./cli": "./js/cli.mjs"
+  },
+  "bin": {
+    "dot": "./js/cli.mjs"
+  },
+  "files": [
+    "js/dot.mjs",
+    "js/dot.browser.mjs",
+    "js/cli.mjs",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test",
+    "test:vectors": "pnpm --filter @dot-protocol/core test:vectors",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "keywords": ["dot-protocol", "ed25519", "cryptography", "p2p", "worldline"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mevBlaze/dot-protocol"
+  },
+  "doi": "10.5281/zenodo.18946074",
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.0",
+    "tsdown": "^0.12.0"
+  }
+}
