@@ -13,6 +13,7 @@ import { LinearPredictor } from '@dot-protocol/compression';
 import type { FullIdentity } from './identity.js';
 import { createChain, appendToChain } from './chain.js';
 import type { Chain } from './chain.js';
+import { ecdh, encryptPayload } from './crypto.js';
 
 export interface Datom {
   /** Payload content. String auto-encoded to UTF-8, then truncated/hashed to 16B. */
@@ -111,7 +112,14 @@ export function createDotPhysics(identity: FullIdentity): DotPhysics {
       const predictor = predictors.get(chainId)!;
 
       // 1. Encode payload
-      const payload = await encodePayload(datom.WHAT);
+      let payload = await encodePayload(datom.WHAT);
+
+      // 1b. If WHO specified, encrypt payload for recipient
+      if (datom.WHO && datom.WHO.length === 32) {
+        const shared = ecdh(identity._privateKey, datom.WHO);
+        const chainPos = BigInt(chain.entries.length);
+        payload = encryptPayload(payload, shared, chainPos);
+      }
 
       // 2. Predictor accuracy tracking
       const predicted = predictor.predict();

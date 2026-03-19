@@ -20,6 +20,7 @@ import { getOrCreateIdentity, resetIdentityCache } from './identity.js';
 import { createDotPhysics } from './physics.js';
 import { createChain } from './chain.js';
 import { createRelay } from './relay.js';
+import { ecdh, decryptPayload } from './crypto.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
@@ -83,6 +84,16 @@ export interface EngineAPI {
 
   /** Emit an event (exposed for relay layer). */
   emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void;
+
+  /**
+   * Decrypt a DOT's payload using ECDH with the sender's public key.
+   * Returns the 16-byte plaintext payload, or null if identity not initialized.
+   *
+   * @param dotBytes - Raw 153-byte DOT
+   * @param senderPublicKey - The sender's Ed25519 public key (32 bytes)
+   * @param chainPos - Position of this DOT in the chain (for nonce derivation)
+   */
+  decryptDot(dotBytes: Uint8Array, senderPublicKey: Uint8Array, chainPos?: bigint): Uint8Array | null;
 
   /** Current stats. */
   stats(): EngineStats;
@@ -252,6 +263,13 @@ export const DOT: EngineAPI = {
 
   emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
     _emit(event, ...args);
+  },
+
+  decryptDot(dotBytes: Uint8Array, senderPublicKey: Uint8Array, chainPos: bigint = 0n): Uint8Array | null {
+    if (!_identity) return null;
+    const shared = ecdh(_identity._privateKey, senderPublicKey);
+    const encryptedPayload = dotBytes.slice(137, 153);
+    return decryptPayload(encryptedPayload, shared, chainPos);
   },
 
   stats(): EngineStats {

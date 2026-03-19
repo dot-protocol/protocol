@@ -11,16 +11,24 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dot-protocol", "engine", "game-engine", "compression", "identity"],
+  "keywords": [
+    "dot-protocol",
+    "engine",
+    "game-engine",
+    "compression",
+    "identity"
+  ],
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "vitest": "^2.0.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^2.0.0"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*",
     "@dot-protocol/compression": "workspace:*",
-    "@dot-protocol/relay": "workspace:*"
+    "@dot-protocol/core": "workspace:*",
+    "@dot-protocol/relay": "workspace:*",
+    "@noble/ciphers": "^2.1.1",
+    "@noble/curves": "^2.0.1"
   }
 }
