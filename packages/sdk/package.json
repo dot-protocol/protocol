@@ -1,0 +1,32 @@
+{
+  "name": "@dot-protocol/sdk",
+  "version": "1.0.0",
+  "description": "DOT Protocol SDK — one install for signing, compression, wrapping, and identity.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["dot-protocol", "sdk", "compression", "signing", "wrapper"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*",
+    "@dot-protocol/compression": "workspace:*",
+    "@dot-protocol/identity": "workspace:*",
+    "@dot-protocol/chain": "workspace:*",
+    "@dot-protocol/relay": "workspace:*",
+    "@dot-protocol/wrapper": "workspace:*"
+  }
+}
