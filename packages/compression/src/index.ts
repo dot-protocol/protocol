@@ -6,3 +6,5 @@ export * from './batch-v2.js';
 export * from './zstd.js';
 export * from './dictionary-registry.js';
 export * from './sample-generator.js';
+export * from './predictor.js';
+export * from './rans.js';
