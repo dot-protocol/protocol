@@ -21,6 +21,7 @@ import { createDotPhysics } from './physics.js';
 import { createChain } from './chain.js';
 import { createRelay } from './relay.js';
 import { ecdh, decryptPayload } from './crypto.js';
+import { createBatchCompressor } from './compress.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
@@ -116,6 +117,7 @@ let _listeners: Map<string, Handler[]> = new Map();
 let _booted = false;
 let _relayConnected = false;
 let _relay: RelayTransport | null = null;
+let _compressor = createBatchCompressor();
 
 function _emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
   const handlers = _listeners.get(event);
@@ -133,6 +135,7 @@ function _resetState(): void {
   _relayConnected = false;
   _relay = null;
   _booted = false;
+  _compressor = createBatchCompressor();
   resetIdentityCache();
 }
 
@@ -232,6 +235,9 @@ export const DOT: EngineAPI = {
 
     const dotBytes = await _physics.create(datom);
 
+    // Feed into compressor for stats tracking
+    _compressor.feed(dotBytes);
+
     // Sync chain into engine's public chains map
     const chainId = _identity.did;
     _chains.set(chainId, _physics.getChain(chainId));
@@ -280,8 +286,24 @@ export const DOT: EngineAPI = {
       predictorAccuracy: 0,
       compressionRatio: 1,
     };
+
+    // Get compression stats from the last 100 dots in the active chain
+    let compressionRatio = physicsStats.compressionRatio;
+    let predictorAccuracy = physicsStats.predictorAccuracy;
+    if (_identity) {
+      const chain = _chains.get(_identity.did);
+      if (chain && chain.entries.length > 0) {
+        const last100 = chain.entries.slice(-100).map(e => e.dot);
+        const compStats = _compressor.measure(last100);
+        compressionRatio = compStats.ratio;
+        predictorAccuracy = compStats.predictorAccuracy;
+      }
+    }
+
     return {
       ...physicsStats,
+      compressionRatio,
+      predictorAccuracy,
       relayConnected: _relay?.connected ?? false,
       peersOnline: _nearby.size,
     };
