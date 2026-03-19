@@ -93,6 +93,34 @@ export interface UnwrapOptions {
   blsPublicKey?: Uint8Array;
 }
 
+// ─── BridgeOptions / BridgeHandle ─────────────────────────────────────────────
+
+/** Options for bridge() */
+export interface BridgeOptions {
+  /** Port to listen on (default: 8100) */
+  port?: number;
+  /** Hostname to bind (default: '127.0.0.1') */
+  host?: string;
+  /** Target base URL to forward requests to (e.g., 'https://api.example.com') */
+  forward?: string;
+  /** Max request body size in bytes (default: 10MB) */
+  maxBodySize?: number;
+  /** BLS public key for verifying incoming DOT chains (optional) */
+  blsPublicKey?: Uint8Array;
+  /** Session for wrapping responses (optional — creates fresh if omitted) */
+  session?: WrapSession;
+}
+
+/** Handle returned by bridge() */
+export interface BridgeHandle {
+  /** Actual port the bridge is listening on */
+  readonly port: number;
+  /** Stop the bridge */
+  close(): Promise<void>;
+  /** Number of requests proxied so far */
+  readonly requestCount: number;
+}
+
 // ─── WrapSession ─────────────────────────────────────────────────────────────
 
 /** Stateful session — maintains chain and predictor context across multiple wrap() calls */

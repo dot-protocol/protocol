@@ -3,6 +3,7 @@
 export { wrap } from './wrap.js';
 export { unwrap } from './unwrap.js';
 export { createSession, createSessionFromKeypair } from './session.js';
+export { bridge, bridgeFetch } from './bridge.js';
 export type {
   WrappedChain,
   UnwrappedPayload,
@@ -10,5 +11,7 @@ export type {
   UnwrapOptions,
   WrapSession,
   Protocol,
+  BridgeOptions,
+  BridgeHandle,
 } from './types.js';
 export { DotType } from '@dot-protocol/core';
