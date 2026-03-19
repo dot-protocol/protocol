@@ -177,4 +177,175 @@ describe('RelayClient state machine', () => {
     mockWS.receiveBinary(frame.buffer as ArrayBuffer);
     expect(callCount).toBe(1); // Should not increase
   }));
+
+  it('sendFrame sends packed frame when connected (covers lines 95-97)', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(client.getStatus()).toBe('connected');
+    const dotBytes = new Uint8Array(DOT_SIZE).fill(0xAA);
+    const result = client.sendFrame('my-circle', dotBytes);
+
+    expect(result).toBe(true);
+    // Last sent item should be an ArrayBuffer (the packed frame)
+    const lastSent = mockWS.sent[mockWS.sent.length - 1];
+    expect(lastSent instanceof ArrayBuffer).toBe(true);
+    expect((lastSent as ArrayBuffer).byteLength).toBe(FRAME_SIZE);
+  }));
+
+  it('unsubscribe sends unsubscribe message when connected (covers lines 86-88)', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    // Subscribe first
+    client.subscribe('my-circle');
+    // Then unsubscribe — should send unsubscribe message
+    client.unsubscribe('my-circle');
+
+    const unsubMsg = mockWS.sent.find(s => typeof s === 'string' && s.includes('"unsubscribe"'));
+    expect(unsubMsg).toBeDefined();
+    const parsed = JSON.parse(unsubMsg as string);
+    expect(parsed.type).toBe('unsubscribe');
+    expect(parsed.circleId).toBe('my-circle');
+  }));
+
+  it('ping interval fires and sends ping (covers lines 138-140)', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    // Use a very short ping interval so the timer fires during the test
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 50 });
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(client.getStatus()).toBe('connected');
+
+    // Wait for the ping interval to fire (> 50ms)
+    await new Promise(r => setTimeout(r, 120));
+
+    const pingMsg = mockWS.sent.find(s => typeof s === 'string' && s.includes('"ping"'));
+    expect(pingMsg).toBeDefined();
+    const parsed = JSON.parse(pingMsg as string);
+    expect(parsed.type).toBe('ping');
+
+    client.disconnect();
+  }));
+
+  it('onclose clears ping timer and disconnects (covers lines 149-151)', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    const statuses: string[] = [];
+    client.onStatus(s => statuses.push(s));
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(client.getStatus()).toBe('connected');
+
+    // Simulate server closing the connection
+    mockWS.close();
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(client.getStatus()).toBe('disconnected');
+    expect(statuses).toContain('disconnected');
+  }));
+
+  it('reconnects after disconnect when reconnect=true (covers lines 151-153)', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    // Short reconnect delay so the test doesn't take long
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: true, reconnectDelayMs: 50, pingIntervalMs: 999999 });
+
+    const statuses: string[] = [];
+    client.onStatus(s => statuses.push(s));
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    // Simulate server closing — should trigger reconnect
+    mockWS.close();
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(statuses).toContain('disconnected');
+
+    // After reconnect delay, _open() is called again → status goes to 'connecting'
+    await new Promise(r => setTimeout(r, 100));
+    expect(statuses).toContain('connecting');
+
+    client.disconnect();
+  }));
+
+  it('onStatus unsubscribe removes handler', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    let callCount = 0;
+    const unsubscribe = client.onStatus(() => callCount++);
+    unsubscribe();
+
+    client.connect(kp);
+    mockWS.open();
+
+    // Status changed but handler was removed — count should stay 0
+    expect(callCount).toBe(0);
+  }));
+
+  it('ignores incoming binary frame with wrong size', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    let frameCount = 0;
+    client.onFrame(() => frameCount++);
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    // Send a binary frame that is NOT FRAME_SIZE bytes — should be silently ignored
+    const wrongFrame = new ArrayBuffer(100);
+    mockWS.receiveBinary(wrongFrame);
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(frameCount).toBe(0);
+  }));
+
+  it('ignores malformed JSON text messages', withMockWS(async (mockWS) => {
+    const { createKeypair } = await import('@dot-protocol/core');
+    const kp = await createKeypair();
+    const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
+
+    client.connect(kp);
+    mockWS.open();
+    mockWS.receive({ type: 'authenticated', pubHex: 'abc' });
+    await new Promise(r => setTimeout(r, 10));
+
+    // Send malformed JSON — should not crash
+    mockWS.onmessage?.({ data: 'this is not json {{{' });
+    await new Promise(r => setTimeout(r, 10));
+
+    expect(client.getStatus()).toBe('connected');
+  }));
 });

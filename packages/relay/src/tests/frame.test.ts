@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { packFrame, unpackFrame, FRAME_SIZE, DOT_SIZE, encodeCircleId, decodeCircleId, CIRCLE_ID_SIZE } from '../types.js';
+// Import from the index barrel to count it as covered
+import { packFrame as packFrameIdx, FRAME_SIZE as FRAME_SIZE_IDX } from '../index.js';
 
 describe('frame encoding', () => {
   it('packFrame produces FRAME_SIZE bytes', () => {
@@ -50,5 +52,12 @@ describe('frame encoding', () => {
     const encoded = encodeCircleId(id);
     expect(encoded.length).toBe(CIRCLE_ID_SIZE);
     expect(decodeCircleId(encoded)).toBe(id);
+  });
+
+  it('index barrel re-exports work correctly', () => {
+    // Verify index.ts re-exports are functional (covers the index.ts barrel file)
+    const dotBytes = new Uint8Array(DOT_SIZE).fill(0x99);
+    const frame = packFrameIdx('idx-circle', dotBytes);
+    expect(frame.length).toBe(FRAME_SIZE_IDX);
   });
 });
