@@ -24,6 +24,7 @@ import { ecdh, decryptPayload } from './crypto.js';
 import { createBatchCompressor } from './compress.js';
 import { createWatchdog } from './watchdog.js';
 import { computeStatus, computeTrend } from './health.js';
+import { createBLETransport } from './ble.js';
 import { signBLS, aggregateSignatures, verifyAggregateSameSigner } from '@dot-protocol/core';
 import { bls12_381 as blsCurve } from '@noble/curves/bls12-381.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
@@ -32,6 +33,7 @@ import type { Datom, PhysicsStats } from './physics.js';
 import type { RelayTransport } from './relay.js';
 import type { HealthReport } from './health.js';
 import type { Watchdog } from './watchdog.js';
+import type { BLETransport } from './ble.js';
 
 export type { Datom, PhysicsStats };
 export type { DotIdentity };
@@ -46,12 +48,20 @@ export interface EngineOptions {
   offline?: boolean;
   /** Auto-seal every N DOTs. 0 = manual only (default). */
   sealEvery?: number;
+  /**
+   * BLE transport for peer discovery.
+   * If provided and available, the engine will attempt BLE peer scan in the
+   * background after boot, adding found peers to _nearby and emitting 'peer'.
+   */
+  ble?: BLETransport;
 }
 
 export interface PeerInfo {
   did: string;
   publicKey: Uint8Array;
   lastSeen: number;
+  /** How this peer was discovered. */
+  connectedVia: 'relay' | 'ble' | 'qr';
 }
 
 export interface EngineStats extends PhysicsStats {
@@ -231,6 +241,7 @@ async function _connectRelay(url: string, identity: FullIdentity): Promise<void>
         did,
         publicKey: publicKey ?? new Uint8Array(32),
         lastSeen: Date.now(),
+        connectedVia: 'relay',
       };
       _nearby.set(peer.did, peer);
       _emit('peer', peer);
@@ -335,6 +346,29 @@ export const DOT: EngineAPI = {
 
     // Record initial relay state
     _watchdog.recordRelay(_relayConnected);
+
+    // BLE peer discovery — background, non-blocking
+    const bleTransport = options?.ble ?? createBLETransport();
+    if (bleTransport.isAvailable()) {
+      // Fire-and-forget: scan runs in background and adds peers as found
+      void (async () => {
+        try {
+          const peer = await bleTransport.scan(30_000);
+          if (peer && _booted) {
+            const peerInfo: PeerInfo = {
+              did: peer.did,
+              publicKey: peer.publicKey,
+              lastSeen: peer.connectedAt,
+              connectedVia: 'ble',
+            };
+            _nearby.set(peerInfo.did, peerInfo);
+            _emit('peer', peerInfo);
+          }
+        } catch {
+          // BLE scan failure is non-fatal
+        }
+      })();
+    }
 
     _emit('ready');
   },
