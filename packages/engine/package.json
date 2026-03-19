@@ -1,0 +1,25 @@
+{
+  "name": "@dot-protocol/engine",
+  "version": "0.1.0",
+  "description": "DOT Game Engine — physics for the DOT universe. Identity. Proof. Compression. Chains. Automatic.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["dot-protocol", "engine", "game-engine", "compression", "identity"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "vitest": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*",
+    "@dot-protocol/compression": "workspace:*"
+  }
+}
