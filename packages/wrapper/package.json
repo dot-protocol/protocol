@@ -19,13 +19,22 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dot-protocol", "wrapper", "compression", "signing"],
+  "keywords": [
+    "dot-protocol",
+    "wrapper",
+    "compression",
+    "signing"
+  ],
   "license": "MIT",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "files": ["dist", "src", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0"
   },

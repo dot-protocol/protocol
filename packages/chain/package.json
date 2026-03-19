@@ -1,7 +1,7 @@
 {
   "name": "@dot-protocol/chain",
   "version": "0.2.0",
-  "description": "DOT Protocol chain — append-only DOT worldline with pluggable storage.",
+  "description": "DOT Protocol chain \u2014 append-only DOT worldline with pluggable storage.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -27,5 +27,9 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "files": ["dist", "src", "README.md", "LICENSE"]
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }

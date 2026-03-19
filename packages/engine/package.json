@@ -1,7 +1,7 @@
 {
   "name": "@dot-protocol/engine",
   "version": "0.2.0",
-  "description": "DOT Game Engine — physics for the DOT universe. Identity. Proof. Compression. Chains. Automatic.",
+  "description": "DOT Game Engine \u2014 physics for the DOT universe. Identity. Proof. Compression. Chains. Automatic.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -31,7 +31,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "files": ["dist", "src", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0",
     "typescript": "^5.4.5",

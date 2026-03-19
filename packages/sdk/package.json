@@ -1,7 +1,7 @@
 {
   "name": "@dot-protocol/sdk",
   "version": "0.2.0",
-  "description": "DOT Protocol SDK — one install for signing, compression, wrapping, and identity.",
+  "description": "DOT Protocol SDK \u2014 one install for signing, compression, wrapping, and identity.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -19,13 +19,23 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dot-protocol", "sdk", "compression", "signing", "wrapper"],
+  "keywords": [
+    "dot-protocol",
+    "sdk",
+    "compression",
+    "signing",
+    "wrapper"
+  ],
   "license": "MIT",
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "files": ["dist", "src", "README.md", "LICENSE"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "devDependencies": {
     "@types/node": "^20.0.0"
   },

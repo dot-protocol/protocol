@@ -1,7 +1,7 @@
 {
   "name": "@dot-protocol/kin",
   "version": "0.1.0",
-  "description": "Kin MCP server — DOT protocol tools for any MCP-compatible AI agent.",
+  "description": "Kin MCP server \u2014 DOT protocol tools for any MCP-compatible AI agent.",
   "type": "module",
   "bin": {
     "dot-kin": "./dist/index.js"
@@ -12,7 +12,11 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist", "src", "README.md"],
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsdown",
     "dev": "node --watch dist/index.js",
@@ -20,7 +24,12 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "keywords": ["dot-protocol", "mcp", "kin", "ai-agent"],
+  "keywords": [
+    "dot-protocol",
+    "mcp",
+    "kin",
+    "ai-agent"
+  ],
   "license": "MIT",
   "publishConfig": {
     "access": "public",
