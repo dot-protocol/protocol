@@ -1,7 +1,7 @@
 {
-  "name": "@dot-protocol/engine",
+  "name": "dot-protocol",
   "version": "0.2.0",
-  "description": "DOT Game Engine \u2014 physics for the DOT universe. Identity. Proof. Compression. Chains. Automatic.",
+  "description": "DOT — 153-byte cryptographic primitive. Identity, signing, chaining, compression, encryption, and BLS sealing. Automatic.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -21,10 +21,13 @@
   },
   "keywords": [
     "dot-protocol",
-    "engine",
-    "game-engine",
+    "cryptography",
+    "ed25519",
+    "bls12-381",
     "compression",
-    "identity"
+    "identity",
+    "chain",
+    "mcp"
   ],
   "license": "MIT",
   "publishConfig": {

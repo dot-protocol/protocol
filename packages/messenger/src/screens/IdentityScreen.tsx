@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
-import type { PeerInfo } from '@dot-protocol/engine';
+import type { PeerInfo } from 'dot-protocol';
 
 interface Props {
   did: string;

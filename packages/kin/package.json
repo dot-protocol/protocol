@@ -1,7 +1,7 @@
 {
-  "name": "@dot-protocol/kin",
+  "name": "dot-protocol-kin",
   "version": "0.1.0",
-  "description": "Kin MCP server \u2014 DOT protocol tools for any MCP-compatible AI agent.",
+  "description": "DOT MCP server — 11 tools for AI agents. Boot, create, sign, chain, encrypt, seal, verify.",
   "type": "module",
   "bin": {
     "dot-kin": "./dist/index.js"
@@ -36,7 +36,7 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "@dot-protocol/engine": "workspace:*",
+    "dot-protocol": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.27.1",
     "zod": "^3.24.0"
   },

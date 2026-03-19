@@ -26,10 +26,6 @@
     "signing"
   ],
   "license": "MIT",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "files": [
     "dist",
     "README.md",
@@ -42,5 +38,6 @@
     "@dot-protocol/core": "workspace:*",
     "@dot-protocol/compression": "workspace:*",
     "@noble/curves": "^2.0.1"
-  }
+  },
+  "private": true
 }

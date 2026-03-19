@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@dot-protocol/engine": "workspace:*",
+    "dot-protocol": "workspace:*",
     "jsqr": "^1.4.0",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",

@@ -27,10 +27,6 @@
     "wrapper"
   ],
   "license": "MIT",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "files": [
     "dist",
     "README.md",
@@ -46,5 +42,6 @@
     "@dot-protocol/chain": "workspace:*",
     "@dot-protocol/relay": "workspace:*",
     "@dot-protocol/wrapper": "workspace:*"
-  }
+  },
+  "private": true
 }

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# DOT Protocol — publish all 8 packages to npm
+# DOT Protocol — publish 2 packages to npm
 # Run from: projects/dot-protocol/
 # Usage: ./scripts/publish-all.sh [--dry-run]
 
@@ -11,29 +11,31 @@ if [ "$1" = "--dry-run" ]; then
   echo "Dry run mode"
 fi
 
+# Internal packages (core, chain, compression, identity, relay, wrapper, sdk)
+# are private — they build but don't publish separately.
+# Only 2 packages reach npm:
 PACKAGES=(
-  "packages/core"
-  "packages/compression"
-  "packages/chain"
-  "packages/identity"
-  "packages/relay"
-  "packages/wrapper"
-  "packages/sdk"
-  "packages/engine"
+  "packages/engine"   # → dot-protocol
+  "packages/kin"      # → dot-protocol-kin
 )
 
 echo "Building all packages..."
 pnpm -r build
 
 echo "Running tests..."
-pnpm -r test
+pnpm --filter dot-protocol test
 
-echo "Publishing packages..."
+echo ""
 for pkg in "${PACKAGES[@]}"; do
-  echo "Publishing $pkg..."
+  name=$(node -p "require('./$pkg/package.json').name")
+  version=$(node -p "require('./$pkg/package.json').version")
+  echo "Publishing $name@$version..."
   cd "$pkg"
   npm publish --access public $DRY_RUN
-  cd -
+  cd ../..
 done
 
-echo "All packages published"
+echo ""
+echo "Published:"
+echo "  npm install dot-protocol"
+echo "  npm install dot-protocol-kin"

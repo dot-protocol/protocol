@@ -27,10 +27,6 @@
   ],
   "license": "MIT",
   "doi": "10.5281/zenodo.18946074",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "files": [
     "dist",
     "README.md",
@@ -41,5 +37,6 @@
   },
   "dependencies": {
     "@noble/curves": "^2.0.1"
-  }
+  },
+  "private": true
 }

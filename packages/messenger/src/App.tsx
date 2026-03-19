@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { DOT, type PeerInfo } from '@dot-protocol/engine';
+import { DOT, type PeerInfo } from 'dot-protocol';
 import { BootScreen } from './screens/BootScreen.js';
 import { IdentityScreen } from './screens/IdentityScreen.js';
 import { ChatScreen } from './screens/ChatScreen.js';

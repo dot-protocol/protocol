@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DOT } from '@dot-protocol/engine';
+import { DOT } from 'dot-protocol';
 
 interface Props {
   onBack: () => void;

@@ -36,13 +36,10 @@
     "ws": "^8.18.0"
   },
   "license": "MIT",
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
-  ]
+  ],
+  "private": true
 }
