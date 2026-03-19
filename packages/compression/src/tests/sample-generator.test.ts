@@ -78,13 +78,13 @@ describe('generateSensorStream', () => {
     }
   });
 
-  it('GPS payloads stay near Mumbai — lat ±0.5° and lon ±0.5°', async () => {
+  it('GPS payloads stay near Mumbai — lat ±0.02° and lon ±0.02°', async () => {
     const dots = await generateSensorStream({ count: 20, profile: 'gps' });
     for (const dot of dots) {
       const lat = readFloat32LE(dot, 137);
       const lon = readFloat32LE(dot, 141);
-      expect(Math.abs(lat - 19.076)).toBeLessThan(0.5);
-      expect(Math.abs(lon - 72.877)).toBeLessThan(0.5);
+      expect(Math.abs(lat - 19.076)).toBeLessThan(0.02);
+      expect(Math.abs(lon - 72.877)).toBeLessThan(0.02);
     }
   });
 

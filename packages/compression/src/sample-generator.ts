@@ -64,19 +64,6 @@ function gpsPayload(i: number, baseTs: bigint): { payload: Uint8Array; ts: bigin
   return { payload, ts, type: DotType.PUBLIC };
 }
 
-/** Build payload + ts + type for random profile. */
-function randomPayload(count: number, baseTs: bigint): { payload: Uint8Array; ts: bigint; type: DotType } {
-  const payload = new Uint8Array(16);
-  crypto.getRandomValues(payload);
-  // Random spread over last 24h, but still monotonically increasing per-call
-  // ts is provided externally for random so we just add a random jitter here
-  const spreadMs = 24 * 60 * 60 * 1000; // 24h in ms
-  const ts = baseTs + BigInt(Math.round(Math.random() * spreadMs / Math.max(count, 1)));
-  const typeVal = Math.floor(Math.random() * 4); // 0x00..0x03
-  const type = typeVal as DotType;
-  return { payload, ts, type };
-}
-
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 /**
@@ -126,8 +113,8 @@ export async function generateSensorStream(
         crypto.getRandomValues(rPay);
         payload = rPay;
         ts = randomAccumTs;
-        const typeVal = Math.floor(Math.random() * 4) as DotType;
-        type = typeVal;
+        const VALID_TYPES: DotType[] = [DotType.PUBLIC, DotType.CIRCLE, DotType.PRIVATE, DotType.EPHEMERAL];
+        type = VALID_TYPES[Math.floor(Math.random() * VALID_TYPES.length)]!;
         break;
       }
     }
@@ -136,7 +123,12 @@ export async function generateSensorStream(
       keypair,
       payload,
       type,
-      ts: Number(ts),
+      ts: (() => {
+        if (ts > BigInt(Number.MAX_SAFE_INTEGER)) {
+          throw new RangeError(`Timestamp ${ts} exceeds Number.MAX_SAFE_INTEGER — cannot convert without precision loss`);
+        }
+        return Number(ts);
+      })(),
       ...(prev ? { previous: prev } : {}),
     });
 
