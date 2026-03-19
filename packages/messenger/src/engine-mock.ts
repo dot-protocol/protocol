@@ -74,6 +74,11 @@ class MockDOTEngine {
     };
   }
 
+  health(): { status: 'healthy' | 'degraded' | 'critical' } {
+    // Mock always returns healthy
+    return { status: 'healthy' };
+  }
+
   async shutdown(): Promise<void> {
     this._handlers.clear();
   }

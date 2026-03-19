@@ -27,6 +27,7 @@ export default function App() {
     compressionRatio: 1,
   });
   const [peers, setPeers] = useState<PeerInfo[]>([]);
+  const [connected, setConnected] = useState(false);
   const [imageCache, setImageCache] = useState<Map<string, string>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -101,6 +102,10 @@ export default function App() {
       console.error('[DOT] create failed:', err);
     }
 
+    // Capture compression ratio at this moment (after DOT created)
+    const currentStats = DOT.stats();
+    const compressionRatio = currentStats.compressionRatio;
+
     // Optimistic local echo
     setMessages(prev => [
       ...prev,
@@ -110,10 +115,11 @@ export default function App() {
         content: text,
         timestamp: Date.now(),
         verified: true,
+        compressionRatio,
       },
     ]);
 
-    setStats(DOT.stats());
+    setStats(currentStats);
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 50);
@@ -132,6 +138,7 @@ export default function App() {
     } catch (err) {
       console.error('[QR] Failed to parse DID:', err);
     }
+    setConnected(true);
     setScreen('chat');
   }, []);
 
@@ -152,6 +159,9 @@ export default function App() {
       console.error('[DOT] camera create failed:', err);
     }
 
+    // Capture compression ratio at this moment
+    const currentStats = DOT.stats();
+
     // Add to messages with imageUrl
     setMessages(prev => [
       ...prev,
@@ -162,10 +172,11 @@ export default function App() {
         imageUrl,
         timestamp: Date.now(),
         verified: true,
+        compressionRatio: currentStats.compressionRatio,
       },
     ]);
 
-    setStats(DOT.stats());
+    setStats(currentStats);
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 50);
@@ -216,6 +227,7 @@ export default function App() {
     <ChatScreen
       myDid={myDid}
       messages={messages}
+      connected={connected}
       input={input}
       onInput={setInput}
       onSend={sendMessage}
