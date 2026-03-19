@@ -1,6 +1,7 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "cd ../.. && pnpm -r build --filter @dot-protocol/messenger...",
   "outputDirectory": "dist",
+  "installCommand": "cd ../.. && pnpm install",
   "framework": null,
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

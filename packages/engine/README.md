@@ -1,15 +1,17 @@
-# @dot-protocol/engine
+# dot-protocol
 
-> The DOT Game Engine — physics for a new universe.
+> The universal transformer. 86-153 bytes. Self-aware. Self-teaching.
+> Identity, encryption, compression, chains, proof — all automatic.
+> Fits inside every protocol ever made. You build the game.
 
 **One import. The universe boots.**
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
+import { DOT } from 'dot-protocol'
 
 await DOT.boot()
 const bytes = await DOT.create({ WHAT: 'Hello, universe' })
-// 153 bytes. Signed. Chained. Compressed. Provable. Automatic.
+console.log(bytes.length)  // 153 — signed, chained, compressed, provable, self-aware
 ```
 
 The engine is to DOT what Unity is to games: you don't call gravity, you drop an object. You don't call `sign()` or `compress()` or `chain()` — you create a DOT, and physics does the rest.
@@ -35,9 +37,9 @@ SEALING:     DOT.seal(n) → BLS12-381 aggregate over last n DOTs. Physics.
 ## Install
 
 ```bash
-npm install @dot-protocol/engine
+npm install dot-protocol
 # or
-pnpm add @dot-protocol/engine
+pnpm add dot-protocol
 ```
 
 Works in **Node.js 18+** and **modern browsers** (WebCrypto API required).
@@ -47,7 +49,7 @@ Works in **Node.js 18+** and **modern browsers** (WebCrypto API required).
 ## Hello World
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
+import { DOT } from 'dot-protocol'
 
 // Boot the engine — creates identity from device entropy
 await DOT.boot({ offline: true })  // offline: skip relay for local dev
@@ -78,7 +80,7 @@ console.log(`Seals:       ${stats.sealCount}`)
 await DOT.shutdown()
 ```
 
-**Verified output** (`npx tsx examples/hello.ts`):
+**Verified output** (`pnpm --filter @dot-protocol/examples exec tsx hello.ts`):
 ```
 Booting DOT engine...
 Identity: dot:LPs5r882dXNuZqfV6J9WKFzXj-S4zlMfKCUy0qYX_A8
@@ -281,7 +283,7 @@ The engine provides physics. You build the experience.
 Two identities sending encrypted, signed, compressed, chained messages:
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
+import { DOT } from 'dot-protocol'
 
 // ── Alice ──────────────────────────────────────────────────────
 await DOT.boot()
@@ -315,7 +317,7 @@ await DOT.create({
 Sign any content and create a tamper-evident record:
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
+import { DOT } from 'dot-protocol'
 import { createHash } from 'crypto'
 
 await DOT.boot()
@@ -336,8 +338,8 @@ if (i % 10 === 0) {
 Stream sensor data from a device:
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
-import { deviceFingerprint } from '@dot-protocol/engine/sensor'
+import { DOT } from 'dot-protocol'
+import { deviceFingerprint } from 'dot-protocol/sensor'
 
 await DOT.boot()
 
@@ -427,7 +429,7 @@ packages/compression: 99.3% statements
 packages/identity:    100%
 ```
 
-Run: `pnpm test` (all 190+ tests pass).
+Run: `pnpm test` (207 tests pass across engine + MCP server).
 
 ---
 
