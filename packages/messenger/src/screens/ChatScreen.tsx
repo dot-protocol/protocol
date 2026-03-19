@@ -1,4 +1,4 @@
-import React, { RefObject, useCallback } from 'react';
+import React, { RefObject, useCallback, useEffect, useState } from 'react';
 
 export interface Message {
   id: string;
@@ -6,6 +6,7 @@ export interface Message {
   content: string;
   timestamp: number;
   verified: boolean;
+  imageUrl?: string;
 }
 
 interface Props {
@@ -16,19 +17,33 @@ interface Props {
   onSend: () => void;
   stats: { totalDots: number; totalRawBytes: number; compressionRatio: number };
   messagesEndRef: RefObject<HTMLDivElement | null>;
+  onCamera: () => void;
+  onStats: () => void;
 }
 
 function formatTime(ts: number): string {
   return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, messagesEndRef }: Props) {
+export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, messagesEndRef, onCamera, onStats }: Props) {
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       onSend();
     }
   }, [onSend]);
+
+  const [online, setOnline] = useState(navigator.onLine);
+  useEffect(() => {
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
@@ -42,8 +57,25 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
         flexShrink: 0,
       }}>
         <div style={{ fontSize: '13px', letterSpacing: '0.05em' }}>◉ DOT MESSENGER</div>
-        <div style={{ fontSize: '10px', opacity: 0.4, letterSpacing: '0.05em' }}>
-          {stats.totalDots} dots · {stats.totalRawBytes}B raw
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ fontSize: '10px', opacity: 0.4, letterSpacing: '0.05em' }}>
+            {stats.totalDots} dots · {stats.totalRawBytes}B raw
+          </div>
+          <button
+            onClick={onStats}
+            style={{
+              background: 'none',
+              border: '1px solid #002200',
+              color: '#00AA2A',
+              fontFamily: 'monospace',
+              fontSize: '9px',
+              padding: '3px 7px',
+              cursor: 'pointer',
+              letterSpacing: '0.05em',
+            }}
+          >
+            STATS
+          </button>
         </div>
       </div>
 
@@ -97,6 +129,9 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
                 wordBreak: 'break-word',
               }}>
                 {msg.content}
+                {msg.imageUrl && (
+                  <img src={msg.imageUrl} style={{ maxWidth: '200px', marginTop: '4px', display: 'block', border: '1px solid #003300' }} alt="camera DOT" />
+                )}
               </div>
             </div>
           );
@@ -112,6 +147,22 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
         gap: '8px',
         flexShrink: 0,
       }}>
+        <button
+          onClick={onCamera}
+          title="Camera DOT"
+          style={{
+            background: '#050505',
+            border: '1px solid #002200',
+            color: '#00AA2A',
+            fontFamily: 'monospace',
+            fontSize: '16px',
+            padding: '10px 12px',
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+        >
+          📷
+        </button>
         <input
           value={input}
           onChange={e => onInput(e.target.value)}
@@ -162,6 +213,9 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
         <span>chain: {stats.totalDots} dots</span>
         <span>raw: {stats.totalRawBytes}B</span>
         <span>ratio: {stats.compressionRatio.toFixed(2)}x</span>
+        <span style={{ color: online ? '#00FF41' : '#FF4400', opacity: online ? 0.25 : 0.8 }}>
+          {online ? '● relay' : '○ offline'}
+        </span>
         <span style={{ marginLeft: 'auto' }}>153B per dot</span>
       </div>
     </div>

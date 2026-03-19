@@ -4,9 +4,11 @@ import { BootScreen } from './screens/BootScreen.js';
 import { IdentityScreen } from './screens/IdentityScreen.js';
 import { ChatScreen } from './screens/ChatScreen.js';
 import { QRScanScreen } from './screens/QRScanScreen.js';
+import { CameraScreen } from './screens/CameraScreen.js';
+import { StatsScreen } from './screens/StatsScreen.js';
 import type { Message } from './screens/ChatScreen.js';
 
-type Screen = 'boot' | 'identity' | 'qrscan' | 'chat';
+type Screen = 'boot' | 'identity' | 'qrscan' | 'camera' | 'chat' | 'stats';
 
 function didToPublicKey(did: string): Uint8Array {
   const hex = did.replace('dot:', '').slice(0, 64);
@@ -24,6 +26,7 @@ export default function App() {
     compressionRatio: 1,
   });
   const [peers, setPeers] = useState<PeerInfo[]>([]);
+  const [imageCache, setImageCache] = useState<Map<string, string>>(new Map());
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -131,6 +134,44 @@ export default function App() {
     setScreen('chat');
   }, []);
 
+  const handleCameraCapture = useCallback(async (imageUrl: string, hashPayload: Uint8Array) => {
+    // Store image URL in cache keyed by hash hex
+    const hashHex = Array.from(hashPayload).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    setImageCache(prev => {
+      const next = new Map(prev);
+      next.set(hashHex, imageUrl);
+      return next;
+    });
+
+    // Create a DOT with the hash as payload
+    try {
+      await DOT.create({ WHAT: hashPayload });
+    } catch (err) {
+      console.error('[DOT] camera create failed:', err);
+    }
+
+    // Add to messages with imageUrl
+    setMessages(prev => [
+      ...prev,
+      {
+        id: Math.random().toString(36).slice(2),
+        from: myDid,
+        content: `[photo: ${hashHex.slice(0, 8)}...]`,
+        imageUrl,
+        timestamp: Date.now(),
+        verified: true,
+      },
+    ]);
+
+    setStats(DOT.stats());
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
+
+    setScreen('chat');
+  }, [myDid]);
+
   if (screen === 'boot') return <BootScreen />;
 
   if (screen === 'identity') {
@@ -153,6 +194,19 @@ export default function App() {
     );
   }
 
+  if (screen === 'camera') {
+    return (
+      <CameraScreen
+        onCapture={handleCameraCapture}
+        onCancel={() => setScreen('chat')}
+      />
+    );
+  }
+
+  if (screen === 'stats') {
+    return <StatsScreen onBack={() => setScreen('chat')} />;
+  }
+
   return (
     <ChatScreen
       myDid={myDid}
@@ -162,7 +216,8 @@ export default function App() {
       onSend={sendMessage}
       stats={stats}
       messagesEndRef={messagesEndRef}
-      onStats={() => setScreen('stats' as Screen)}
+      onCamera={() => setScreen('camera')}
+      onStats={() => setScreen('stats')}
     />
   );
 }
