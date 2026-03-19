@@ -1,4 +1,4 @@
-import React, { RefObject, useCallback, useEffect, useState } from 'react';
+import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
 export interface Message {
   id: string;
@@ -34,6 +34,19 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
   }, [onSend]);
 
   const [online, setOnline] = useState(navigator.onLine);
+
+  // Predictor trend tracking
+  const prevRatioRef = useRef(stats.compressionRatio);
+  const [trend, setTrend] = useState<'up' | 'down' | 'flat'>('flat');
+
+  useEffect(() => {
+    const current = stats.compressionRatio;
+    const prev = prevRatioRef.current;
+    if (current > prev + 0.01) setTrend('up');
+    else if (current < prev - 0.01) setTrend('down');
+    else setTrend('flat');
+    prevRatioRef.current = current;
+  }, [stats.compressionRatio]);
   useEffect(() => {
     const on = () => setOnline(true);
     const off = () => setOnline(false);
@@ -212,7 +225,12 @@ export function ChatScreen({ myDid, messages, input, onInput, onSend, stats, mes
       }}>
         <span>chain: {stats.totalDots} dots</span>
         <span>raw: {stats.totalRawBytes}B</span>
-        <span>ratio: {stats.compressionRatio.toFixed(2)}x</span>
+        <span>
+          ratio: {stats.compressionRatio.toFixed(2)}x{' '}
+          <span style={{ color: trend === 'up' ? '#00FF41' : trend === 'down' ? '#FF4400' : '#666', opacity: 1 }}>
+            {trend === 'up' ? '▲' : trend === 'down' ? '▼' : '—'}
+          </span>
+        </span>
         <span style={{ color: online ? '#00FF41' : '#FF4400', opacity: online ? 0.25 : 0.8 }}>
           {online ? '● relay' : '○ offline'}
         </span>
