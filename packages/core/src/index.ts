@@ -17,3 +17,8 @@ export { BATCH_VERSION_ED25519, BATCH_VERSION_BLS, BATCH_HEADER_SIZE, ED25519_EN
 export { createBLSKeypair, signBLS, verifyBLS, aggregateSignatures, verifyAggregateSameSigner } from './bls.js';
 export type { BLSKeypair } from './bls.js';
 export { BLS_PUBKEY_SIZE, BLS_SIG_SIZE } from './bls.js';
+
+// .dot file format
+export { writeDotFile, readDotFile, inspectDotFile } from './dot-file.js';
+export type { DotFile, DotFileHeader } from './dot-file-types.js';
+export { DOT_FILE_MAGIC, DOT_FILE_VERSION, DOT_FILE_HEADER_SIZE, DOT_FILE_FLAGS } from './dot-file-types.js';
