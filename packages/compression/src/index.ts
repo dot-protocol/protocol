@@ -8,3 +8,4 @@ export * from './dictionary-registry.js';
 export * from './sample-generator.js';
 export * from './predictor.js';
 export * from './rans.js';
+export * from './weissman.js';
