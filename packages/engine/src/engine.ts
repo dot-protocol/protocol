@@ -22,7 +22,8 @@ import { createChain } from './chain.js';
 import { createRelay } from './relay.js';
 import { ecdh, decryptPayload } from './crypto.js';
 import { createBatchCompressor } from './compress.js';
-import { signBLS, aggregateSignatures } from '@dot-protocol/core';
+import { signBLS, aggregateSignatures, verifyAggregateSameSigner } from '@dot-protocol/core';
+import { bls12_381 as blsCurve } from '@noble/curves/bls12-381.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
@@ -51,6 +52,7 @@ export interface PeerInfo {
 export interface EngineStats extends PhysicsStats {
   relayConnected: boolean;
   peersOnline: number;
+  sealCount: number;
 }
 
 type EventMap = {
@@ -108,6 +110,17 @@ export interface EngineAPI {
    */
   seal(n?: number): Promise<Uint8Array>;
 
+  /**
+   * Verify a BLS aggregate seal produced by seal().
+   * Re-derives the BLS key from the current identity and uses
+   * verifyAggregateSameSigner over the same set of DOT bytes.
+   *
+   * @param sealBytes - 48-byte aggregate G1 signature returned by seal()
+   * @param n - Number of DOTs that were sealed. Defaults to all in chain.
+   * @returns true if the seal is valid, false otherwise
+   */
+  verifySeal(sealBytes: Uint8Array, n?: number): Promise<boolean>;
+
   /** Current stats. */
   stats(): EngineStats;
 
@@ -133,6 +146,7 @@ let _compressor = createBatchCompressor();
 let _sealEvery = 0;
 let _dotsSinceLastSeal = 0;
 let _blsPrivKey: Uint8Array | null = null;
+let _sealCount = 0;
 
 function _emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
   const handlers = _listeners.get(event);
@@ -154,6 +168,7 @@ function _resetState(): void {
   _sealEvery = 0;
   _dotsSinceLastSeal = 0;
   _blsPrivKey = null;
+  _sealCount = 0;
   resetIdentityCache();
 }
 
@@ -338,7 +353,31 @@ export const DOT: EngineAPI = {
     const signatures = dots.map(dot => signBLS(dot.slice(0, 32), blsPrivKey));
 
     // Aggregate into single 48-byte G1 signature
-    return aggregateSignatures(signatures);
+    const result = aggregateSignatures(signatures);
+    _sealCount++;
+    return result;
+  },
+
+  async verifySeal(sealBytes: Uint8Array, n?: number): Promise<boolean> {
+    if (!_identity) return false;
+    if (!sealBytes || sealBytes.length === 0) return false;
+
+    const chain = _chains.get(_identity.did);
+    const entries = chain?.entries ?? [];
+
+    const count = n ?? entries.length;
+    if (count === 0 || entries.length === 0) return false;
+
+    const dots = entries.slice(-count).map(e => e.dot);
+    const blsPrivKey = await _getOrCreateBlsKey(_identity._privateKey);
+
+    // Re-derive the BLS public key the same way seal() used the private key
+    const blsPubKey = blsCurve.shortSignatures.getPublicKey(blsPrivKey).toBytes();
+
+    // Each DOT was signed over its first 32 bytes — build the same message array
+    const messages = dots.map(dot => dot.slice(0, 32));
+
+    return verifyAggregateSameSigner(sealBytes, messages, blsPubKey);
   },
 
   stats(): EngineStats {
@@ -369,6 +408,7 @@ export const DOT: EngineAPI = {
       predictorAccuracy,
       relayConnected: _relay?.connected ?? false,
       peersOnline: _nearby.size,
+      sealCount: _sealCount,
     };
   },
 

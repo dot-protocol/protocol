@@ -118,4 +118,27 @@ describe('DOT engine', () => {
     const seal = await DOT.seal(0);
     expect(seal).toBeInstanceOf(Uint8Array);
   });
+
+  it('verifySeal() returns true for a valid seal', async () => {
+    for (let i = 0; i < 5; i++) await DOT.create({ WHAT: `vseal${i}` });
+    const seal = await DOT.seal(5);
+    const valid = await DOT.verifySeal(seal, 5);
+    expect(valid).toBe(true);
+  });
+
+  it('verifySeal() returns false for tampered seal', async () => {
+    for (let i = 0; i < 3; i++) await DOT.create({ WHAT: `tamper${i}` });
+    const seal = await DOT.seal(3);
+    const tampered = new Uint8Array(seal);
+    tampered[0] ^= 0xFF;
+    const valid = await DOT.verifySeal(tampered, 3);
+    expect(valid).toBe(false);
+  });
+
+  it('stats() tracks seal count', async () => {
+    for (let i = 0; i < 5; i++) await DOT.create({ WHAT: `sc${i}` });
+    await DOT.seal(5);
+    const stats = DOT.stats();
+    expect(stats.sealCount).toBeGreaterThanOrEqual(1);
+  });
 });
