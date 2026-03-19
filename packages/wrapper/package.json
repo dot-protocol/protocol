@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@dot-protocol/core": "workspace:*",
-    "@dot-protocol/compression": "workspace:*"
+    "@dot-protocol/compression": "workspace:*",
+    "@noble/curves": "^2.0.1"
   }
 }
