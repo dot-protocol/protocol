@@ -3,16 +3,19 @@
   "version": "0.2.0",
   "description": "DOT Protocol chain — append-only DOT worldline with pluggable storage.",
   "type": "module",
-  "main": "./dist/index.js",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
     }
   },
+  "sideEffects": false,
   "scripts": {
-    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "build": "tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },

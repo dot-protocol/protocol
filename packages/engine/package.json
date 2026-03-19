@@ -3,11 +3,19 @@
   "version": "0.2.0",
   "description": "DOT Game Engine — physics for the DOT universe. Identity. Proof. Compression. Chains. Automatic.",
   "type": "module",
-  "main": "./src/index.ts",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
   },
+  "sideEffects": false,
   "scripts": {
+    "build": "tsdown",
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
