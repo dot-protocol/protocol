@@ -1,0 +1,26 @@
+{
+  "name": "@dot-protocol/compression",
+  "version": "1.0.0",
+  "description": "DOT Protocol stream compression — batch v2, varint, RLE, dictionary, prediction, rANS.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "license": "MIT"
+}
