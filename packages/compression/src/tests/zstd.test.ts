@@ -158,4 +158,23 @@ describe('zstd dictionary compression', () => {
   it('throws on empty samples array', async () => {
     await expect(trainDictionary([])).rejects.toThrow('must not be empty');
   }, 60_000);
+
+  it('handles empty input to compressWithDictionary gracefully', async () => {
+    const dict = await trainDictionary(generateDotLikeSamples(20));
+    const empty = new Uint8Array(0);
+
+    let compressed: Uint8Array;
+    try {
+      compressed = compressWithDictionary(empty, dict);
+    } catch (err: unknown) {
+      // If the native binding rejects empty input, error must be a real Error, not a crash
+      expect(err).toBeInstanceOf(Error);
+      expect((err as Error).message.length).toBeGreaterThan(0);
+      return;
+    }
+
+    // If compression succeeded, decompression must round-trip back to empty
+    const decompressed = decompressWithDictionary(compressed, dict);
+    expect(decompressed.length).toBe(0);
+  }, 60_000);
 });

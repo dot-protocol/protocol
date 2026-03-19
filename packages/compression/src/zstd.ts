@@ -87,9 +87,19 @@ export async function trainDictionary(
       join(sampleDir, `sample_${String(i).padStart(6, '0')}.bin`),
     );
 
-    execFileSync('zstd', ['--train', ...samplePaths, '-o', dictPath, '--maxdict', String(dictSize)], {
-      stdio: ['ignore', 'ignore', 'pipe'],
-    });
+    try {
+      execFileSync('zstd', ['--train', ...samplePaths, '-o', dictPath, '--maxdict', String(dictSize)], {
+        stdio: ['ignore', 'ignore', 'pipe'],
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('ENOENT')) {
+        throw new Error(
+          'zstd CLI not found. Install: brew install zstd (macOS) or apt install zstd (Linux). ' + msg,
+        );
+      }
+      throw err;
+    }
 
     const dictBytes = readFileSync(dictPath);
     return new Uint8Array(dictBytes.buffer, dictBytes.byteOffset, dictBytes.byteLength);
