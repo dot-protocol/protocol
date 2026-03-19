@@ -2,18 +2,25 @@
  * Batch v2 serializer — column-oriented DOT batch with BLS aggregate signature.
  *
  * Wire format:
- *   HEADER (86 bytes):
+ *   HEADER (86 bytes without dictionary, 118 bytes with dictionary):
  *     [0]      version = 0x03
- *     [1]      flags: bit0=timestamp_delta_encoded, bit1=payload_type_rle
+ *     [1]      flags:
+ *                bit0 = timestamp_delta_encoded
+ *                bit1 = payload_type_rle
+ *                bit2 = reserved
+ *                bit3 = dictionary_compressed  ← NEW
  *     [2..5]   dot_count: uint32 LE
  *     [6..37]  shared_pubkey: 32B Ed25519 public key
  *     [38..85] aggregated_bls_sig: 48B BLS G1 aggregate signature
+ *     [86..117] dictionary_id: 32B SHA-256 of dictionary (only present when bit3 set)
  *   BODY (column-oriented):
- *     [if bit0] varint-delta timestamps (encodeTimestampDeltas)
- *     [else]    raw timestamps: dot_count × 8B big-endian uint64
- *     [if bit1] RLE-encoded types (encodePayloadTypes)
- *     [else]    raw types: dot_count × 1B
- *     [always]  raw payloads: dot_count × 16B
+ *     [if bit3] zstd-compressed body (timestamps + types + payloads as normal columns)
+ *     [else]    raw columns as before:
+ *       [if bit0] varint-delta timestamps (encodeTimestampDeltas)
+ *       [else]    raw timestamps: dot_count × 8B big-endian uint64
+ *       [if bit1] RLE-encoded types (encodePayloadTypes)
+ *       [else]    raw types: dot_count × 1B
+ *       [always]  raw payloads: dot_count × 16B
  *
  * Chain hashes are NOT stored — reconstructed on decode via sequential SHA-256.
  *
@@ -31,13 +38,19 @@ import {
 } from '@dot-protocol/core';
 import { encodeTimestampDeltas, decodeTimestampDeltas } from './timestamp-delta.js';
 import { encodePayloadTypes, decodePayloadTypes } from './rle.js';
+import { compressWithDictionary, decompressWithDictionary } from './zstd.js';
+import { type DictionaryRegistry } from './dictionary-registry.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const BATCH_V2_VERSION = 0x03;
 const HEADER_SIZE = 86; // 1(ver) + 1(flags) + 4(count) + 32(pubkey) + 48(aggSig)
+const DICT_ID_SIZE = 32;
+const HEADER_SIZE_WITH_DICT = HEADER_SIZE + DICT_ID_SIZE; // 118B when dict flag set
 const FLAG_TS_DELTA = 0b00000001;
 const FLAG_TYPE_RLE = 0b00000010;
+// bit 2 = reserved
+export const FLAG_DICT_COMPRESSED = 0x08; // bit 3: body is zstd-compressed with a dictionary
 
 const DOT_SIZE = 153;
 const PUBKEY_SIZE = 32;
@@ -61,6 +74,18 @@ export interface SerializeBatchV2Options {
   timestampDelta?: boolean;
   /** RLE-encode payload type column (default: true). Saves ~90%+ on homogeneous batches. */
   payloadTypeRLE?: boolean;
+  /**
+   * Trained zstd dictionary bytes. When provided together with `dictionaryId`,
+   * the encoded body columns are zstd-compressed using this dictionary and
+   * FLAG_DICT_COMPRESSED (bit 3) is set in the header flags.
+   */
+  dictionary?: Uint8Array;
+  /**
+   * 32-byte SHA-256 ID of the dictionary (SHA-256 of the dictionary bytes).
+   * Stored in the extended header [86..117] so the deserializer can look it up
+   * in a DictionaryRegistry. Must be provided together with `dictionary`.
+   */
+  dictionaryId?: Uint8Array;
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -148,6 +173,15 @@ export async function serializeBatchV2(
   // ── Options ─────────────────────────────────────────────────────────────────
   const useTsDelta = options?.timestampDelta !== false; // default true
   const useTypeRLE = options?.payloadTypeRLE !== false; // default true
+  const useDict = !!(options?.dictionary && options?.dictionaryId);
+
+  if (useDict) {
+    if (options!.dictionaryId!.length !== DICT_ID_SIZE) {
+      throw new RangeError(
+        `serializeBatchV2: dictionaryId must be ${DICT_ID_SIZE} bytes, got ${options!.dictionaryId!.length}`,
+      );
+    }
+  }
 
   // ── Extract columns ─────────────────────────────────────────────────────────
   const timestamps: bigint[] = new Array(dots.length);
@@ -221,14 +255,32 @@ export async function serializeBatchV2(
     encodedPayloads.set(payloads[i]!, i * PAYLOAD_SIZE);
   }
 
+  // ── Optionally compress the body with a dictionary ───────────────────────────
+  // Concatenate body columns into a single buffer before possible compression.
+  const rawBody = new Uint8Array(encodedTs.length + encodedTypes.length + encodedPayloads.length);
+  {
+    let off = 0;
+    rawBody.set(encodedTs, off);       off += encodedTs.length;
+    rawBody.set(encodedTypes, off);    off += encodedTypes.length;
+    rawBody.set(encodedPayloads, off);
+  }
+
+  const body = useDict
+    ? compressWithDictionary(rawBody, options!.dictionary!)
+    : rawBody;
+
   // ── Assemble frame ──────────────────────────────────────────────────────────
-  const totalSize = HEADER_SIZE + encodedTs.length + encodedTypes.length + encodedPayloads.length;
+  const headerSize = useDict ? HEADER_SIZE_WITH_DICT : HEADER_SIZE;
+  const totalSize = headerSize + body.length;
   const frame = new Uint8Array(totalSize);
   let cursor = 0;
 
   // Header
   frame[cursor++] = BATCH_V2_VERSION;
-  frame[cursor++] = (useTsDelta ? FLAG_TS_DELTA : 0) | (useTypeRLE ? FLAG_TYPE_RLE : 0);
+  frame[cursor++] =
+    (useTsDelta ? FLAG_TS_DELTA : 0) |
+    (useTypeRLE ? FLAG_TYPE_RLE : 0) |
+    (useDict ? FLAG_DICT_COMPRESSED : 0);
 
   // dot_count: uint32 LE
   const countView = new DataView(frame.buffer, frame.byteOffset + cursor, 4);
@@ -243,15 +295,14 @@ export async function serializeBatchV2(
   frame.set(aggSig, cursor);
   cursor += BLS_AGG_SIG_SIZE;
 
-  // Body columns
-  frame.set(encodedTs, cursor);
-  cursor += encodedTs.length;
+  // dictionary_id: 32B (only when FLAG_DICT_COMPRESSED is set)
+  if (useDict) {
+    frame.set(options!.dictionaryId!, cursor);
+    cursor += DICT_ID_SIZE;
+  }
 
-  frame.set(encodedTypes, cursor);
-  cursor += encodedTypes.length;
-
-  frame.set(encodedPayloads, cursor);
-  // cursor += encodedPayloads.length; (last, not needed)
+  // Body (compressed or raw columns)
+  frame.set(body, cursor);
 
   return frame;
 }
@@ -266,12 +317,15 @@ export async function serializeBatchV2(
  * Each subsequent chain hash is reconstructed as SHA-256(full_dot[i-1]) where
  * the sig field of each reconstructed DOT is the aggregate sig zero-padded to 64B.
  *
- * @param buf       - The batch v2 frame
- * @param blsPubkey - 96-byte BLS G2 public key for verification
+ * @param buf                - The batch v2 frame
+ * @param blsPubkey          - 96-byte BLS G2 public key for verification
+ * @param dictionaryRegistry - Optional registry for looking up zstd dictionaries.
+ *                             Required when the frame has FLAG_DICT_COMPRESSED set.
  */
 export async function deserializeBatchV2(
   buf: Uint8Array,
   blsPubkey: Uint8Array,
+  dictionaryRegistry?: DictionaryRegistry,
 ): Promise<Uint8Array[]> {
   if (buf.length < HEADER_SIZE) {
     throw new RangeError(
@@ -292,6 +346,7 @@ export async function deserializeBatchV2(
   const flags = buf[cursor++]!;
   const hasTsDelta = (flags & FLAG_TS_DELTA) !== 0;
   const hasTypeRLE = (flags & FLAG_TYPE_RLE) !== 0;
+  const hasDictCompressed = (flags & FLAG_DICT_COMPRESSED) !== 0;
 
   const countView = new DataView(buf.buffer, buf.byteOffset + cursor, 4);
   const dotCount = countView.getUint32(0, true);
@@ -309,30 +364,71 @@ export async function deserializeBatchV2(
 
   // cursor is now at HEADER_SIZE (86)
 
-  // ── Decode timestamp column ─────────────────────────────────────────────────
+  // ── Read dictionary_id if present and decompress body ────────────────────────
+  let bodyBuf: Uint8Array;
+  if (hasDictCompressed) {
+    if (buf.length < HEADER_SIZE_WITH_DICT) {
+      throw new RangeError(
+        `deserializeBatchV2: buffer too short for dict header (${buf.length} bytes, need at least ${HEADER_SIZE_WITH_DICT})`,
+      );
+    }
+    const dictionaryId = buf.slice(cursor, cursor + DICT_ID_SIZE);
+    cursor += DICT_ID_SIZE;
+    // cursor is now at HEADER_SIZE_WITH_DICT (118)
+
+    if (!dictionaryRegistry) {
+      const idHex = Array.from(dictionaryId)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      throw new Error(
+        `deserializeBatchV2: frame uses dictionary compression (id=${idHex}) but no dictionaryRegistry was provided`,
+      );
+    }
+
+    const entry = dictionaryRegistry.get(dictionaryId);
+    if (!entry) {
+      const idHex = Array.from(dictionaryId)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+      throw new Error(
+        `deserializeBatchV2: unknown dictionary id=${idHex} — register it in the DictionaryRegistry before deserializing`,
+      );
+    }
+
+    // Decompress body using the looked-up dictionary
+    const compressedBody = buf.subarray(cursor);
+    bodyBuf = decompressWithDictionary(compressedBody, entry.dictionary);
+  } else {
+    // No dictionary compression — body starts at cursor (HEADER_SIZE = 86)
+    bodyBuf = buf.subarray(cursor);
+  }
+
+  // From here on, all column decoding operates on bodyBuf (decompressed or raw).
+  // bodyCursor is always relative to bodyBuf (starts at 0).
+  let bodyCursor = 0;
   const payloadsTotalSize = dotCount * PAYLOAD_SIZE;
   let timestamps: bigint[];
   let tsColumnSize: number;
 
   if (hasTsDelta) {
     // Delta-encoded: decode first, then re-encode to measure consumed bytes
-    const tsBuf = buf.subarray(cursor);
+    const tsBuf = bodyBuf.subarray(bodyCursor);
     timestamps = decodeTimestampDeltas(tsBuf, dotCount);
     // Measure size by re-encoding (idempotent roundtrip)
     tsColumnSize = encodeTimestampDeltas(timestamps).length;
   } else {
     // Raw timestamps: dotCount × 8B
     tsColumnSize = dotCount * 8;
-    if (cursor + tsColumnSize > buf.length) {
+    if (bodyCursor + tsColumnSize > bodyBuf.length) {
       throw new RangeError('deserializeBatchV2: buffer too short for raw timestamps');
     }
     timestamps = [];
     for (let i = 0; i < dotCount; i++) {
-      timestamps.push(readTimestamp(buf, cursor + i * 8));
+      timestamps.push(readTimestamp(bodyBuf, bodyCursor + i * 8));
     }
   }
 
-  const tsEnd = cursor + tsColumnSize;
+  const tsEnd = bodyCursor + tsColumnSize;
 
   // ── Decode type column ──────────────────────────────────────────────────────
   let types: Uint8Array;
@@ -341,24 +437,24 @@ export async function deserializeBatchV2(
   if (hasTypeRLE) {
     // RLE-encoded types — the types column ends where payloads begin.
     // Payloads are always at the tail: dotCount × 16B.
-    const rleEnd = buf.length - payloadsTotalSize;
+    const rleEnd = bodyBuf.length - payloadsTotalSize;
     if (rleEnd <= tsEnd) {
       throw new RangeError('deserializeBatchV2: buffer too short for RLE types + payloads');
     }
-    const rleSlice = buf.subarray(tsEnd, rleEnd);
+    const rleSlice = bodyBuf.subarray(tsEnd, rleEnd);
     types = decodePayloadTypes(rleSlice, dotCount);
     typesEnd = rleEnd;
   } else {
     // Raw types: dotCount × 1B
-    if (tsEnd + dotCount > buf.length) {
+    if (tsEnd + dotCount > bodyBuf.length) {
       throw new RangeError('deserializeBatchV2: buffer too short for raw types');
     }
-    types = buf.slice(tsEnd, tsEnd + dotCount);
+    types = bodyBuf.slice(tsEnd, tsEnd + dotCount);
     typesEnd = tsEnd + dotCount;
   }
 
   // ── Decode payload column ───────────────────────────────────────────────────
-  if (typesEnd + payloadsTotalSize > buf.length) {
+  if (typesEnd + payloadsTotalSize > bodyBuf.length) {
     throw new RangeError('deserializeBatchV2: buffer too short for payloads');
   }
 
@@ -393,7 +489,7 @@ export async function deserializeBatchV2(
 
     // payload [137..152]
     const payloadOff = typesEnd + i * PAYLOAD_SIZE;
-    dot.set(buf.subarray(payloadOff, payloadOff + PAYLOAD_SIZE), OFF_PAYLOAD);
+    dot.set(bodyBuf.subarray(payloadOff, payloadOff + PAYLOAD_SIZE), OFF_PAYLOAD);
 
     blsFormDots[i] = dot;
 
