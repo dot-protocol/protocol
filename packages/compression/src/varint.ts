@@ -18,8 +18,8 @@
  * Max safe value: 2^53 - 1 (Number.MAX_SAFE_INTEGER).
  */
 export function encodeVarint(value: number): Uint8Array {
-  if (value < 0 || !Number.isFinite(value)) {
-    throw new RangeError(`encodeVarint: value must be a non-negative finite number, got ${value}`);
+  if (value < 0 || !Number.isFinite(value) || !Number.isInteger(value)) {
+    throw new RangeError(`encodeVarint: value must be a non-negative finite integer, got ${value}`);
   }
 
   // Fast path: single byte
@@ -76,8 +76,8 @@ export function decodeVarint(buf: Uint8Array, offset: number): [number, number] 
       break;
     }
 
-    // Guard against impossibly long varints (> 8 bytes for 53-bit values)
-    if (shift > 56) {
+    // Guard against impossibly long varints (>= 8 bytes for 53-bit values)
+    if (shift >= 56) {
       throw new RangeError(`decodeVarint: varint too long (shift=${shift}), possible data corruption`);
     }
   }
@@ -115,6 +115,10 @@ function zigzagDecode(n: number): number {
 export function encodeSignedVarint(value: number): Uint8Array {
   if (!Number.isInteger(value) || !Number.isFinite(value)) {
     throw new RangeError(`encodeSignedVarint: value must be a finite integer, got ${value}`);
+  }
+  const MAX_SIGNED = Math.floor(Number.MAX_SAFE_INTEGER / 2);
+  if (Math.abs(value) > MAX_SIGNED) {
+    throw new RangeError(`encodeSignedVarint: value ${value} exceeds safe range (±${MAX_SIGNED})`);
   }
   return encodeVarint(zigzagEncode(value));
 }

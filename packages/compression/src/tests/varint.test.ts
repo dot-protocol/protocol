@@ -143,6 +143,32 @@ describe('decodeVarint — bytesConsumed accuracy', () => {
 });
 
 // ---------------------------------------------------------------------------
+// encodeVarint — float input guard
+// ---------------------------------------------------------------------------
+
+describe('encodeVarint — input validation', () => {
+  it('throws RangeError for float input (1.5)', () => {
+    expect(() => encodeVarint(1.5)).toThrow(RangeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// encodeSignedVarint — signed overflow guard
+// ---------------------------------------------------------------------------
+
+describe('encodeSignedVarint — range guard', () => {
+  it('throws RangeError when value exceeds MAX_SIGNED (Math.floor(MAX_SAFE_INTEGER / 2) + 1)', () => {
+    const tooLarge = Math.floor(Number.MAX_SAFE_INTEGER / 2) + 1;
+    expect(() => encodeSignedVarint(tooLarge)).toThrow(RangeError);
+  });
+
+  it('throws RangeError when value is below -MAX_SIGNED', () => {
+    const tooSmall = -(Math.floor(Number.MAX_SAFE_INTEGER / 2) + 1);
+    expect(() => encodeSignedVarint(tooSmall)).toThrow(RangeError);
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Error on reading past end of buffer
 // ---------------------------------------------------------------------------
 
