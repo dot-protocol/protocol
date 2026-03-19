@@ -16,8 +16,12 @@ export default defineConfig({
         display: 'standalone',
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
+        runtimeCaching: [],
+        navigateFallback: 'index.html',
+        navigateFallbackDenylist: [/^\/api\//],
       },
+      devOptions: { enabled: true },
     }),
   ],
   resolve: {
