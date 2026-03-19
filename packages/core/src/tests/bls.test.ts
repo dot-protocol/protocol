@@ -87,6 +87,29 @@ describe('BLS12-381', () => {
     expect(verifyAggregateSameSigner(agg, messages, kp.publicKey)).toBe(false);
   });
 
+  it('aggregateSignatures throws for empty array', () => {
+    // Covers bls.ts line 86: "aggregateSignatures requires at least one signature"
+    expect(() => aggregateSignatures([])).toThrow('at least one');
+  });
+
+  it('verifyBLS returns false for an all-zero (invalid) signature bytes', () => {
+    // Covers lines 75-76: the catch { return false } in verifyBLS
+    // fromBytes on an invalid G1 point throws, which is caught and returns false
+    const kp = createBLSKeypair();
+    const msg = new Uint8Array(32).fill(1);
+    const invalidSig = new Uint8Array(BLS_SIG_SIZE); // all zeros — not a valid G1 point
+    expect(verifyBLS(invalidSig, msg, kp.publicKey)).toBe(false);
+  });
+
+  it('verifyAggregateSameSigner returns false for invalid aggregate signature bytes', () => {
+    // Covers lines 119-120: the catch { return false } in verifyAggregateSameSigner
+    // fromBytes on an all-zero array throws inside verifyAggregateSameSigner, caught -> false
+    const kp = createBLSKeypair();
+    const messages = [new Uint8Array(32).fill(1), new Uint8Array(32).fill(2)];
+    const invalidAgg = new Uint8Array(BLS_SIG_SIZE); // all zeros — not a valid G1 point
+    expect(verifyAggregateSameSigner(invalidAgg, messages, kp.publicKey)).toBe(false);
+  });
+
   it('aggregate is 133× smaller than N Ed25519 sigs at N=100', () => {
     const N = 100;
     const ed25519Total = N * 64;
