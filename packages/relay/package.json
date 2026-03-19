@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/relay",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "CHORUS relay client and server for DOT Protocol.",
   "type": "module",
   "main": "./dist/index.js",
@@ -30,5 +30,10 @@
     "ws": "^8.18.0",
     "@types/ws": "^8.18.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": ["dist", "src", "README.md", "LICENSE"]
 }

@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/compression",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "DOT Protocol stream compression — batch v2, varint, RLE, dictionary, prediction, rANS.",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,5 +23,10 @@
   "devDependencies": {
     "@types/node": "^20.0.0"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": ["dist", "src", "README.md", "LICENSE"]
 }

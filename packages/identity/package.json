@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/identity",
-  "version": "1.0.0",
+  "version": "0.2.0",
   "description": "DOT Protocol identity — keypair + genesis DOT + export/import.",
   "type": "module",
   "main": "./dist/index.js",
@@ -20,5 +20,10 @@
     "@dot-protocol/core": "workspace:*"
   },
   "devDependencies": {},
-  "license": "MIT"
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": ["dist", "src", "README.md", "LICENSE"]
 }
