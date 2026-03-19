@@ -173,6 +173,15 @@ export async function serializeBatchV2(
   // ── Options ─────────────────────────────────────────────────────────────────
   const useTsDelta = options?.timestampDelta !== false; // default true
   const useTypeRLE = options?.payloadTypeRLE !== false; // default true
+
+  // Guard: both dictionary and dictionaryId must be provided together
+  if (options?.dictionary && !options?.dictionaryId) {
+    throw new TypeError('serializeBatchV2: dictionary requires dictionaryId');
+  }
+  if (options?.dictionaryId && !options?.dictionary) {
+    throw new TypeError('serializeBatchV2: dictionaryId requires dictionary');
+  }
+
   const useDict = !!(options?.dictionary && options?.dictionaryId);
 
   if (useDict) {

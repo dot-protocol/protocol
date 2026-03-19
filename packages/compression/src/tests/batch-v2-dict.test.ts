@@ -217,7 +217,30 @@ describe('batch v2 dictionary compression', () => {
     await expect(
       deserializeBatchV2(frame, blsKeypair.publicKey),
       // no registry argument
-    ).rejects.toThrow('dictionaryRegistry');
+    ).rejects.toThrow(/no dictionaryRegistry/i);
+  }, 120_000);
+
+  // 5a. Error: dictionary provided without dictionaryId
+  it('error: dictionary without dictionaryId throws TypeError', async () => {
+    const dots = await buildVoltageChain(5);
+    const blsKeypair = createBLSKeypair();
+    const samples = await generateTrainingSamples();
+    const dictionary = await trainDictionary(samples);
+
+    await expect(
+      serializeBatchV2(dots, blsKeypair, { dictionary }),
+    ).rejects.toThrow(/dictionaryId/i);
+  }, 120_000);
+
+  // 5b. Error: dictionaryId provided without dictionary
+  it('error: dictionaryId without dictionary throws TypeError', async () => {
+    const dots = await buildVoltageChain(5);
+    const blsKeypair = createBLSKeypair();
+    const dictionaryId = new Uint8Array(32).fill(1);
+
+    await expect(
+      serializeBatchV2(dots, blsKeypair, { dictionaryId }),
+    ).rejects.toThrow(/dictionary/i);
   }, 120_000);
 
   // 5. Error: wrong dictionary in registry
