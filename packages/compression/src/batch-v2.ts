@@ -40,6 +40,15 @@ import { encodeTimestampDeltas, decodeTimestampDeltas } from './timestamp-delta.
 import { encodePayloadTypes, decodePayloadTypes } from './rle.js';
 import { compressWithDictionary, decompressWithDictionary } from './zstd.js';
 import { type DictionaryRegistry } from './dictionary-registry.js';
+import {
+  type PayloadPredictor,
+  NullPredictor,
+  LastValuePredictor,
+  LinearPredictor,
+  computeResidual,
+  applyResidual,
+} from './predictor.js';
+import { buildFrequencyTable, ransEncode, ransDecode, type FrequencyTable } from './rans.js';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -51,6 +60,11 @@ const FLAG_TS_DELTA = 0b00000001;
 const FLAG_TYPE_RLE = 0b00000010;
 // bit 2 = reserved
 export const FLAG_DICT_COMPRESSED = 0x08; // bit 3: body is zstd-compressed with a dictionary
+export const FLAG_PREDICTION = 0x10;      // bit 4: payload column uses predictor + rANS coding
+
+// Prediction metadata sizes
+const FREQ_TABLE_BYTES = 256 * 2; // 256 symbols × 2 bytes (uint16 LE) = 512 bytes
+const PREDICTION_META_SIZE = 1 + FREQ_TABLE_BYTES; // modelId(1) + freqTable(512) = 513 bytes
 
 const DOT_SIZE = 153;
 const PUBKEY_SIZE = 32;
@@ -86,6 +100,18 @@ export interface SerializeBatchV2Options {
    * in a DictionaryRegistry. Must be provided together with `dictionary`.
    */
   dictionaryId?: Uint8Array;
+  /**
+   * Payload predictor to use for prediction + rANS coding of the payload column.
+   * When set, FLAG_PREDICTION (bit 4) is set in the frame header flags.
+   *
+   * Use a specific PayloadPredictor instance (e.g. new LinearPredictor()) for
+   * explicit control, or 'auto' to automatically select between LinearPredictor
+   * and NullPredictor based on a compressibility heuristic.
+   *
+   * Mutually exclusive with `dictionary` / `dictionaryId` — both cannot be set
+   * simultaneously. Throws TypeError if both are provided.
+   */
+  predictor?: PayloadPredictor | 'auto';
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -131,6 +157,80 @@ function readTimestamp(buf: Uint8Array, offset: number): bigint {
 function writeTimestamp(buf: Uint8Array, offset: number, ts: bigint): void {
   const view = new DataView(buf.buffer, buf.byteOffset + offset, 8);
   view.setBigUint64(0, ts, false);
+}
+
+// ─── Prediction helpers ───────────────────────────────────────────────────────
+
+/**
+ * Serialize a FrequencyTable's freq array as 256 × uint16 LE = 512 bytes.
+ * The cumFreq array is deterministic and is NOT stored (reconstructed on decode).
+ */
+function serializeFreqTable(table: FrequencyTable): Uint8Array {
+  const buf = new Uint8Array(FREQ_TABLE_BYTES);
+  const view = new DataView(buf.buffer);
+  for (let i = 0; i < 256; i++) {
+    view.setUint16(i * 2, table.freq[i]!, true); // little-endian
+  }
+  return buf;
+}
+
+/**
+ * Deserialize a FrequencyTable from 512 bytes at `offset` in `buf`.
+ * Reconstructs cumFreq from freq (deterministic).
+ */
+function deserializeFreqTable(buf: Uint8Array, offset: number): FrequencyTable {
+  const freq = new Uint16Array(256);
+  const cumFreq = new Uint16Array(257);
+  const view = new DataView(buf.buffer, buf.byteOffset);
+  for (let i = 0; i < 256; i++) {
+    freq[i] = view.getUint16(offset + i * 2, true);
+  }
+  cumFreq[0] = 0;
+  for (let i = 0; i < 256; i++) {
+    cumFreq[i + 1] = cumFreq[i]! + freq[i]!;
+  }
+  return { freq, cumFreq };
+}
+
+/**
+ * Compute XOR residuals for all payloads using the given predictor.
+ * Returns a flat Uint8Array of N × PAYLOAD_SIZE residual bytes.
+ * Predictor MUST be reset before calling.
+ */
+function computeAllResiduals(payloads: Uint8Array[], predictor: PayloadPredictor): Uint8Array {
+  const n = payloads.length;
+  const residuals = new Uint8Array(n * PAYLOAD_SIZE);
+  for (let i = 0; i < n; i++) {
+    const predicted = predictor.predict();
+    const residual = computeResidual(payloads[i]!, predicted);
+    residuals.set(residual, i * PAYLOAD_SIZE);
+    predictor.update(payloads[i]!);
+  }
+  return residuals;
+}
+
+/**
+ * Heuristic to select best predictor for 'auto' mode.
+ * Uses sum of residual bytes as a proxy for compressibility.
+ * Lower sum = more zeros = better compression.
+ */
+function selectPredictor(payloads: Uint8Array[]): PayloadPredictor {
+  const linear = new LinearPredictor();
+  const nullP = new NullPredictor();
+
+  const linearResiduals = computeAllResiduals(payloads, linear);
+  const nullResiduals = computeAllResiduals(payloads, nullP);
+
+  let linearScore = 0;
+  let nullScore = 0;
+  for (let i = 0; i < linearResiduals.length; i++) {
+    linearScore += linearResiduals[i]!;
+  }
+  for (let i = 0; i < nullResiduals.length; i++) {
+    nullScore += nullResiduals[i]!;
+  }
+
+  return linearScore < nullScore ? new LinearPredictor() : new NullPredictor();
 }
 
 // ─── Serialize ────────────────────────────────────────────────────────────────
@@ -180,6 +280,13 @@ export async function serializeBatchV2(
   }
   if (options?.dictionaryId && !options?.dictionary) {
     throw new TypeError('serializeBatchV2: dictionaryId requires dictionary');
+  }
+
+  // Guard: predictor and dictionary are mutually exclusive
+  if (options?.predictor && (options?.dictionary || options?.dictionaryId)) {
+    throw new TypeError(
+      'serializeBatchV2: predictor and dictionary are mutually exclusive — cannot set both',
+    );
   }
 
   const useDict = !!(options?.dictionary && options?.dictionaryId);
@@ -244,6 +351,18 @@ export async function serializeBatchV2(
   }
   const aggSig = aggregateSignatures(perDotSigs);
 
+  // ── Resolve predictor ───────────────────────────────────────────────────────
+  let resolvedPredictor: PayloadPredictor | null = null;
+  if (options?.predictor) {
+    if (options.predictor === 'auto') {
+      resolvedPredictor = selectPredictor(payloads);
+    } else {
+      resolvedPredictor = options.predictor;
+    }
+    resolvedPredictor.reset();
+  }
+  const usePrediction = resolvedPredictor !== null;
+
   // ── Encode columns ──────────────────────────────────────────────────────────
   const encodedTs = useTsDelta
     ? encodeTimestampDeltas(timestamps)
@@ -259,28 +378,76 @@ export async function serializeBatchV2(
     ? encodePayloadTypes(types)
     : types.slice();
 
-  const encodedPayloads = new Uint8Array(dots.length * PAYLOAD_SIZE);
-  for (let i = 0; i < dots.length; i++) {
-    encodedPayloads.set(payloads[i]!, i * PAYLOAD_SIZE);
+  // ── Encode payload column ───────────────────────────────────────────────────
+  // Either: raw payloads, predictor+rANS residuals, or dict-compressed body.
+  let predictionMeta: Uint8Array | null = null; // 513 bytes when usePrediction
+  let ransEncodedResiduals: Uint8Array | null = null;
+  let ransEncodedLen = 0;
+
+  if (usePrediction) {
+    // Compute residuals with the resolved predictor
+    const residuals = computeAllResiduals(payloads, resolvedPredictor!);
+
+    // Build frequency table from residuals
+    const freqTable = buildFrequencyTable(residuals);
+
+    // rANS-encode all residuals as one stream
+    ransEncodedResiduals = ransEncode(residuals, freqTable);
+    ransEncodedLen = ransEncodedResiduals.length;
+
+    // Serialize prediction metadata: modelId(1) + freqTable(512) = 513 bytes
+    predictionMeta = new Uint8Array(PREDICTION_META_SIZE);
+    predictionMeta[0] = resolvedPredictor!.modelId;
+    predictionMeta.set(serializeFreqTable(freqTable), 1);
   }
 
-  // ── Optionally compress the body with a dictionary ───────────────────────────
-  // Concatenate body columns into a single buffer before possible compression.
-  const rawBody = new Uint8Array(encodedTs.length + encodedTypes.length + encodedPayloads.length);
-  {
+  const encodedPayloads = usePrediction
+    ? null // payload column is replaced by rANS residuals in body
+    : (() => {
+        const buf = new Uint8Array(dots.length * PAYLOAD_SIZE);
+        for (let i = 0; i < dots.length; i++) {
+          buf.set(payloads[i]!, i * PAYLOAD_SIZE);
+        }
+        return buf;
+      })();
+
+  // ── Assemble body ───────────────────────────────────────────────────────────
+  // Body layout:
+  //   ts column | types column | [if prediction: uint32-LE rans_len + rans data | else: raw payloads]
+  // If dict (no prediction): entire body is zstd-compressed.
+  let body: Uint8Array;
+
+  if (usePrediction) {
+    // Body = ts | types | rans_data | uint32LE(rans_len) [last 4 bytes]
+    // Storing rans_len at the END allows clean RLE-types boundary detection on decode:
+    //   rleEnd = bodyBuf.length - 4 - ransLen
+    const bodySize = encodedTs.length + encodedTypes.length + ransEncodedLen + 4;
+    const bodyBuf = new Uint8Array(bodySize);
     let off = 0;
-    rawBody.set(encodedTs, off);       off += encodedTs.length;
-    rawBody.set(encodedTypes, off);    off += encodedTypes.length;
-    rawBody.set(encodedPayloads, off);
-  }
+    bodyBuf.set(encodedTs, off);                off += encodedTs.length;
+    bodyBuf.set(encodedTypes, off);             off += encodedTypes.length;
+    bodyBuf.set(ransEncodedResiduals!, off);     off += ransEncodedLen;
+    // uint32 LE: rANS encoded byte count (last 4 bytes of body)
+    const lenView = new DataView(bodyBuf.buffer, bodyBuf.byteOffset + off, 4);
+    lenView.setUint32(0, ransEncodedLen, true);
+    body = bodyBuf;
+  } else {
+    const rawBody = new Uint8Array(
+      encodedTs.length + encodedTypes.length + encodedPayloads!.length,
+    );
+    let off = 0;
+    rawBody.set(encodedTs, off);          off += encodedTs.length;
+    rawBody.set(encodedTypes, off);       off += encodedTypes.length;
+    rawBody.set(encodedPayloads!, off);
 
-  const body = useDict
-    ? compressWithDictionary(rawBody, options!.dictionary!)
-    : rawBody;
+    body = useDict ? compressWithDictionary(rawBody, options!.dictionary!) : rawBody;
+  }
 
   // ── Assemble frame ──────────────────────────────────────────────────────────
+  // Header area = fixed header + optional dict_id + optional prediction metadata
   const headerSize = useDict ? HEADER_SIZE_WITH_DICT : HEADER_SIZE;
-  const totalSize = headerSize + body.length;
+  const predMetaSize = usePrediction ? PREDICTION_META_SIZE : 0;
+  const totalSize = headerSize + predMetaSize + body.length;
   const frame = new Uint8Array(totalSize);
   let cursor = 0;
 
@@ -289,7 +456,8 @@ export async function serializeBatchV2(
   frame[cursor++] =
     (useTsDelta ? FLAG_TS_DELTA : 0) |
     (useTypeRLE ? FLAG_TYPE_RLE : 0) |
-    (useDict ? FLAG_DICT_COMPRESSED : 0);
+    (useDict ? FLAG_DICT_COMPRESSED : 0) |
+    (usePrediction ? FLAG_PREDICTION : 0);
 
   // dot_count: uint32 LE
   const countView = new DataView(frame.buffer, frame.byteOffset + cursor, 4);
@@ -310,7 +478,13 @@ export async function serializeBatchV2(
     cursor += DICT_ID_SIZE;
   }
 
-  // Body (compressed or raw columns)
+  // prediction metadata: 513B (only when FLAG_PREDICTION is set)
+  if (usePrediction) {
+    frame.set(predictionMeta!, cursor);
+    cursor += PREDICTION_META_SIZE;
+  }
+
+  // Body (columns, possibly prediction-coded or dict-compressed)
   frame.set(body, cursor);
 
   return frame;
@@ -356,6 +530,7 @@ export async function deserializeBatchV2(
   const hasTsDelta = (flags & FLAG_TS_DELTA) !== 0;
   const hasTypeRLE = (flags & FLAG_TYPE_RLE) !== 0;
   const hasDictCompressed = (flags & FLAG_DICT_COMPRESSED) !== 0;
+  const hasPrediction = (flags & FLAG_PREDICTION) !== 0;
 
   const countView = new DataView(buf.buffer, buf.byteOffset + cursor, 4);
   const dotCount = countView.getUint32(0, true);
@@ -412,7 +587,49 @@ export async function deserializeBatchV2(
     bodyBuf = buf.subarray(cursor);
   }
 
-  // From here on, all column decoding operates on bodyBuf (decompressed or raw).
+  // ── Read prediction metadata if FLAG_PREDICTION is set ──────────────────────
+  // Prediction metadata is stored after dict_id (if any) and BEFORE the body.
+  // Format: 1B modelId + 512B freq table = 513 bytes total.
+  // We read it from buf (not bodyBuf), advancing cursor past the prediction meta.
+  let predictionPredictor: PayloadPredictor | null = null;
+  let predictionFreqTable: FrequencyTable | null = null;
+
+  if (hasPrediction) {
+    // Re-derive the absolute cursor position in buf
+    // cursor advanced through: version(1) + flags(1) + count(4) + pubkey(32) + aggSig(48) = 86
+    // + dict_id(32) if hasDictCompressed
+    // bodyBuf is buf.subarray(cursor_after_dict) — but we haven't advanced cursor for prediction meta yet
+    // We need to read from the start of bodyBuf (before body columns)
+    if (bodyBuf.length < PREDICTION_META_SIZE) {
+      throw new RangeError(
+        `deserializeBatchV2: buffer too short for prediction metadata (${bodyBuf.length} bytes, need ${PREDICTION_META_SIZE})`,
+      );
+    }
+    const modelId = bodyBuf[0]!;
+    predictionFreqTable = deserializeFreqTable(bodyBuf, 1);
+
+    // Select predictor by modelId
+    switch (modelId) {
+      case 0x00:
+        predictionPredictor = new NullPredictor();
+        break;
+      case 0x01:
+        predictionPredictor = new LastValuePredictor();
+        break;
+      case 0x02:
+        predictionPredictor = new LinearPredictor();
+        break;
+      default:
+        throw new Error(`deserializeBatchV2: unknown predictor modelId 0x${modelId.toString(16)}`);
+    }
+    predictionPredictor.reset();
+
+    // Advance bodyBuf past the prediction metadata
+    bodyBuf = bodyBuf.subarray(PREDICTION_META_SIZE);
+  }
+
+  // From here on, all column decoding operates on bodyBuf (decompressed or raw,
+  // with prediction metadata already consumed if hasPrediction).
   // bodyCursor is always relative to bodyBuf (starts at 0).
   let bodyCursor = 0;
   const payloadsTotalSize = dotCount * PAYLOAD_SIZE;
@@ -444,15 +661,37 @@ export async function deserializeBatchV2(
   let typesEnd: number;
 
   if (hasTypeRLE) {
-    // RLE-encoded types — the types column ends where payloads begin.
-    // Payloads are always at the tail: dotCount × 16B.
-    const rleEnd = bodyBuf.length - payloadsTotalSize;
-    if (rleEnd <= tsEnd) {
-      throw new RangeError('deserializeBatchV2: buffer too short for RLE types + payloads');
+    // RLE-encoded types — the types column ends where payload data begins.
+    // When prediction is active, payload data = uint32(4) + rans_bytes (variable).
+    // When prediction is inactive, payload data = dotCount × 16B (fixed).
+    // We find the RLE end differently for each case.
+    if (hasPrediction) {
+      // With prediction the body layout is: [ts][types][rans_data][uint32 rans_len (last 4B)]
+      // rans_len is stored as the last 4 bytes → rleEnd = bodyBuf.length - 4 - ransLen
+      const ransLenView = new DataView(
+        bodyBuf.buffer,
+        bodyBuf.byteOffset + bodyBuf.length - 4,
+        4,
+      );
+      const ransEncodedLen = ransLenView.getUint32(0, true);
+      // rle types run from tsEnd to (bodyBuf.length - 4 - ransEncodedLen)
+      const rleEnd = bodyBuf.length - 4 - ransEncodedLen;
+      if (rleEnd <= tsEnd) {
+        throw new RangeError('deserializeBatchV2: buffer too short for RLE types + rANS data');
+      }
+      const rleSlice = bodyBuf.subarray(tsEnd, rleEnd);
+      types = decodePayloadTypes(rleSlice, dotCount);
+      typesEnd = rleEnd;
+    } else {
+      // No prediction: payloads are always at the tail: dotCount × 16B.
+      const rleEnd = bodyBuf.length - payloadsTotalSize;
+      if (rleEnd <= tsEnd) {
+        throw new RangeError('deserializeBatchV2: buffer too short for RLE types + payloads');
+      }
+      const rleSlice = bodyBuf.subarray(tsEnd, rleEnd);
+      types = decodePayloadTypes(rleSlice, dotCount);
+      typesEnd = rleEnd;
     }
-    const rleSlice = bodyBuf.subarray(tsEnd, rleEnd);
-    types = decodePayloadTypes(rleSlice, dotCount);
-    typesEnd = rleEnd;
   } else {
     // Raw types: dotCount × 1B
     if (tsEnd + dotCount > bodyBuf.length) {
@@ -463,8 +702,46 @@ export async function deserializeBatchV2(
   }
 
   // ── Decode payload column ───────────────────────────────────────────────────
-  if (typesEnd + payloadsTotalSize > bodyBuf.length) {
-    throw new RangeError('deserializeBatchV2: buffer too short for payloads');
+  // Decode payloads into a flat array: either raw bytes or rANS-decoded residuals.
+  const decodedPayloads: Uint8Array[] = new Array(dotCount);
+
+  if (hasPrediction) {
+    // With prediction: body = [ts][types][rans_data][uint32 rans_len (last 4B)]
+    // ransEnd = bodyBuf.length - 4
+    // ransStart = typesEnd
+    const ransLen = new DataView(
+      bodyBuf.buffer,
+      bodyBuf.byteOffset + bodyBuf.length - 4,
+      4,
+    ).getUint32(0, true);
+    const ransStart = typesEnd;
+    const ransEnd = bodyBuf.length - 4;
+    if (ransEnd - ransStart !== ransLen) {
+      throw new RangeError(
+        `deserializeBatchV2: rANS data length mismatch (got ${ransEnd - ransStart}, expected ${ransLen})`,
+      );
+    }
+    const ransData = bodyBuf.subarray(ransStart, ransEnd);
+    const totalResidualBytes = dotCount * PAYLOAD_SIZE;
+    const residuals = ransDecode(ransData, predictionFreqTable!, totalResidualBytes);
+
+    // Reconstruct payloads from residuals using the predictor
+    for (let i = 0; i < dotCount; i++) {
+      const predicted = predictionPredictor!.predict();
+      const residual = residuals.subarray(i * PAYLOAD_SIZE, (i + 1) * PAYLOAD_SIZE);
+      const actual = applyResidual(residual, predicted);
+      decodedPayloads[i] = actual;
+      predictionPredictor!.update(actual);
+    }
+  } else {
+    // Raw payloads at tail
+    if (typesEnd + payloadsTotalSize > bodyBuf.length) {
+      throw new RangeError('deserializeBatchV2: buffer too short for payloads');
+    }
+    for (let i = 0; i < dotCount; i++) {
+      const off = typesEnd + i * PAYLOAD_SIZE;
+      decodedPayloads[i] = bodyBuf.subarray(off, off + PAYLOAD_SIZE);
+    }
   }
 
   // ── Reconstruct BLS-form DOTs (zeroed sig field) for verification ───────────
@@ -497,8 +774,7 @@ export async function deserializeBatchV2(
     dot[OFF_TYPE] = types[i]!;
 
     // payload [137..152]
-    const payloadOff = typesEnd + i * PAYLOAD_SIZE;
-    dot.set(bodyBuf.subarray(payloadOff, payloadOff + PAYLOAD_SIZE), OFF_PAYLOAD);
+    dot.set(decodedPayloads[i]!, OFF_PAYLOAD);
 
     blsFormDots[i] = dot;
 
