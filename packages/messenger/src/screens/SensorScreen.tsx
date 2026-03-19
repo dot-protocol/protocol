@@ -12,7 +12,7 @@ interface Props {
   onBack: () => void;
 }
 
-function MiniSparkline({ values, color = '#00FF41' }: { values: number[]; color?: string }) {
+function MiniSparkline({ values, color = 'rgba(251,191,36,0.7)' }: { values: number[]; color?: string }) {
   if (values.length < 2) return <span style={{ opacity: 0.3, fontSize: '10px' }}>···</span>;
   const max = Math.max(...values);
   const min = Math.min(...values);
@@ -147,73 +147,68 @@ export function SensorScreen({ onBack }: Props) {
   const sensorList = Object.entries(sensors);
   const availableCount = sensorList.filter(([, s]) => s.available).length;
 
-  const containerStyle: React.CSSProperties = {
-    padding: '16px',
-    maxWidth: '480px',
-    margin: '0 auto',
-    fontFamily: 'monospace',
-    color: '#00FF41',
-    background: '#030303',
-    minHeight: '100vh',
-  };
-  const headerStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '16px',
-  };
-  const rowStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '90px 80px 70px',
-    gap: '8px',
-    alignItems: 'center',
-    padding: '6px 0',
-    borderBottom: '1px solid #001100',
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={headerStyle}>
-        <div>
-          <div style={{ fontSize: '13px' }}>◉ SENSOR MESH</div>
-          <div style={{ fontSize: '10px', opacity: 0.4, marginTop: '2px' }}>
-            {availableCount}/{sensorList.length} sensors active
-          </div>
-        </div>
-        <button
-          onClick={onBack}
-          style={{ background: 'none', border: 'none', color: '#00FF41', cursor: 'pointer', fontSize: '13px' }}
-        >
-          ← BACK
-        </button>
-      </div>
-
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: 'var(--bg)' }}>
+      {/* Header */}
       <div style={{
-        fontSize: '9px',
-        opacity: 0.3,
-        marginBottom: '12px',
-        display: 'grid',
-        gridTemplateColumns: '90px 80px 70px',
-        gap: '8px',
+        padding: '16px 20px', borderBottom: '1px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        flexShrink: 0, background: 'var(--bg-2)',
       }}>
-        <span>SENSOR</span><span>VALUE</span><span>HISTORY</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--gold)', boxShadow: '0 0 8px rgba(251,191,36,0.5)' }} />
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16 }}>Sensor</span>
+          <span style={{ fontSize: 9, color: 'var(--text-dimmer)', letterSpacing: '0.12em' }}>MESH</span>
+          <span style={{ fontSize: 9, color: 'var(--text-dimmer)', opacity: 0.5 }}>
+            {availableCount}/{sensorList.length} active
+          </span>
+        </div>
+        <button onClick={onBack} style={{
+          background: 'none', border: '1px solid var(--border)', color: 'var(--text-dim)',
+          fontSize: 10, padding: '5px 12px', letterSpacing: '0.08em', cursor: 'pointer', borderRadius: 3,
+        }}>← BACK</button>
       </div>
 
-      {sensorList.map(([key, sensor]) => (
-        <div key={key} style={{ ...rowStyle, opacity: sensor.available ? 1 : 0.3 }}>
-          <span style={{ fontSize: '10px' }}>{sensor.label}</span>
-          <span style={{ fontSize: '11px', fontWeight: 'bold' }}>
-            {sensor.value}{' '}
-            <span style={{ opacity: 0.4, fontSize: '9px' }}>{sensor.unit}</span>
-          </span>
-          <MiniSparkline values={sensor.history} color={sensor.available ? '#00FF41' : '#333'} />
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+        {/* Column headers */}
+        <div style={{
+          display: 'grid', gridTemplateColumns: '100px 100px 1fr',
+          gap: 8, marginBottom: 8,
+          fontSize: 8, color: 'var(--text-dimmer)', letterSpacing: '0.14em', textTransform: 'uppercase',
+          padding: '0 0 8px', borderBottom: '1px solid var(--border)',
+        }}>
+          <span>Sensor</span><span>Value</span><span>History</span>
         </div>
-      ))}
 
-      <div style={{ marginTop: '20px', fontSize: '9px', opacity: 0.25, lineHeight: '1.8' }}>
-        <div>Every sensor is a stream of DOTs waiting to happen.</div>
-        <div>Timing jitter is the PUF source — your device's physical fingerprint.</div>
-        <div>d = log(N)/log(S) — fractal depth of each observation.</div>
+        {sensorList.map(([key, sensor]) => (
+          <div key={key} style={{
+            display: 'grid', gridTemplateColumns: '100px 100px 1fr',
+            gap: 8, alignItems: 'center',
+            padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.04)',
+            opacity: sensor.available ? 1 : 0.25,
+            transition: 'opacity 0.4s ease',
+          }}>
+            <span style={{ fontSize: 10, color: 'var(--text-dim)', letterSpacing: '0.04em' }}>
+              {sensor.label}
+            </span>
+            <span style={{ fontSize: 12, color: sensor.available ? 'var(--text)' : 'var(--text-dimmer)', fontWeight: 500 }}>
+              {sensor.value}
+              <span style={{ fontSize: 9, color: 'var(--text-dimmer)', marginLeft: 3 }}>{sensor.unit}</span>
+            </span>
+            <MiniSparkline values={sensor.history} color={sensor.available ? 'rgba(251,191,36,0.7)' : 'rgba(255,255,255,0.1)'} />
+          </div>
+        ))}
+
+        <div style={{
+          marginTop: 28, padding: '14px 16px',
+          background: 'rgba(251,191,36,0.03)', border: '1px solid rgba(251,191,36,0.07)',
+          borderRadius: 3, fontSize: 9, lineHeight: 2,
+          color: 'var(--text-dimmer)', letterSpacing: '0.04em',
+        }}>
+          <div>Every sensor is a stream of DOTs waiting to happen.</div>
+          <div>Timing jitter is the PUF — your device's physical fingerprint.</div>
+          <div style={{ color: 'var(--text-dimmer)', opacity: 0.6 }}>d = log(N)/log(S) — fractal depth of each observation</div>
+        </div>
       </div>
     </div>
   );

@@ -2,21 +2,93 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="manifest" href="/manifest.webmanifest" />
-    <title>DOT Messenger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+    <title>DOT · Messenger</title>
     <style>
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      body {
-        background: #000;
-        color: #00FF41;
-        font-family: 'JetBrains Mono', 'Courier New', monospace;
-        min-height: 100vh;
+      :root {
+        --bg:          #09090b;
+        --bg-2:        #0d0d10;
+        --surface:     #131318;
+        --surface-2:   #1a1a22;
+        --border:      rgba(255,255,255,0.07);
+        --border-warm: rgba(251,191,36,0.16);
+        --gold:        #FBBF24;
+        --gold-dim:    rgba(251,191,36,0.32);
+        --gold-glow:   rgba(251,191,36,0.07);
+        --mint:        #34D399;
+        --mint-dim:    rgba(52,211,153,0.28);
+        --red:         #F87171;
+        --text:        #EFEDE6;
+        --text-dim:    rgba(239,237,230,0.42);
+        --text-dimmer: rgba(239,237,230,0.2);
+        --mono:        'IBM Plex Mono', 'Courier New', monospace;
+        --serif:       'Instrument Serif', Georgia, serif;
       }
-      ::-webkit-scrollbar { width: 4px; }
-      ::-webkit-scrollbar-track { background: #000; }
-      ::-webkit-scrollbar-thumb { background: #003300; }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { height: 100%; overscroll-behavior: none; }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root { height: 100vh; height: 100dvh; display: flex; flex-direction: column; }
+      body::after {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+        background-size: 300px 300px;
+        pointer-events: none;
+        z-index: 9999;
+        opacity: 0.55;
+      }
+      ::-webkit-scrollbar { width: 3px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(251,191,36,0.15); border-radius: 2px; }
+      button { font-family: var(--mono); }
+      @keyframes pulse-out {
+        0%   { transform: scale(1); opacity: 0.5; }
+        100% { transform: scale(2.8); opacity: 0; }
+      }
+      @keyframes breathe {
+        0%, 100% { opacity: 0.4; }
+        50%       { opacity: 1; }
+      }
+      @keyframes slide-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to   { opacity: 1; transform: translateY(0); }
+      }
+      @keyframes slide-in-r {
+        from { opacity: 0; transform: translateX(14px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slide-in-l {
+        from { opacity: 0; transform: translateX(-14px); }
+        to   { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+      @keyframes rot {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+      }
+      @keyframes scan-line {
+        0%   { top: 0%; }
+        100% { top: 100%; }
+      }
     </style>
   </head>
   <body>
