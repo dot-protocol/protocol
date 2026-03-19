@@ -19,13 +19,16 @@
 import { getOrCreateIdentity, resetIdentityCache } from './identity.js';
 import { createDotPhysics } from './physics.js';
 import { createChain } from './chain.js';
+import { createRelay } from './relay.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
+import type { RelayTransport } from './relay.js';
 
 export type { Datom, PhysicsStats };
 export type { DotIdentity };
 export type { Chain };
+export type { RelayTransport };
 
 export interface EngineOptions {
   /** CHORUS relay WebSocket URL. Default: 'wss://dotdotdot.rocks' */
@@ -101,7 +104,7 @@ let _nearby: Map<string, PeerInfo> = new Map();
 let _listeners: Map<string, Handler[]> = new Map();
 let _booted = false;
 let _relayConnected = false;
-let _relay: WebSocket | null = null;
+let _relay: RelayTransport | null = null;
 
 function _emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
   const handlers = _listeners.get(event);
@@ -123,68 +126,46 @@ function _resetState(): void {
 }
 
 // ---------------------------------------------------------------------------
-// Relay (Phase 1 — simple JSON over WebSocket)
+// Relay (CHORUS relay transport via createRelay)
 // ---------------------------------------------------------------------------
 
-function _connectRelay(url: string, myDid: string): void {
+async function _connectRelay(url: string, identity: FullIdentity): Promise<void> {
   try {
-    const ws = new WebSocket(url);
-    _relay = ws;
-
-    ws.addEventListener('open', () => {
-      _relayConnected = true;
-      // Announce presence
-      ws.send(JSON.stringify({ type: 'announce', from: myDid }));
+    const transport = createRelay({
+      url,
+      myDid: identity.did,
+      privateKey: identity._privateKey,
+      publicKey: identity.publicKey,
     });
 
-    ws.addEventListener('message', (event: MessageEvent) => {
-      try {
-        const msg = JSON.parse(event.data as string) as {
-          type: string;
-          from?: string;
-          data?: number[];
-          publicKey?: number[];
-        };
-
-        if (msg.type === 'dot' && msg.from && msg.data) {
-          const dotBytes = new Uint8Array(msg.data);
-          if (dotBytes.length === 153) {
-            _emit('dot', dotBytes, msg.from);
-          }
-        }
-
-        if (msg.type === 'peer' && msg.from && msg.publicKey) {
-          const peer: PeerInfo = {
-            did: msg.from,
-            publicKey: new Uint8Array(msg.publicKey),
-            lastSeen: Date.now(),
-          };
-          _nearby.set(peer.did, peer);
-          _emit('peer', peer);
-        }
-      } catch {
-        // Malformed relay message — ignore
+    transport.onDot((dotBytes, fromChannel) => {
+      if (dotBytes.length === 153) {
+        _emit('dot', dotBytes, fromChannel);
       }
     });
 
-    ws.addEventListener('close', () => {
-      _relayConnected = false;
-      _relay = null;
+    transport.onPeer((did, publicKey) => {
+      const peer: PeerInfo = {
+        did,
+        publicKey: publicKey ?? new Uint8Array(32),
+        lastSeen: Date.now(),
+      };
+      _nearby.set(peer.did, peer);
+      _emit('peer', peer);
     });
 
-    ws.addEventListener('error', () => {
-      _relayConnected = false;
-      _relay = null;
-    });
+    await transport.connect();
+    _relay = transport;
+    _relayConnected = true;
   } catch {
-    // WebSocket not available (e.g., test environment without global WebSocket)
+    // Relay unavailable — continue offline
     _relayConnected = false;
   }
 }
 
 function _disconnectRelay(): void {
   if (_relay) {
-    try { _relay.close(); } catch { /* ignore */ }
+    try { _relay.disconnect(); } catch { /* ignore */ }
     _relay = null;
   }
   _relayConnected = false;
@@ -227,7 +208,7 @@ export const DOT: EngineAPI = {
 
     if (!options?.offline) {
       const relayUrl = options?.relayUrl ?? 'wss://dotdotdot.rocks';
-      _connectRelay(relayUrl, _identity.did);
+      await _connectRelay(relayUrl, _identity);
     }
 
     _emit('ready');
@@ -245,14 +226,8 @@ export const DOT: EngineAPI = {
     _chains.set(chainId, _physics.getChain(chainId));
 
     // Broadcast to relay (non-blocking)
-    if (_relay && _relayConnected && _relay.readyState === 1) {
-      try {
-        _relay.send(JSON.stringify({
-          type: 'dot',
-          from: _identity.did,
-          data: Array.from(dotBytes),
-        }));
-      } catch { /* relay send failure is non-fatal */ }
+    if (_relay && _relay.connected) {
+      _relay.broadcast(dotBytes).catch(() => { /* relay send failure is non-fatal */ });
     }
 
     // Emit locally
@@ -289,7 +264,7 @@ export const DOT: EngineAPI = {
     };
     return {
       ...physicsStats,
-      relayConnected: _relayConnected,
+      relayConnected: _relay?.connected ?? false,
       peersOnline: _nearby.size,
     };
   },
