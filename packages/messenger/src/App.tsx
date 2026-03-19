@@ -6,9 +6,10 @@ import { ChatScreen } from './screens/ChatScreen.js';
 import { QRScanScreen } from './screens/QRScanScreen.js';
 import { CameraScreen } from './screens/CameraScreen.js';
 import { StatsScreen } from './screens/StatsScreen.js';
+import { SensorScreen } from './screens/SensorScreen.js';
 import type { Message } from './screens/ChatScreen.js';
 
-type Screen = 'boot' | 'identity' | 'qrscan' | 'camera' | 'chat' | 'stats';
+type Screen = 'boot' | 'identity' | 'qrscan' | 'camera' | 'chat' | 'stats' | 'sensors';
 
 function didToPublicKey(did: string): Uint8Array {
   const hex = did.replace('dot:', '').slice(0, 64);
@@ -204,7 +205,11 @@ export default function App() {
   }
 
   if (screen === 'stats') {
-    return <StatsScreen onBack={() => setScreen('chat')} />;
+    return <StatsScreen onBack={() => setScreen('chat')} onSensors={() => setScreen('sensors')} />;
+  }
+
+  if (screen === 'sensors') {
+    return <SensorScreen onBack={() => setScreen('stats')} />;
   }
 
   return (

@@ -3,6 +3,7 @@ import { DOT } from '@dot-protocol/engine';
 
 interface Props {
   onBack: () => void;
+  onSensors: () => void;
 }
 
 function Sparkline({ values }: { values: number[] }) {
@@ -24,7 +25,7 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
-export function StatsScreen({ onBack }: Props) {
+export function StatsScreen({ onBack, onSensors }: Props) {
   const [stats, setStats] = useState(() => DOT.stats());
   const [history, setHistory] = useState<number[]>([]);
 
@@ -65,6 +66,24 @@ export function StatsScreen({ onBack }: Props) {
           <Sparkline values={history} />
         </div>
       )}
+
+      <button
+        onClick={onSensors}
+        style={{
+          marginTop: '16px',
+          width: '100%',
+          background: '#000d00',
+          border: '1px solid #003300',
+          color: '#00FF41',
+          fontFamily: 'monospace',
+          fontSize: '11px',
+          padding: '8px',
+          cursor: 'pointer',
+          letterSpacing: '0.05em',
+        }}
+      >
+        ◉ SENSOR MESH →
+      </button>
 
       <div style={{ marginTop: '24px', fontSize: '10px', opacity: 0.3, lineHeight: '1.8' }}>
         <div>d = log(N)/log(S)</div>
