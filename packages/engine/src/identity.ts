@@ -9,6 +9,7 @@
  */
 
 import { createKeypair } from '@dot-protocol/core';
+import { collectEntropy, hashEntropy } from './sensor.js';
 
 const STORAGE_KEY = 'dot:identity';
 
@@ -16,6 +17,8 @@ export interface DotIdentity {
   publicKey: Uint8Array;
   /** "dot:" + base64url(publicKey) */
   did: string;
+  /** Device PUF fingerprint — 32-byte hash of timing entropy (null if unavailable) */
+  puf: Uint8Array | null;
   sign(data: Uint8Array): Promise<Uint8Array>;
 }
 
@@ -90,7 +93,11 @@ async function generateWebCryptoIdentity(): Promise<FullIdentity | null> {
   }
 }
 
-async function buildIdentity(privateKey: Uint8Array, publicKey: Uint8Array): Promise<FullIdentity> {
+async function buildIdentity(
+  privateKey: Uint8Array,
+  publicKey: Uint8Array,
+  puf?: Uint8Array | null,
+): Promise<FullIdentity> {
   const { subtle } = globalThis.crypto;
   const privCryptoKey = await subtle.importKey(
     'pkcs8',
@@ -100,9 +107,21 @@ async function buildIdentity(privateKey: Uint8Array, publicKey: Uint8Array): Pro
     ['sign'],
   );
 
+  // Collect PUF entropy if not provided (new identity creation)
+  let resolvedPuf: Uint8Array | null = puf ?? null;
+  if (resolvedPuf === undefined || resolvedPuf === null && puf !== null) {
+    try {
+      const entropy = await collectEntropy({ durationMs: 50 });
+      resolvedPuf = await hashEntropy(entropy);
+    } catch {
+      resolvedPuf = null;
+    }
+  }
+
   const identity: FullIdentity = {
     publicKey,
     did: makeDid(publicKey),
+    puf: resolvedPuf,
     _privateKey: privateKey,
     async sign(data: Uint8Array): Promise<Uint8Array> {
       return new Uint8Array(

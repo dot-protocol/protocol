@@ -1,7 +1,12 @@
 export { DOT } from './engine.js';
 export { createRelay } from './relay.js';
+export { collectEntropy, hashEntropy, deviceFingerprint } from './sensor.js';
+export { ecdh, edToX25519Pub, edToX25519Priv, encryptPayload, decryptPayload } from './crypto.js';
+export { createBatchCompressor } from './compress.js';
 export type { EngineAPI, EngineOptions, EngineStats, PeerInfo } from './engine.js';
 export type { RelayTransport, RelayOptions } from './relay.js';
 export type { Datom, PhysicsStats } from './physics.js';
 export type { Chain, DotEntry } from './chain.js';
 export type { DotIdentity, FullIdentity } from './identity.js';
+export type { CompressionStats, BatchCompressor } from './compress.js';
+export type { EntropyOptions } from './sensor.js';
