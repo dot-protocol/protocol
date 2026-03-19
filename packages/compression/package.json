@@ -17,7 +17,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*"
+    "@dot-protocol/core": "workspace:*",
+    "zstd-napi": "^0.0.12"
   },
   "devDependencies": {
     "@types/node": "^20.0.0"
