@@ -1,0 +1,28 @@
+{
+  "name": "@dot-protocol/wrapper",
+  "version": "1.0.0",
+  "description": "Wrap any binary protocol (HTTPS, WebSocket, JSON, raw bytes) as a signed, compressed DOT chain.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown src/index.ts --format esm && tsc --declaration --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["dot-protocol", "wrapper", "compression", "signing"],
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*",
+    "@dot-protocol/compression": "workspace:*"
+  }
+}
