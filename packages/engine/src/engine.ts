@@ -22,17 +22,22 @@ import { createChain } from './chain.js';
 import { createRelay } from './relay.js';
 import { ecdh, decryptPayload } from './crypto.js';
 import { createBatchCompressor } from './compress.js';
+import { createWatchdog } from './watchdog.js';
+import { computeStatus, computeTrend } from './health.js';
 import { signBLS, aggregateSignatures, verifyAggregateSameSigner } from '@dot-protocol/core';
 import { bls12_381 as blsCurve } from '@noble/curves/bls12-381.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
 import type { RelayTransport } from './relay.js';
+import type { HealthReport } from './health.js';
+import type { Watchdog } from './watchdog.js';
 
 export type { Datom, PhysicsStats };
 export type { DotIdentity };
 export type { Chain };
 export type { RelayTransport };
+export type { HealthReport };
 
 export interface EngineOptions {
   /** CHORUS relay WebSocket URL. Default: 'wss://dotdotdot.rocks' */
@@ -60,6 +65,7 @@ type EventMap = {
   peer: [peer: PeerInfo];
   chain: [chain: Chain];
   ready: [];
+  health: [report: HealthReport];
 };
 
 export interface EngineAPI {
@@ -124,6 +130,9 @@ export interface EngineAPI {
   /** Current stats. */
   stats(): EngineStats;
 
+  /** Current health report — self-awareness in real time. */
+  health(): HealthReport;
+
   /** Shut down: disconnect relay, reset all state. Safe to boot() again. */
   shutdown(): Promise<void>;
 }
@@ -147,6 +156,10 @@ let _sealEvery = 0;
 let _dotsSinceLastSeal = 0;
 let _blsPrivKey: Uint8Array | null = null;
 let _sealCount = 0;
+let _watchdog: Watchdog | null = null;
+let _bootTime = 0;
+let _lastHealthStatus: import('./health.js').HealthStatus = 'healthy';
+let _offlineMode = false;  // true when booted with offline:true — relay disconnect is expected
 
 function _emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
   const handlers = _listeners.get(event);
@@ -169,6 +182,13 @@ function _resetState(): void {
   _dotsSinceLastSeal = 0;
   _blsPrivKey = null;
   _sealCount = 0;
+  if (_watchdog) {
+    _watchdog.stop();
+    _watchdog = null;
+  }
+  _bootTime = 0;
+  _lastHealthStatus = 'healthy';
+  _offlineMode = false;
   resetIdentityCache();
 }
 
@@ -219,9 +239,11 @@ async function _connectRelay(url: string, identity: FullIdentity): Promise<void>
     await transport.connect();
     _relay = transport;
     _relayConnected = true;
+    _watchdog?.recordRelay(true);
   } catch {
     // Relay unavailable — continue offline
     _relayConnected = false;
+    _watchdog?.recordRelay(false);
   }
 }
 
@@ -231,6 +253,7 @@ function _disconnectRelay(): void {
     _relay = null;
   }
   _relayConnected = false;
+  _watchdog?.recordRelay(false);
 }
 
 // ---------------------------------------------------------------------------
@@ -265,6 +288,41 @@ export const DOT: EngineAPI = {
     _sealEvery = options?.sealEvery ?? 0;
     _dotsSinceLastSeal = 0;
     _booted = true;
+    _bootTime = Date.now();
+    _offlineMode = options?.offline ?? false;
+
+    // Create and wire watchdog
+    _watchdog = createWatchdog({
+      sealEveryDots: _sealEvery > 0 ? _sealEvery : 100,
+    });
+
+    _watchdog.onPredictorReset = () => {
+      // Reset physics predictor by rebuilding the physics layer
+      if (_identity) {
+        _physics = createDotPhysics(_identity);
+      }
+    };
+
+    _watchdog.onRelayShouldReconnect = () => {
+      if (_identity && !_relayConnected) {
+        const relayUrl = options?.relayUrl ?? 'wss://dotdotdot.rocks';
+        _connectRelay(relayUrl, _identity).catch(() => { /* non-fatal */ });
+      }
+    };
+
+    _watchdog.onSealNeeded = () => {
+      void DOT.seal(_dotsSinceLastSeal > 0 ? _dotsSinceLastSeal : undefined);
+    };
+
+    _watchdog.onChainRepair = (_fromPos: number) => {
+      // Chain repair: reset to last good state (rebuild physics from scratch)
+      if (_identity) {
+        _physics = createDotPhysics(_identity);
+        _chains = new Map();
+      }
+    };
+
+    _watchdog.start();
 
     // Mirror physics chains into engine chains via proxy approach:
     // The engine wraps physics and keeps its own chain map in sync.
@@ -274,6 +332,9 @@ export const DOT: EngineAPI = {
       const relayUrl = options?.relayUrl ?? 'wss://dotdotdot.rocks';
       await _connectRelay(relayUrl, _identity);
     }
+
+    // Record initial relay state
+    _watchdog.recordRelay(_relayConnected);
 
     _emit('ready');
   },
@@ -298,7 +359,20 @@ export const DOT: EngineAPI = {
 
     // Sync chain into engine's public chains map
     const chainId = _identity.did;
-    _chains.set(chainId, _physics.getChain(chainId));
+    const updatedChain = _physics.getChain(chainId);
+    _chains.set(chainId, updatedChain);
+
+    // Notify watchdog
+    const physStats = _physics.stats();
+    _watchdog?.recordDot(physStats.predictorAccuracy);
+    _watchdog?.recordChain(true, updatedChain.length ?? updatedChain.entries.length);
+
+    // Check if health status changed — emit 'health' event if so
+    const currentReport = DOT.health();
+    if (currentReport.status !== _lastHealthStatus) {
+      _lastHealthStatus = currentReport.status;
+      _emit('health', currentReport);
+    }
 
     // Broadcast to relay (non-blocking)
     if (_relay && _relay.connected) {
@@ -355,6 +429,11 @@ export const DOT: EngineAPI = {
     // Aggregate into single 48-byte G1 signature
     const result = aggregateSignatures(signatures);
     _sealCount++;
+
+    // Notify watchdog of seal
+    const chainPos = entries.length;
+    _watchdog?.recordSeal(chainPos);
+
     return result;
   },
 
@@ -409,6 +488,88 @@ export const DOT: EngineAPI = {
       relayConnected: _relay?.connected ?? false,
       peersOnline: _nearby.size,
       sealCount: _sealCount,
+    };
+  },
+
+  health(): HealthReport {
+    const wdState = _watchdog?.getState();
+    const physStats = _physics?.stats() ?? {
+      totalDots: 0,
+      totalRawBytes: 0,
+      totalChains: 0,
+      predictorAccuracy: 0,
+      compressionRatio: 1,
+    };
+
+    const chainEntries = _identity ? (_chains.get(_identity.did)?.entries ?? []) : [];
+    const chainLength = chainEntries.length;
+    const chainValid = wdState?.chainValid ?? true;
+
+    // Predictor history for trend
+    const predHistory = wdState?.predictorHistory ?? [];
+    const predAccuracy = physStats.predictorAccuracy;
+
+    // Compression trend from last 20 vs previous 20 (approximation)
+    const compressionRatio = physStats.compressionRatio;
+
+    // Relay state
+    const relayConnected = _relay?.connected ?? false;
+
+    // Seal tracking from watchdog internal state via getState
+    // We track sealAgeDots separately in engine via _dotsSinceLastSeal
+    const sealAgeDots = _dotsSinceLastSeal;
+    // lastSealAt: chain pos of last seal — we only know if watchdog recorded it
+    // Use _sealCount as proxy for "has ever sealed"
+    const lastSealAt = _sealCount > 0 ? Math.max(0, chainLength - sealAgeDots) : -1;
+
+    const issues: string[] = [];
+    if (!relayConnected) issues.push(`Relay disconnected${wdState ? ` (${wdState.relayReconnects} reconnect attempts)` : ''}`);
+    if (!chainValid) issues.push('Chain integrity check failed');
+    if (predAccuracy < 0.3 && physStats.totalDots >= 10) {
+      issues.push(`Predictor accuracy low: ${(predAccuracy * 100).toFixed(1)}%`);
+    }
+
+    const threshold = 0.3;
+    // In offline mode, relay disconnection is expected — treat as connected for health purposes
+    const effectiveRelayConnected = _offlineMode ? true : relayConnected;
+    // Only penalize predictor accuracy if enough DOTs exist to be meaningful (>10)
+    const effectivePredAccuracy = physStats.totalDots < 10 ? 1.0 : predAccuracy;
+    const status = computeStatus(effectiveRelayConnected, chainValid, effectivePredAccuracy, threshold);
+
+    // Update last known status
+    _lastHealthStatus = status;
+
+    return {
+      status,
+      relay: {
+        connected: relayConnected,
+        latencyMs: relayConnected ? 0 : -1,
+        reconnectAttempts: wdState?.relayReconnects ?? 0,
+        bufferedDots: wdState?.relayBuffered ?? 0,
+      },
+      chain: {
+        length: chainLength,
+        valid: chainValid,
+        lastSealAt,
+        sealAgeDots,
+      },
+      predictor: {
+        accuracy: predAccuracy,
+        trend: computeTrend(predHistory),
+        resets: wdState?.predictorResets ?? 0,
+      },
+      identity: {
+        exists: _identity !== null,
+        persisted: _identity !== null, // identity is always persisted after boot
+        recoveries: wdState?.identityRecoveries ?? 0,
+      },
+      compression: {
+        ratio: compressionRatio,
+        trend: 'stable', // compression trend requires history we don't track yet
+      },
+      uptimeMs: _bootTime > 0 ? Date.now() - _bootTime : 0,
+      issues,
+      healingActions: wdState?.healingActions ?? [],
     };
   },
 
