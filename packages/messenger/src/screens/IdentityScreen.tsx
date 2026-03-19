@@ -6,9 +6,10 @@ interface Props {
   did: string;
   peers: PeerInfo[];
   onConnect: () => void;
+  onScanPeer: () => void;
 }
 
-export function IdentityScreen({ did, peers, onConnect }: Props) {
+export function IdentityScreen({ did, peers, onConnect, onScanPeer }: Props) {
   const [qrDataUrl, setQrDataUrl] = useState('');
   const [copied, setCopied] = useState(false);
 
@@ -110,25 +111,45 @@ export function IdentityScreen({ did, peers, onConnect }: Props) {
         </div>
       )}
 
-      <button
-        onClick={onConnect}
-        style={{
-          background: '#000',
-          border: '1px solid #00FF41',
-          color: '#00FF41',
-          padding: '12px 24px',
-          fontFamily: 'monospace',
-          fontSize: '13px',
-          cursor: 'pointer',
-          width: '100%',
-          letterSpacing: '0.08em',
-          transition: 'background 0.15s',
-        }}
-        onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = '#001a00'; }}
-        onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = '#000'; }}
-      >
-        OPEN MESSENGER →
-      </button>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+        <button
+          onClick={onScanPeer}
+          style={{
+            background: '#000',
+            border: '1px solid #003300',
+            color: '#00AA2A',
+            padding: '12px 16px',
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            cursor: 'pointer',
+            letterSpacing: '0.08em',
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = '#001a00'; }}
+          onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = '#000'; }}
+        >
+          SCAN PEER
+        </button>
+        <button
+          onClick={onConnect}
+          style={{
+            background: '#000',
+            border: '1px solid #00FF41',
+            color: '#00FF41',
+            padding: '12px 24px',
+            fontFamily: 'monospace',
+            fontSize: '13px',
+            cursor: 'pointer',
+            flex: 1,
+            letterSpacing: '0.08em',
+            transition: 'background 0.15s',
+          }}
+          onMouseEnter={e => { (e.target as HTMLButtonElement).style.background = '#001a00'; }}
+          onMouseLeave={e => { (e.target as HTMLButtonElement).style.background = '#000'; }}
+        >
+          OPEN MESSENGER →
+        </button>
+      </div>
     </div>
   );
 }

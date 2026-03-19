@@ -3,9 +3,15 @@ import { DOT, type PeerInfo } from '@dot-protocol/engine';
 import { BootScreen } from './screens/BootScreen.js';
 import { IdentityScreen } from './screens/IdentityScreen.js';
 import { ChatScreen } from './screens/ChatScreen.js';
+import { QRScanScreen } from './screens/QRScanScreen.js';
 import type { Message } from './screens/ChatScreen.js';
 
-type Screen = 'boot' | 'identity' | 'chat';
+type Screen = 'boot' | 'identity' | 'qrscan' | 'chat';
+
+function didToPublicKey(did: string): Uint8Array {
+  const hex = did.replace('dot:', '').slice(0, 64);
+  return new Uint8Array(hex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+}
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('boot');
@@ -109,6 +115,22 @@ export default function App() {
     }, 50);
   }, [input, myDid]);
 
+  const handleScan = useCallback((did: string) => {
+    // Extract public key from DID and add as peer
+    try {
+      const publicKey = didToPublicKey(did);
+      const newPeer: PeerInfo = { did, publicKey, lastSeen: Date.now() };
+      setPeers(prev => {
+        const existing = prev.find(x => x.did === did);
+        if (existing) return prev;
+        return [...prev, newPeer];
+      });
+    } catch (err) {
+      console.error('[QR] Failed to parse DID:', err);
+    }
+    setScreen('chat');
+  }, []);
+
   if (screen === 'boot') return <BootScreen />;
 
   if (screen === 'identity') {
@@ -117,6 +139,16 @@ export default function App() {
         did={myDid}
         peers={peers}
         onConnect={() => setScreen('chat')}
+        onScanPeer={() => setScreen('qrscan')}
+      />
+    );
+  }
+
+  if (screen === 'qrscan') {
+    return (
+      <QRScanScreen
+        onScan={handleScan}
+        onCancel={() => setScreen('identity')}
       />
     );
   }
@@ -130,6 +162,7 @@ export default function App() {
       onSend={sendMessage}
       stats={stats}
       messagesEndRef={messagesEndRef}
+      onStats={() => setScreen('stats' as Screen)}
     />
   );
 }
