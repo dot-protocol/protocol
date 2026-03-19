@@ -107,4 +107,15 @@ describe('DOT engine', () => {
     expect(chain?.length ?? 0).toBe(0);
     void did1; // silence unused var warning
   });
+
+  it('DOT.seal() returns a 48-byte BLS aggregate signature', async () => {
+    for (let i = 0; i < 5; i++) await DOT.create({ WHAT: `msg${i}` });
+    const seal = await DOT.seal(5);
+    expect(seal).toHaveLength(48);
+  });
+
+  it('DOT.seal(0) returns empty seal for no DOTs', async () => {
+    const seal = await DOT.seal(0);
+    expect(seal).toBeInstanceOf(Uint8Array);
+  });
 });

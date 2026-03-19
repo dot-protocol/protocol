@@ -22,6 +22,7 @@ import { createChain } from './chain.js';
 import { createRelay } from './relay.js';
 import { ecdh, decryptPayload } from './crypto.js';
 import { createBatchCompressor } from './compress.js';
+import { signBLS, aggregateSignatures } from '@dot-protocol/core';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';
 import type { Datom, PhysicsStats } from './physics.js';
@@ -37,6 +38,8 @@ export interface EngineOptions {
   relayUrl?: string;
   /** If true, skip relay connection entirely. Good for unit tests. */
   offline?: boolean;
+  /** Auto-seal every N DOTs. 0 = manual only (default). */
+  sealEvery?: number;
 }
 
 export interface PeerInfo {
@@ -96,6 +99,15 @@ export interface EngineAPI {
    */
   decryptDot(dotBytes: Uint8Array, senderPublicKey: Uint8Array, chainPos?: bigint): Uint8Array | null;
 
+  /**
+   * BLS batch seal: aggregate-sign the last N DOTs using BLS12-381.
+   * Returns a 48-byte compressed G1 aggregate signature.
+   * Returns an empty Uint8Array if n=0 or no DOTs exist.
+   *
+   * @param n - Number of most recent DOTs to seal. Defaults to all.
+   */
+  seal(n?: number): Promise<Uint8Array>;
+
   /** Current stats. */
   stats(): EngineStats;
 
@@ -118,6 +130,9 @@ let _booted = false;
 let _relayConnected = false;
 let _relay: RelayTransport | null = null;
 let _compressor = createBatchCompressor();
+let _sealEvery = 0;
+let _dotsSinceLastSeal = 0;
+let _blsPrivKey: Uint8Array | null = null;
 
 function _emit<E extends keyof EventMap>(event: E, ...args: EventMap[E]): void {
   const handlers = _listeners.get(event);
@@ -136,7 +151,25 @@ function _resetState(): void {
   _relay = null;
   _booted = false;
   _compressor = createBatchCompressor();
+  _sealEvery = 0;
+  _dotsSinceLastSeal = 0;
+  _blsPrivKey = null;
   resetIdentityCache();
+}
+
+/**
+ * Derive a deterministic BLS private key from the Ed25519 identity private key.
+ * Uses SHA-256(privateKey || "bls-seal") to produce a stable 32-byte BLS scalar.
+ */
+async function _getOrCreateBlsKey(privateKey: Uint8Array): Promise<Uint8Array> {
+  if (_blsPrivKey) return _blsPrivKey;
+  const label = new TextEncoder().encode('bls-seal');
+  const input = new Uint8Array(privateKey.length + label.length);
+  input.set(privateKey);
+  input.set(label, privateKey.length);
+  const hashBuf = await globalThis.crypto.subtle.digest('SHA-256', input.buffer as ArrayBuffer);
+  _blsPrivKey = new Uint8Array(hashBuf);
+  return _blsPrivKey;
 }
 
 // ---------------------------------------------------------------------------
@@ -214,6 +247,8 @@ export const DOT: EngineAPI = {
     _chains = new Map();
     _nearby = new Map();
     _listeners = new Map();
+    _sealEvery = options?.sealEvery ?? 0;
+    _dotsSinceLastSeal = 0;
     _booted = true;
 
     // Mirror physics chains into engine chains via proxy approach:
@@ -237,6 +272,14 @@ export const DOT: EngineAPI = {
 
     // Feed into compressor for stats tracking
     _compressor.feed(dotBytes);
+
+    // Auto-seal if configured
+    _dotsSinceLastSeal++;
+    if (_sealEvery > 0 && _dotsSinceLastSeal >= _sealEvery) {
+      _dotsSinceLastSeal = 0;
+      // Fire-and-forget auto-seal (non-blocking)
+      void DOT.seal(_sealEvery);
+    }
 
     // Sync chain into engine's public chains map
     const chainId = _identity.did;
@@ -276,6 +319,26 @@ export const DOT: EngineAPI = {
     const shared = ecdh(_identity._privateKey, senderPublicKey);
     const encryptedPayload = dotBytes.slice(137, 153);
     return decryptPayload(encryptedPayload, shared, chainPos);
+  },
+
+  async seal(n?: number): Promise<Uint8Array> {
+    if (!_identity) return new Uint8Array(0);
+
+    const chain = _chains.get(_identity.did);
+    const entries = chain?.entries ?? [];
+
+    // Handle zero-DOT case
+    const count = n ?? entries.length;
+    if (count === 0 || entries.length === 0) return new Uint8Array(0);
+
+    const dots = entries.slice(-count).map(e => e.dot);
+    const blsPrivKey = await _getOrCreateBlsKey(_identity._privateKey);
+
+    // Sign each DOT (use first 32 bytes as message for BLS)
+    const signatures = dots.map(dot => signBLS(dot.slice(0, 32), blsPrivKey));
+
+    // Aggregate into single 48-byte G1 signature
+    return aggregateSignatures(signatures);
   },
 
   stats(): EngineStats {
