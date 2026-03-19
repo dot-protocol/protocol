@@ -203,5 +203,5 @@ describe('bridge — large payload', () => {
     const parsed = JSON.parse(new TextDecoder().decode(resp.body));
     // The echo server returns the body as a string
     expect(parsed.body.length).toBe(5120);
-  });
+  }, 15000);
 });

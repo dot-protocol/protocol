@@ -105,3 +105,29 @@ describe('getRange', () => {
     expect(slice).toHaveLength(2);
   });
 });
+
+describe('appendDOT — edge cases', () => {
+  it('throws when chain storage is empty (head === undefined, line 31)', async () => {
+    // Create an empty MemoryStorage (no genesis DOT) and wrap it in a chain
+    const { chain: c } = await makeChain(1);
+    // Clear the storage so head becomes undefined
+    c.storage.clear();
+    const kp = await createKeypair();
+    const dot = await createDOT({ keypair: kp });
+    await expect(appendDOT(c, dot)).rejects.toThrow('Chain is empty');
+  });
+});
+
+describe('MemoryStorage — clear()', () => {
+  it('clear() removes all DOTs and length becomes 0', async () => {
+    const kp = await createKeypair();
+    const genesis = await createDOT({ keypair: kp });
+    const storage = new MemoryStorage();
+    storage.append(genesis);
+    expect(storage.length()).toBe(1);
+    storage.clear();
+    expect(storage.length()).toBe(0);
+    expect(storage.getHead()).toBeUndefined();
+    expect(storage.getAll()).toHaveLength(0);
+  });
+});

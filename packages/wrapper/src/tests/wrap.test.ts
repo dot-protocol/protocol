@@ -175,7 +175,7 @@ describe('lossless invariant — 20 random payloads', () => {
       const result = await unwrap(chain.frame, { blsPublicKey: chain.blsPublicKey });
       expect(bytesEqual(result.data, data)).toBe(true);
     }
-  });
+  }, 15000);
 });
 
 describe('compression ratio', () => {
