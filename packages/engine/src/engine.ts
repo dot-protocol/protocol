@@ -408,9 +408,20 @@ export const DOT: EngineAPI = {
       _emit('health', currentReport);
     }
 
-    // Broadcast to relay (non-blocking)
+    // Route to relay (non-blocking)
+    // If a recipient (WHO) is set, send directly to their channel so they receive it.
+    // Otherwise broadcast on own channel (public content / worldline updates).
     if (_relay && _relay.connected) {
-      _relay.broadcast(dotBytes).catch(() => { /* relay send failure is non-fatal */ });
+      if (datom.WHO) {
+        // Derive recipient channel from their public key (same encoding as DID)
+        const who = datom.WHO as Uint8Array;
+        let binary = '';
+        for (const b of who) binary += String.fromCharCode(b);
+        const recipientChannel = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        _relay.send(dotBytes, recipientChannel).catch(() => { /* non-fatal */ });
+      } else {
+        _relay.broadcast(dotBytes).catch(() => { /* relay send failure is non-fatal */ });
+      }
     }
 
     // Emit locally

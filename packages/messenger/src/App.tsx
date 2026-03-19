@@ -12,8 +12,14 @@ import type { Message } from './screens/ChatScreen.js';
 type Screen = 'boot' | 'identity' | 'qrscan' | 'camera' | 'chat' | 'stats' | 'sensors';
 
 function didToPublicKey(did: string): Uint8Array {
-  const hex = did.replace('dot:', '').slice(0, 64);
-  return new Uint8Array(hex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+  // DID format: "dot:<base64url(pubkey)>"
+  const b64url = did.replace('dot:', '');
+  const b64 = b64url.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = b64.padEnd(b64.length + (4 - (b64.length % 4)) % 4, '=');
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 export default function App() {
@@ -34,7 +40,8 @@ export default function App() {
   useEffect(() => {
     async function boot() {
       try {
-        await DOT.boot({ relayUrl: 'wss://dotdotdot.rocks' });
+        const relayUrl = import.meta.env.VITE_RELAY_URL ?? 'wss://dotdotdot.rocks';
+        await DOT.boot({ relayUrl });
         const did = DOT.me?.did ?? '';
         setMyDid(did);
         setScreen('identity');
@@ -97,7 +104,9 @@ export default function App() {
     setInput('');
 
     try {
-      await DOT.create({ WHAT: text });
+      // Send to first peer's channel (private DM) or broadcast if no peers
+      const recipient = peers[0] as PeerInfo | undefined;
+      await DOT.create({ WHAT: text, WHO: recipient?.publicKey });
     } catch (err) {
       console.error('[DOT] create failed:', err);
     }
@@ -123,13 +132,13 @@ export default function App() {
     setTimeout(() => {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 50);
-  }, [input, myDid]);
+  }, [input, myDid, peers]);
 
   const handleScan = useCallback((did: string) => {
     // Extract public key from DID and add as peer
     try {
       const publicKey = didToPublicKey(did);
-      const newPeer: PeerInfo = { did, publicKey, lastSeen: Date.now() };
+      const newPeer: PeerInfo = { did, publicKey, lastSeen: Date.now(), connectedVia: 'qr' };
       setPeers(prev => {
         const existing = prev.find(x => x.did === did);
         if (existing) return prev;
