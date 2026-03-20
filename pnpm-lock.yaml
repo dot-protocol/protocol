@@ -230,6 +230,29 @@ importers:
         specifier: ^20.0.0
         version: 20.19.37
 
+  packages/sign:
+    dependencies:
+      '@dotprotocol/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.37
+
+  packages/transport:
+    dependencies:
+      '@dotprotocol/core':
+        specifier: workspace:*
+        version: link:../core
+      '@dotprotocol/sign':
+        specifier: workspace:*
+        version: link:../sign
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.37
+
   packages/wrapper:
     dependencies:
       '@dotprotocol/compression':

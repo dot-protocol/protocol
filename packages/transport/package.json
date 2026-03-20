@@ -1,0 +1,35 @@
+{
+  "name": "@dotprotocol/transport",
+  "version": "0.4.0-alpha",
+  "description": "DOT Transport Protocol (DTP). No handshake. No TLS. DOTs as message unit.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dotprotocol/core": "workspace:*",
+    "@dotprotocol/sign": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
+}
