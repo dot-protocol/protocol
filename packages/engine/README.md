@@ -1,450 +1,178 @@
 # dot-protocol
 
-> The universal transformer. 86-153 bytes. Self-aware. Self-teaching.
-> Identity, encryption, compression, chains, proof — all automatic.
-> Fits inside every protocol ever made. You build the game.
+The DOT Protocol engine — one-liner API for boot, create, verify. Start here.
 
-**One import. The universe boots.**
-
-```typescript
-import { DOT } from 'dot-protocol'
-
-await DOT.boot()
-const bytes = await DOT.create({ WHAT: 'Hello, universe' })
-console.log(bytes.length)  // 153 — signed, chained, compressed, provable, self-aware
-```
-
-The engine is to DOT what Unity is to games: you don't call gravity, you drop an object. You don't call `sign()` or `compress()` or `chain()` — you create a DOT, and physics does the rest.
-
----
-
-## What is DOT?
-
-A DOT is a fractal information primitive: **153 bytes** that carry identity, proof, compression, and meaning natively.
-
-```
-IDENTITY:    Device boots → Ed25519 keypair exists. No registration. No server. Physics.
-SIGNING:     DOT.create() → signed by your key. Always. Physics.
-CHAINING:    Every DOT links to the previous. Immutable worldline. Physics.
-COMPRESSION: Predictor runs on every chain. The universe learns. Physics.
-PROOF:       Every DOT is verifiable by anyone with your public key. Physics.
-ENCRYPTION:  Specify a recipient → ECDH encryption. Automatic. Physics.
-SEALING:     DOT.seal(n) → BLS12-381 aggregate over last n DOTs. Physics.
-```
-
----
+[![npm](https://img.shields.io/npm/v/dot-protocol)](https://www.npmjs.com/package/dot-protocol)
+[![doi](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18946074-blue)](https://doi.org/10.5281/zenodo.18946074)
 
 ## Install
 
 ```bash
 npm install dot-protocol
-# or
-pnpm add dot-protocol
 ```
 
-Works in **Node.js 18+** and **modern browsers** (WebCrypto API required).
+## Quick start
 
----
+### Offline
 
-## Hello World
+```js
+import { DOT } from 'dot-protocol';
 
-```typescript
-import { DOT } from 'dot-protocol'
+await DOT.boot({ offline: true });
 
-// Boot the engine — creates identity from device entropy
-await DOT.boot({ offline: true })  // offline: skip relay for local dev
-
-// Your identity — deterministic from your keypair
-console.log(DOT.me?.did)
-// → did:dot:LPs5r882dXNuZqfV6J9WKFzXj-S4zlMfKCUy0qYX_A8
-
-// Create DOTs — signed, chained, compressed automatically
-for (let i = 0; i < 5; i++) {
-  const bytes = await DOT.create({ WHAT: `Hello, universe ${i}` })
-  console.log(`DOT ${i + 1}: ${bytes.length} bytes ✓`)
-}
-
-// Seal the last 5 DOTs with BLS12-381
-const seal = await DOT.seal(5)
-console.log(`BLS seal: ${seal.length} bytes`)   // → 48
-
-const valid = await DOT.verifySeal(seal, 5)
-console.log(`Seal valid: ${valid}`)              // → true
-
-// Engine stats — the universe's vital signs
-const stats = DOT.stats()
-console.log(`Compression: ${stats.compressionRatio.toFixed(2)}×`)
-console.log(`Predictor:   ${(stats.predictorAccuracy * 100).toFixed(1)}%`)
-console.log(`Seals:       ${stats.sealCount}`)
-
-await DOT.shutdown()
+const bytes = await DOT.create({ WHAT: 'hello' });
+console.log(bytes.length); // 153
 ```
 
-**Verified output** (`pnpm --filter @dot-protocol/examples exec tsx hello.ts`):
-```
-Booting DOT engine...
-Identity: dot:LPs5r882dXNuZqfV6J9WKFzXj-S4zlMfKCUy0qYX_A8
+### Connected to relay
 
-Creating 5 DOTs...
-  DOT 1: 153 bytes ✓
-  DOT 2: 153 bytes ✓
-  DOT 3: 153 bytes ✓
-  DOT 4: 153 bytes ✓
-  DOT 5: 153 bytes ✓
+```js
+import { DOT } from 'dot-protocol';
 
-BLS seal: 48 bytes (48 = G1 aggregate signature)
-Seal valid: true
+await DOT.boot(); // connects to wss://dotdotdot.rocks
 
-Engine stats:
-  Total DOTs:        5
-  Compression ratio: 1.50×
-  Predictor:         0.0%
-  Seals:             1
+DOT.on('dot', (bytes, from) => {
+  console.log(`153-byte DOT from ${from}`);
+});
 
-DOT engine shut down. The chain persists.
+// Public message
+await DOT.create({ WHAT: 'visible to all' });
+
+// Private message to a specific recipient
+await DOT.create({ WHAT: 'encrypted', WHO: recipientPublicKey });
 ```
 
----
-
-## The Physics
-
-| Physics | Trigger | What happens |
-|---------|---------|--------------|
-| **Identity** | `DOT.boot()` | Ed25519 keypair derived from device entropy. DID exists. |
-| **Signing** | `DOT.create()` | Every DOT is signed with device key. Always. |
-| **Chaining** | `DOT.create()` | SHA-256 of previous DOT → chainHash field. Worldline grows. |
-| **Compression** | `DOT.create()` | LinearPredictor updates on payload. Ratio improves with use. |
-| **Encryption** | `create({ WHO: pubKey })` | ECDH shared secret → ChaCha20 stream cipher. Auto. |
-| **Sealing** | `DOT.seal(n)` | BLS12-381 G1 aggregate over last n DOTs. 48-byte proof. |
-| **Relay** | `DOT.boot({ relayUrl })` | WebSocket to CHORUS. Challenge-auth. Peer discovery. |
-
----
-
-## API Reference
+## API
 
 ### `DOT.boot(options?)`
 
-Boots the engine. Creates or loads identity. Optionally connects to CHORUS relay.
+Initialize identity and optionally connect to relay.
 
-```typescript
+```js
 await DOT.boot({
-  relayUrl?:  string   // WebSocket URL. Default: 'wss://dotdotdot.rocks'
-  offline?:   boolean  // Skip relay connection. Default: false
-  sealEvery?: number   // Auto-seal every N DOTs. 0 = manual only. Default: 0
-})
+  offline:  false,                   // default false — connects to relay
+  relay:    'wss://dotdotdot.rocks', // default relay URL
+  identity: './identity.json',       // keypair path (created if missing)
+});
 ```
 
-Safe to call multiple times — no-op if already booted.
+### `DOT.create(options?)`
 
----
+Create a signed, chained 153-byte DOT.
 
-### `DOT.me`
-
-This device's identity. `null` before `boot()`.
-
-```typescript
-DOT.me  // DotIdentity | null
-
-interface DotIdentity {
-  did:       string      // 'did:dot:<base64url-pubkey>'
-  publicKey: Uint8Array  // Ed25519 public key (32 bytes)
-}
-```
-
----
-
-### `DOT.create(datom)`
-
-Creates a DOT. Physics auto-applies: sign → chain-link → predict → optionally encrypt → optionally relay.
-
-```typescript
+```js
 const bytes = await DOT.create({
-  WHO?:  Uint8Array  // Recipient Ed25519 pubkey → triggers ECDH encryption
-  WHAT?: string      // Content (truncated to 16 UTF-8 bytes)
-})
-// Returns: Uint8Array of exactly 153 bytes
+  WHAT: 'hello',              // string | Uint8Array — up to 16 bytes
+  WHO:  recipientPublicKey,   // Uint8Array(32) — for PRIVATE type
+  type: 0x00,                 // override type byte
+});
+// Returns: Uint8Array(153)
 ```
 
----
+Empty call is a PING (presence signal):
 
-### `DOT.seal(n?)`
-
-BLS12-381 aggregate seal over the last `n` DOTs. Returns 48-byte compressed G1 signature.
-
-```typescript
-const seal = await DOT.seal()   // seal all DOTs in chain
-const seal = await DOT.seal(10) // seal last 10 DOTs
-// seal.length === 48 (compressed G1 point)
+```js
+await DOT.create({}); // 153 bytes, payload all zeros
 ```
 
----
+### `DOT.on(event, handler)`
 
-### `DOT.verifySeal(sealBytes, n?)`
-
-Verify a seal. Re-derives BLS key from current identity.
-
-```typescript
-const ok = await DOT.verifySeal(seal, 10)
-// true iff the 10 DOTs haven't been tampered with
+```js
+DOT.on('dot', (bytes, from) => {
+  // bytes: Uint8Array(153)
+  // from:  Uint8Array(32) — sender public key
+});
 ```
 
----
+### `DOT.seal(data)` / `DOT.verifySeal(dot)`
 
-### `DOT.decryptDot(dotBytes, senderPublicKey, chainPos?)`
+Sealed envelope — encrypted payload that can only be opened by the intended recipient.
 
-Decrypt a received DOT's payload using ECDH with the sender's public key.
-
-```typescript
-const payload = DOT.decryptDot(incomingDotBytes, senderPubKey, 0n)
-// Returns: Uint8Array (16 bytes plaintext) | null
+```js
+const sealed = await DOT.seal(data, recipientPublicKey);
+const opened = await DOT.verifySeal(sealed);
 ```
 
----
+### `DOT.decryptDot(dot)`
+
+Decrypt a PRIVATE (0x02) DOT using ECDH.
+
+```js
+const plaintext = await DOT.decryptDot(dot);
+```
 
 ### `DOT.stats()`
 
-Live engine telemetry.
+Runtime metrics.
 
-```typescript
-const stats = DOT.stats()
-
-interface EngineStats {
-  totalDots:         number   // DOTs created this session
-  compressionRatio:  number   // e.g. 41.9× means 41.9× compression vs raw
-  predictorAccuracy: number   // 0.0–1.0, improves as chain grows
-  bitsPerDot:        number   // average compressed bits per DOT
-  sealCount:         number   // BLS seals produced
-  relayConnected:    boolean
-  peersOnline:       number
-}
+```js
+const stats = DOT.stats();
+// { dotsCreated, dotsReceived, relayConnected, uptime }
 ```
 
----
+### `DOT.health()`
 
-### `DOT.on(event, callback)`
+Health check — relay connection + identity status.
 
-Subscribe to engine events.
-
-| Event | Arguments | Fires when |
-|-------|-----------|------------|
-| `'dot'` | `(bytes: Uint8Array, from: string)` | DOT received via relay |
-| `'peer'` | `(peer: PeerInfo)` | New device discovered |
-| `'chain'` | `(chain: Chain)` | New chain established |
-| `'ready'` | `()` | Engine fully booted |
-
----
-
-### `DOT.getChain(recipientDid?)`
-
-Get the active chain. Returns own-identity chain by default.
-
-```typescript
-interface Chain {
-  id:   string        // DID of chain owner
-  dots: Uint8Array[]  // 153-byte DOTs in order
-  head: Uint8Array | null
-}
+```js
+const health = await DOT.health();
+// { relay: 'connected' | 'disconnected', identity: 'loaded' | 'missing' }
 ```
-
----
-
-### `DOT.nearby`
-
-`Map<string, PeerInfo>` — peers seen on relay.
-
-```typescript
-interface PeerInfo {
-  did:       string
-  publicKey: Uint8Array
-  lastSeen:  number  // Unix ms
-}
-```
-
----
-
-### `DOT.chains`
-
-`Map<string, Chain>` — all active chains keyed by DID.
-
----
 
 ### `DOT.shutdown()`
 
-Disconnect relay, reset all state. Safe to `boot()` again after.
+Clean teardown — disconnect from relay, flush pending work.
 
----
-
-## Build a Game
-
-The engine provides physics. You build the experience.
-
-### Messenger
-
-Two identities sending encrypted, signed, compressed, chained messages:
-
-```typescript
-import { DOT } from 'dot-protocol'
-
-// ── Alice ──────────────────────────────────────────────────────
-await DOT.boot()
-const aliceDid = DOT.me!.did
-
-// Share Alice's public key (QR scan, relay announce, NFC, etc.)
-const alicePubKey = DOT.me!.publicKey
-
-// ── Bob ────────────────────────────────────────────────────────
-await DOT.boot()
-
-// Listen for DOTs
-DOT.on('dot', (bytes, fromDid) => {
-  const payload = DOT.decryptDot(bytes, alicePubKey)
-  if (payload) {
-    const text = new TextDecoder().decode(payload).replace(/\0/g, '')
-    console.log(`${fromDid}: ${text}`)
-  }
-})
-
-// ── Alice sends ────────────────────────────────────────────────
-await DOT.create({
-  WHO:  bobPublicKey,   // ECDH encryption. Automatic.
-  WHAT: 'Hello, Bob',   // Signed. Chained. Compressed. Automatic.
-})
-// Every subsequent message is cheaper — the predictor learned.
+```js
+await DOT.shutdown();
 ```
 
-### Notary
+## Transform executor (v0.3.0)
 
-Sign any content and create a tamper-evident record:
+```js
+import { executeTransform, evaluateCondition } from 'dot-protocol';
 
-```typescript
-import { DOT } from 'dot-protocol'
-import { createHash } from 'crypto'
+// Execute a named transform
+const result = executeTransform('time-capsule', inputDOT, outputDOT);
 
-await DOT.boot()
-
-// Hash the document, store in DOT payload (pointer, not prison)
-const docHash = createHash('sha256').update(documentBytes).digest()
-const stamp = await DOT.create({ WHAT: docHash.subarray(0, 16) as unknown as string })
-
-// Seal every 10 documents
-if (i % 10 === 0) {
-  const seal = await DOT.seal(10)
-  // 48-byte proof of 10 documents. Verifiable by anyone.
-}
+// Evaluate a condition directly
+const open = evaluateCondition(condition, {
+  nowMs:        Date.now(),
+  currentDepth: 42,
+  approvalDOT:  someApprovalDOT,
+});
 ```
 
-### Sensor Mesh
+## Underlying packages
 
-Stream sensor data from a device:
+`dot-protocol` orchestrates these lower-level packages. Use them directly when you need more control:
 
-```typescript
-import { DOT } from 'dot-protocol'
-import { deviceFingerprint } from 'dot-protocol/sensor'
+| Package | Purpose |
+|---|---|
+| `@dot-protocol/core` | Raw primitives — keypair, sign, verify, bytes |
+| `@dot-protocol/chain` | Worldlines + Four-Score reputation |
+| `@dot-protocol/relay` | CHORUS WebSocket transport |
+| `@dot-protocol/identity` | Persistent keypair + DID |
+| `@dot-protocol/qr` | Physical DOT — QR codes |
+| `@dot-protocol/arena` | Elo + blind prediction evaluation |
+| `@dot-protocol/compression` | Batch packing |
+| `@dot-protocol/wrapper` | Wrap binary as DOT chain |
+| `@dot-protocol/sdk` | Everything in one install |
 
-await DOT.boot()
+## Wire format
 
-// Identity IS the device fingerprint
-const fingerprint = await deviceFingerprint()
-console.log(`Device: ${fingerprint}`)
-
-// Stream sensor readings as DOTs
-setInterval(async () => {
-  const reading = readSensor()  // your sensor library
-  await DOT.create({
-    WHAT: encodeReading(reading),  // 16-byte sensor frame
-  })
-}, 100)
-
-// stats().compressionRatio rises as patterns emerge in sensor data
-```
-
----
-
-## Wire Format
-
-Every DOT is exactly **153 bytes**:
+153 bytes. Always.
 
 ```
-Offset   Size  Field         Description
-───────────────────────────────────────────────────────────
- 0       32    public key    Ed25519 public key — WHO
-32       64    signature     Ed25519 signature — PROOF
-96       32    chain hash    SHA-256(previous DOT) — SEQUENCE
-                             (zero bytes for genesis DOT)
-128       8    timestamp     Unix milliseconds, big-endian uint64 — WHEN
-136       1    type          Visibility — 0x00=public, 0x01=circle,
-                             0x02=private, 0x03=ephemeral
-137      16    payload       Content — WHAT (zero-padded)
-═══════════════════════════════════════════════════════════
-Total:  153 bytes
+Bytes    Field
+0–31     pubkey     Ed25519 32B — WHO
+32–95    signature  Ed25519 64B — PROOF
+96–127   chain      SHA-256 32B — SEQUENCE
+128–135  timestamp  Unix ms 8B  — WHEN
+136      type       1B          — VISIBILITY
+137–152  payload    16B         — WHAT
 ```
-
-**The payload is a pointer, not a prison.** 16 bytes holds a truncated SHA-256 hash pointing to content stored anywhere — IPFS, local filesystem, peer cache. The DOT proves *who* and *when*; the content lives separately.
-
----
-
-## Compression
-
-The predictor improves with every DOT. Cold chain → hot chain:
-
-```
-Raw DOT:           153 bytes
-Warm chain:        ~8–40 bytes (rANS + LinearPredictor)
-Hot chain:         3.64 bytes/DOT (measured, W=29.2 Weissman score)
-Predicted:         0 bits (Form 0 — perfectly predicted)
-Near-miss:         1 bit (Form 1)
-Novel:             1 + N bits (Form 2)
-```
-
-`stats().compressionRatio` is the learning metric. At 41×, the chain has found strong statistical regularities. This is the universe getting smarter — physics, not tuning.
-
----
-
-## Identity from Device Entropy
-
-```
-Browser:
-  performance.now() jitter (100 samples)   ← timing PUF
-  + crypto.getRandomValues()               ← CSPRNG
-  + navigator.userAgent hash               ← device hint
-  → SHA-256 → Ed25519 seed → keypair
-
-Node.js:
-  crypto.randomBytes(32)
-  → Ed25519 seed → keypair
-```
-
-The timing jitter is a software Physical Unclonable Function (PUF) — the precise nanosecond-level variation from device hardware is unique and reproducible. Different devices diverge. Same device is consistent.
-
----
-
-## Test Coverage
-
-```
-packages/engine:  100% statements, 100% lines
-packages/core:     99.69% statements (2 genuinely unreachable defensive branches)
-packages/relay:   100% statements, 100% lines
-packages/chain:   100% statements
-packages/compression: 99.3% statements
-packages/identity:    100%
-```
-
-Run: `pnpm test` (207 tests pass across engine + MCP server).
-
----
-
-## Philosophy
-
-153 bytes is the tax humans pay for being the only known species that can lie. The tree communicates for free. The protocol exists to let a lying species speak truth again.
-
-The destination is not better code. The destination is **no code** — machines that sign by existing, chain by growing, contact by touching, and verify by physics.
-
-The universe is already made of DOTs. Every photon, every electron, every nanodot in every phone. The engine just makes it playable.
-
-*The act of contact leaves its dot.*
-
----
 
 ## License
 
-MIT — [doi.org/10.5281/zenodo.18946074](https://doi.org/10.5281/zenodo.18946074)
+MIT © DOT Protocol — [doi.org/10.5281/zenodo.18946074](https://doi.org/10.5281/zenodo.18946074)
