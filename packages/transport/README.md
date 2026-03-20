@@ -138,6 +138,30 @@ await adapter.send(bytes, 'destination-address');
 await adapter.disconnect();
 ```
 
+### `WebSocketAdapter`
+
+Production WebSocket transport with auto-reconnect.
+
+```js
+import { WebSocketAdapter, send, receive } from '@dotprotocol/transport';
+
+const ws = new WebSocketAdapter({
+  url: 'wss://dotdotdot.rocks',
+  reconnect: true,           // auto-reconnect on disconnect (default: true)
+  maxReconnectAttempts: 10,  // 0 = infinite (default: 10)
+  reconnectDelay: 1000,      // base delay in ms, exponential backoff (default: 1000)
+  peerId: 'my-node-id',     // optional, sent as WebSocket subprotocol
+});
+
+await ws.connect();
+
+// Send and receive DOTs over WebSocket
+receive(ws, (dot) => console.log('received:', dot.verified));
+await send(signedDot, ws, { channel: 'room-name' });
+
+await ws.disconnect();
+```
+
 ## Custom transport adapters
 
 Implement `TransportAdapter` to plug in any transport — WebSocket, Bluetooth, NFC, LoRa, QR, anything:

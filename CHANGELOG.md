@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.4.0-alpha — 2026-03-20
+
+### @dotprotocol/sign (NEW)
+- Universal DOT observation signing: `sign()`, `verify()`, `chain()`, `describe()`
+- Content-aware: <=16B stored directly in payload, >16B stored as truncated SHA-256 hash pointer
+- Face bitfield composition for DOT type classification
+- TeachByte enum: None, SelfDescribing, SchemaRef, HumanReadable, MachineReadable
+- `contentHash()` / `truncatedHash()` — SHA-256 hashing utilities
+- 52 tests passing
+
+### @dotprotocol/transport (NEW)
+- DOT Transport Protocol (DTP): no handshake, no session, no TLS
+- `send()` — fire a DOT over any adapter (broadcast, channel, or recipient key)
+- `receive()` — listen for incoming DOTs with auto-verification and key/channel filtering
+- `Relay` — stateless relay with signature verification, rate limiting, stats
+- `OfflineQueue` — local queue with max size, max retries, flush-on-reconnect
+- `MemoryAdapter` / `MemoryBus` — in-memory transport for testing
+- `TransportAdapter` interface — plug in any transport (WebSocket, BLE, NFC, LoRa, QR)
+- 47 tests passing
+
 ## v0.2.0 — 2026-03-19
 
 ### @dotprotocol/engine (NEW)

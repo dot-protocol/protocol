@@ -16,6 +16,8 @@ export { receive } from './receive.js';
 export { Relay } from './relay.js';
 export { OfflineQueue } from './queue.js';
 export { MemoryAdapter, MemoryBus, defaultBus } from './memory-adapter.js';
+export { WebSocketAdapter } from './ws-adapter.js';
+export type { WebSocketAdapterOptions } from './ws-adapter.js';
 
 export type {
   TransportType,
