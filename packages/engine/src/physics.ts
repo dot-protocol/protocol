@@ -8,8 +8,8 @@
  * These happen like gravity — automatically, on every DOT.
  */
 
-import { createDOT, toBytes, DotType } from '@dot-protocol/core';
-import { LinearPredictor } from '@dot-protocol/compression';
+import { createDOT, toBytes, DotType } from '@dotprotocol/core';
+import { LinearPredictor } from '@dotprotocol/compression';
 import type { FullIdentity } from './identity.js';
 import { createChain, appendToChain } from './chain.js';
 import type { Chain } from './chain.js';

@@ -5,8 +5,8 @@
  * Checks Ed25519 signatures and optionally chain integrity.
  */
 
-import { verifyDOT, checkChain } from '@dot-protocol/core';
-import type { DOT } from '@dot-protocol/core';
+import { verifyDOT, checkChain } from '@dotprotocol/core';
+import type { DOT } from '@dotprotocol/core';
 import type { QRDecodeResult, QREncoding } from './types.js';
 
 /**

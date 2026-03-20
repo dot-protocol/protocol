@@ -8,7 +8,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createRelay } from '../relay.js';
-import { packFrame } from '@dot-protocol/relay';
+import { packFrame } from '@dotprotocol/relay';
 
 // ---------------------------------------------------------------------------
 // WebSocket Mock

@@ -1,4 +1,4 @@
-// @dot-protocol/compression — DOT stream compression library
+// @dotprotocol/compression — DOT stream compression library
 export * from './varint.js';
 export * from './timestamp-delta.js';
 export * from './rle.js';

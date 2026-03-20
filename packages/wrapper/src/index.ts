@@ -1,4 +1,4 @@
-// @dot-protocol/wrapper — public API
+// @dotprotocol/wrapper — public API
 
 export { wrap } from './wrap.js';
 export { unwrap } from './unwrap.js';
@@ -16,4 +16,4 @@ export type {
   BridgeHandle,
 } from './types.js';
 export type { DotIdentity, IdentityOptions } from './identity.js';
-export { DotType } from '@dot-protocol/core';
+export { DotType } from '@dotprotocol/core';

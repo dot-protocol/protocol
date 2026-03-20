@@ -96,7 +96,7 @@ describe('generateSensorStream', () => {
   });
 
   it('accepts custom keypair and uses it', async () => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const keypair = await createKeypair();
     const dots = await generateSensorStream({ count: 5, profile: 'temperature', keypair });
     // Public key at [0..31] should match the provided keypair

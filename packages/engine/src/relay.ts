@@ -2,7 +2,7 @@
 /**
  * DOT Engine — CHORUS Relay Transport
  *
- * Wraps @dot-protocol/relay RelayClient with the RelayTransport interface.
+ * Wraps @dotprotocol/relay RelayClient with the RelayTransport interface.
  * Handles:
  *   - Ed25519 challenge-auth (required by CHORUS)
  *   - Subscribe to own DID channel on connect
@@ -15,8 +15,8 @@
  * For Node 18-20, the caller must polyfill globalThis.WebSocket.
  */
 
-import { RelayClient, packFrame } from '@dot-protocol/relay';
-import type { RelayStatus } from '@dot-protocol/relay';
+import { RelayClient, packFrame } from '@dotprotocol/relay';
+import type { RelayStatus } from '@dotprotocol/relay';
 
 // ---------------------------------------------------------------------------
 // Public types

@@ -1,5 +1,5 @@
 /**
- * @dot-protocol/kin — MCP tool smoke tests
+ * @dotprotocol/kin — MCP tool smoke tests
  *
  * Tests the tool handlers directly (not through the MCP protocol layer)
  * by importing the engine and exercising the same logic.

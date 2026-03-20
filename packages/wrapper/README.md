@@ -1,20 +1,20 @@
-# @dot-protocol/wrapper
+# @dotprotocol/wrapper
 
 Wrap any binary data as a DOT chain. Legacy bridge for existing binary formats.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/wrapper)](https://www.npmjs.com/package/@dot-protocol/wrapper)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/wrapper)](https://www.npmjs.com/package/@dotprotocol/wrapper)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/wrapper
+npm install @dotprotocol/wrapper
 ```
 
 ## Quick start
 
 ```js
-import { wrap, unwrap } from '@dot-protocol/wrapper';
-import { createKeypair } from '@dot-protocol/core';
+import { wrap, unwrap } from '@dotprotocol/wrapper';
+import { createKeypair } from '@dotprotocol/core';
 
 const keypair = await createKeypair();
 
@@ -64,7 +64,7 @@ const bytes = await unwrap(chain);
 ### `wrapStream(keypair, readableStream)`
 
 ```js
-import { wrapStream } from '@dot-protocol/wrapper';
+import { wrapStream } from '@dotprotocol/wrapper';
 
 const dots = [];
 for await (const dot of wrapStream(keypair, fs.createReadStream('big-file.bin'))) {
@@ -84,8 +84,8 @@ for await (const dot of wrapStream(keypair, fs.createReadStream('big-file.bin'))
 Each 16 bytes of data requires 153 bytes of DOT — a 9.6× overhead. For large files, store the file externally (IPFS, S3) and use a single DOT as an attestation instead:
 
 ```js
-import { createDOT } from '@dot-protocol/core';
-import { sha256 } from '@dot-protocol/core';
+import { createDOT } from '@dotprotocol/core';
+import { sha256 } from '@dotprotocol/core';
 
 const hash    = await sha256(fileBytes);
 const pointer = hash.slice(0, 16);        // first 16 bytes of hash

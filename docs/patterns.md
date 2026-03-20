@@ -56,7 +56,7 @@ Point-to-point encrypted message. Only the recipient can read it.
 
 ```js
 import { DOT } from 'dot-protocol';
-import { fromBytes } from '@dot-protocol/core';
+import { fromBytes } from '@dotprotocol/core';
 
 // Alice boots and knows Bob's public key
 await DOT.boot();
@@ -93,7 +93,7 @@ Visible only to circle members (0x01). The relay filters by shared circle key.
 
 ```js
 import { DOT, DotType } from 'dot-protocol';
-import { createDOT } from '@dot-protocol/core';
+import { createDOT } from '@dotprotocol/core';
 
 // Circle membership is managed out-of-band (exchanged keys)
 // All members share a circle identifier in the type byte
@@ -123,8 +123,8 @@ DOT.on('dot', (bytes, from) => {
 A bot has a persistent keypair. Every DOT it emits is signed and chained.
 
 ```js
-import { createKeypair, createDOT, toBytes } from '@dot-protocol/core';
-import { loadKeypair, saveKeypair } from '@dot-protocol/identity';
+import { createKeypair, createDOT, toBytes } from '@dotprotocol/core';
+import { loadKeypair, saveKeypair } from '@dotprotocol/identity';
 
 // --- Bootstrap bot identity (once) ---
 const keypair = await createKeypair();
@@ -163,7 +163,7 @@ await botEmit('bot offline');
 153 bytes can point at a media chunk stored anywhere. The DOT is the proof of who created it.
 
 ```js
-import { createDOT, toBytes } from '@dot-protocol/core';
+import { createDOT, toBytes } from '@dotprotocol/core';
 import { createHash } from 'crypto'; // or Web Crypto
 
 // --- Streaming sender ---
@@ -211,8 +211,8 @@ async function receiveStream(dotBytes) {
 Prove that a specific person created a specific piece of content at a specific time.
 
 ```js
-import { createDOT, toBytes, fromBytes, verifyDOT } from '@dot-protocol/core';
-import { sha256 } from '@dot-protocol/core';
+import { createDOT, toBytes, fromBytes, verifyDOT } from '@dotprotocol/core';
+import { sha256 } from '@dotprotocol/core';
 
 // --- Creator attests their photo ---
 async function attestMedia(keypair, mediaBuffer) {
@@ -268,7 +268,7 @@ async function verifyProvenance(dotBytes, mediaBuffer, claimedCreator) {
 DOT reputation is chain-native — no platform assigns it.
 
 ```js
-import { buildScores, computeTier, applyEloUpdates } from '@dot-protocol/chain';
+import { buildScores, computeTier, applyEloUpdates } from '@dotprotocol/chain';
 
 // Collect all DOTs from a pubkey's worldline
 const worldline = await relay.fetchChain(pubkey);
@@ -323,7 +323,7 @@ import {
   serializeTransformCondition,
   deserializeTransformCondition,
   createDOT,
-} from '@dot-protocol/core';
+} from '@dotprotocol/core';
 
 // --- Create a time-capsule ---
 const unlockAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -342,7 +342,7 @@ const dot = await createDOT({
 });
 
 // --- Later: verify the transform ---
-import { TransformRegistry } from '@dot-protocol/core';
+import { TransformRegistry } from '@dotprotocol/core';
 
 const spec = TransformRegistry.get('time-capsule');
 
@@ -371,7 +371,7 @@ import {
   decodeBinary,
   selectQRSpec,
   verifyPhysicalDOTs,
-} from '@dot-protocol/qr';
+} from '@dotprotocol/qr';
 
 // --- Encode DOTs into QR binary ---
 const dots = [dot1, dot2, dot3];   // array of 153-byte Uint8Arrays
@@ -402,7 +402,7 @@ if (decoded.valid) {
 **Steganographic mode:** Hide DOTs inside PNG pixel data.
 
 ```js
-import { encodeSteganographic, decodeSteganographic } from '@dot-protocol/qr';
+import { encodeSteganographic, decodeSteganographic } from '@dotprotocol/qr';
 
 const hostImage  = await loadPNG('photo.png');
 const withDOTs   = encodeSteganographic(dots, hostImage);  // imperceptible
@@ -422,7 +422,7 @@ import {
   verifyPrediction,
   hashPredictionDOT,
   rankLeaderboard,
-} from '@dot-protocol/arena';
+} from '@dotprotocol/arena';
 
 // --- Predictor submits ---
 const predictionDOT = await createDOT({
@@ -466,7 +466,7 @@ Ordered stream of events from multiple worldlines.
 
 ```js
 import { DOT } from 'dot-protocol';
-import { fromBytes, checkChain } from '@dot-protocol/core';
+import { fromBytes, checkChain } from '@dotprotocol/core';
 
 // --- Subscribe to multiple worldlines ---
 const following = [aliceKey, bobKey, charlieKey]; // pubkeys
@@ -549,7 +549,7 @@ import {
   DOTFace,
   composeFaces,
   hasFace,
-} from '@dot-protocol/core';
+} from '@dotprotocol/core';
 
 // Keypair
 const keypair = await createKeypair();

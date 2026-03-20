@@ -4,8 +4,8 @@ import { resolve } from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@dot-protocol/core': resolve(__dirname, '../core/src/index.ts'),
-      '@dot-protocol/compression': resolve(__dirname, '../compression/src/index.ts'),
+      '@dotprotocol/core': resolve(__dirname, '../core/src/index.ts'),
+      '@dotprotocol/compression': resolve(__dirname, '../compression/src/index.ts'),
     },
   },
   test: {

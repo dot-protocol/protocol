@@ -7,7 +7,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "test": "pnpm -r test",
-    "test:vectors": "pnpm --filter @dot-protocol/core test:vectors",
+    "test:vectors": "pnpm --filter @dotprotocol/core test:vectors",
     "typecheck": "pnpm -r typecheck"
   },
   "license": "MIT",

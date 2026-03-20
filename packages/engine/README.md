@@ -149,15 +149,15 @@ const open = evaluateCondition(condition, {
 
 | Package | Purpose |
 |---|---|
-| `@dot-protocol/core` | Raw primitives — keypair, sign, verify, bytes |
-| `@dot-protocol/chain` | Worldlines + Four-Score reputation |
-| `@dot-protocol/relay` | CHORUS WebSocket transport |
-| `@dot-protocol/identity` | Persistent keypair + DID |
-| `@dot-protocol/qr` | Physical DOT — QR codes |
-| `@dot-protocol/arena` | Elo + blind prediction evaluation |
-| `@dot-protocol/compression` | Batch packing |
-| `@dot-protocol/wrapper` | Wrap binary as DOT chain |
-| `@dot-protocol/sdk` | Everything in one install |
+| `@dotprotocol/core` | Raw primitives — keypair, sign, verify, bytes |
+| `@dotprotocol/chain` | Worldlines + Four-Score reputation |
+| `@dotprotocol/relay` | CHORUS WebSocket transport |
+| `@dotprotocol/identity` | Persistent keypair + DID |
+| `@dotprotocol/qr` | Physical DOT — QR codes |
+| `@dotprotocol/arena` | Elo + blind prediction evaluation |
+| `@dotprotocol/compression` | Batch packing |
+| `@dotprotocol/wrapper` | Wrap binary as DOT chain |
+| `@dotprotocol/sdk` | Everything in one install |
 
 ## Wire format
 

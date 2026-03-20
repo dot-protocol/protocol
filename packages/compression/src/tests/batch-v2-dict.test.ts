@@ -17,7 +17,7 @@ import {
   DotType,
   createBLSKeypair,
   verifyAggregateSameSigner,
-} from '@dot-protocol/core';
+} from '@dotprotocol/core';
 import {
   serializeBatchV2,
   deserializeBatchV2,

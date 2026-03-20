@@ -1,5 +1,5 @@
-import { createKeypair, createDOT, DotType, toBytes, fromBytes } from '@dot-protocol/core';
-import type { DOT, Keypair } from '@dot-protocol/core';
+import { createKeypair, createDOT, DotType, toBytes, fromBytes } from '@dotprotocol/core';
+import type { DOT, Keypair } from '@dotprotocol/core';
 
 export interface Identity {
   keypair: Keypair;

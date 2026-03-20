@@ -12,9 +12,9 @@
  *   Re-executable: anyone can verify by re-running input through the named function
  */
 
-import { TransformRegistry } from '@dot-protocol/core';
-import type { DOT } from '@dot-protocol/core';
-import type { TransformCondition } from '@dot-protocol/core';
+import { TransformRegistry } from '@dotprotocol/core';
+import type { DOT } from '@dotprotocol/core';
+import type { TransformCondition } from '@dotprotocol/core';
 
 export interface TransformExecutionResult {
   success: boolean;

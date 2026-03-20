@@ -1,5 +1,5 @@
 /**
- * @dot-protocol/qr — v0.3.0
+ * @dotprotocol/qr — v0.3.0
  *
  * QR-DOT encoding: pack DOTs into scannable physical objects.
  * A DOT printed as QR on paper IS Falooda Protocol.

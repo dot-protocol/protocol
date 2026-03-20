@@ -51,7 +51,7 @@ describe('DOT engine — full flow integration', () => {
   });
 
   it('ECDH round-trip via crypto module', async () => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const { ecdh, encryptPayload, decryptPayload } = await import('../crypto.js');
     const alice = await createKeypair();
     const bob = await createKeypair();

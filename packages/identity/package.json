@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/identity",
+  "name": "@dotprotocol/identity",
   "version": "0.3.0",
   "description": "DOT Protocol identity \u2014 keypair + genesis DOT + export/import.",
   "type": "module",
@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*"
+    "@dotprotocol/core": "workspace:*"
   },
   "devDependencies": {},
   "license": "MIT",

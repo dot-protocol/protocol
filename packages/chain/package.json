@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/chain",
+  "name": "@dotprotocol/chain",
   "version": "0.3.0",
   "description": "DOT Protocol chain \u2014 append-only DOT worldline with pluggable storage.",
   "type": "module",
@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*"
+    "@dotprotocol/core": "workspace:*"
   },
   "license": "MIT",
   "files": [

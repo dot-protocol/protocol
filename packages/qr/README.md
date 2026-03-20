@@ -1,19 +1,19 @@
-# @dot-protocol/qr
+# @dotprotocol/qr
 
 Physical DOT — encode DOTs into QR codes and PNG steganography. The Falooda Protocol.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/qr)](https://www.npmjs.com/package/@dot-protocol/qr)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/qr)](https://www.npmjs.com/package/@dotprotocol/qr)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/qr
+npm install @dotprotocol/qr
 ```
 
 ## Quick start
 
 ```js
-import { encodeBinary, decodeBinary, selectQRSpec } from '@dot-protocol/qr';
+import { encodeBinary, decodeBinary, selectQRSpec } from '@dotprotocol/qr';
 import QRCode from 'qrcode'; // any QR library
 
 // Pack up to 19 DOTs into a single QR code
@@ -46,7 +46,7 @@ if (result.valid) {
 ### Binary mode
 
 ```js
-import { encodeBinary, decodeBinary, selectQRSpec, QR_CAPACITY } from '@dot-protocol/qr';
+import { encodeBinary, decodeBinary, selectQRSpec, QR_CAPACITY } from '@dotprotocol/qr';
 
 // Encode
 const spec  = selectQRSpec(dots.length, 'binary');
@@ -67,7 +67,7 @@ QR_CAPACITY.bytesPerDOT      // 153
 Hide DOTs in PNG pixel data — imperceptible to the eye.
 
 ```js
-import { encodeSteganographic, decodeSteganographic } from '@dot-protocol/qr';
+import { encodeSteganographic, decodeSteganographic } from '@dotprotocol/qr';
 
 const hostImage  = fs.readFileSync('photo.png');
 const withDOTs   = encodeSteganographic(dots, hostImage);
@@ -83,7 +83,7 @@ const result = decodeSteganographic(fs.readFileSync('photo-with-dots.png'));
 Chain of QR codes — for more than 19 DOTs in physical form.
 
 ```js
-import { encodeNested, decodeNested } from '@dot-protocol/qr';
+import { encodeNested, decodeNested } from '@dotprotocol/qr';
 
 // Returns array of QR payloads — one per physical code
 const codes = encodeNested(manyDots);
@@ -96,7 +96,7 @@ const result = decodeNested(codes);
 ### Verification
 
 ```js
-import { verifyPhysicalDOTs } from '@dot-protocol/qr';
+import { verifyPhysicalDOTs } from '@dotprotocol/qr';
 
 const { valid, verified, failed } = await verifyPhysicalDOTs(dots);
 // valid: boolean (all passed)

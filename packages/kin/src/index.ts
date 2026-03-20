@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * @dot-protocol/kin — MCP server
+ * @dotprotocol/kin — MCP server
  *
  * Exposes the DOT protocol engine as MCP tools that any AI agent can call.
  * The engine IS the physics. The tools are the interface.

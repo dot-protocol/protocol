@@ -1,10 +1,10 @@
 /**
- * Sample data generator for @dot-protocol/compression benchmarks and tests.
+ * Sample data generator for @dotprotocol/compression benchmarks and tests.
  *
  * Generates arrays of 153-byte DOT Uint8Arrays for various sensor stream
  * profiles. Produces correlated, realistic data without external dependencies.
  */
-import { createKeypair, createDOT, toBytes, DotType } from '@dot-protocol/core';
+import { createKeypair, createDOT, toBytes, DotType } from '@dotprotocol/core';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 

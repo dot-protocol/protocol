@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/wrapper",
+  "name": "@dotprotocol/wrapper",
   "version": "0.3.0",
   "description": "Wrap any binary protocol (HTTPS, WebSocket, JSON, raw bytes) as a signed, compressed DOT chain.",
   "type": "module",
@@ -35,8 +35,8 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*",
-    "@dot-protocol/compression": "workspace:*",
+    "@dotprotocol/core": "workspace:*",
+    "@dotprotocol/compression": "workspace:*",
     "@noble/curves": "^2.0.1"
   }
 }

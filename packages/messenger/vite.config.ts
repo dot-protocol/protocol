@@ -27,16 +27,16 @@ export default defineConfig({
   resolve: {
     alias: [
       {
-        find: '@dot-protocol/engine',
+        find: '@dotprotocol/engine',
         replacement: new URL('../engine/src/index.ts', import.meta.url).pathname,
       },
       {
-        find: '@dot-protocol/core',
+        find: '@dotprotocol/core',
         replacement: new URL('../core/src/index.ts', import.meta.url).pathname,
       },
       // Alias to browser-safe predictor-only barrel — avoids Node.js zstd/fs deps
       {
-        find: '@dot-protocol/compression',
+        find: '@dotprotocol/compression',
         replacement: new URL('../compression/src/predictor.ts', import.meta.url).pathname,
       },
     ],

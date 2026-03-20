@@ -9,13 +9,13 @@ describe('createIdentity', () => {
   });
 
   it('returns a genesis DOT (exactly 153 bytes)', async () => {
-    const { toBytes } = await import('@dot-protocol/core');
+    const { toBytes } = await import('@dotprotocol/core');
     const id = await createIdentity();
     expect(toBytes(id.genesisDOT).length).toBe(153);
   });
 
   it('genesis DOT is signed by identity keypair', async () => {
-    const { verifyDOT } = await import('@dot-protocol/core');
+    const { verifyDOT } = await import('@dotprotocol/core');
     const id = await createIdentity();
     expect(await verifyDOT(id.genesisDOT)).toBe(true);
   });
@@ -54,7 +54,7 @@ describe('export/import roundtrip', () => {
   });
 
   it('reimported genesis DOT still verifies', async () => {
-    const { verifyDOT } = await import('@dot-protocol/core');
+    const { verifyDOT } = await import('@dotprotocol/core');
     const id = await createIdentity();
     const imported = await importIdentity(exportIdentity(id));
     expect(await verifyDOT(imported.genesisDOT)).toBe(true);

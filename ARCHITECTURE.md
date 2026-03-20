@@ -52,7 +52,7 @@ messenger ──→ engine
 
 ## Package Details
 
-### `@dot-protocol/core`
+### `@dotprotocol/core`
 
 **153-byte primitives. The invariant layer. Zero dependencies.**
 
@@ -85,7 +85,7 @@ Everything in DOT is built on this. A DOT is always exactly 153 bytes. This pack
 
 ---
 
-### `@dot-protocol/compression`
+### `@dotprotocol/compression`
 
 **DOT stream compression — batch v2, varint, RLE, dictionary, prediction, rANS.**
 
@@ -118,7 +118,7 @@ Stage 5: rANS (range Asymmetric Numeral Systems)
 
 ---
 
-### `@dot-protocol/chain`
+### `@dotprotocol/chain`
 
 **Append-only DOT worldlines with pluggable storage.**
 
@@ -140,7 +140,7 @@ Provides:
 
 ---
 
-### `@dot-protocol/identity`
+### `@dotprotocol/identity`
 
 **Keypair + genesis DOT + persistent export/import.**
 
@@ -162,7 +162,7 @@ Provides:
 
 ---
 
-### `@dot-protocol/relay`
+### `@dotprotocol/relay`
 
 **CHORUS relay — WebSocket client + standalone server.**
 
@@ -192,7 +192,7 @@ The relay is intentionally dumb: it routes 185-byte binary frames without storin
 
 ---
 
-### `@dot-protocol/wrapper`
+### `@dotprotocol/wrapper`
 
 **Wrap any binary protocol as a signed, compressed DOT chain.**
 
@@ -206,14 +206,14 @@ const dotChain = await wrapper.wrap(httpsRequest)
 
 ---
 
-### `@dot-protocol/engine`
+### `@dotprotocol/engine`
 
 **The DOT Game Engine — all physics, one import.**
 
 The engine is the Unity of DOT. It composes all lower packages into a singleton that makes physics automatic for application developers.
 
 ```typescript
-import { DOT } from '@dot-protocol/engine'
+import { DOT } from '@dotprotocol/engine'
 
 await DOT.boot()
 // Physics: identity exists, chain ready, relay connected, predictor running
@@ -229,7 +229,7 @@ engine/src/
 ├── physics.ts     DOT physics: sign → chain → predict → emit
 ├── identity.ts    Engine-specific identity layer (getOrCreateIdentity)
 ├── chain.ts       Chain management (create, append, lookup)
-├── relay.ts       Relay transport abstraction (wraps @dot-protocol/relay)
+├── relay.ts       Relay transport abstraction (wraps @dotprotocol/relay)
 ├── crypto.ts      ECDH: Ed25519→X25519, ChaCha20 stream cipher
 ├── compress.ts    BatchCompressor: real-time compression stats
 └── sensor.ts      Entropy collection: timing jitter PUF + CSPRNG
@@ -239,14 +239,14 @@ See [`packages/engine/README.md`](packages/engine/README.md) for full API docume
 
 ---
 
-### `@dot-protocol/sdk`
+### `@dotprotocol/sdk`
 
 **One-install developer bundle.**
 
 Re-exports `core` + `compression` + `chain` + `identity` for developers who want lower-level access without installing 4 packages separately.
 
 ```typescript
-import { createDOT, verifyDOT, LinearPredictor, createIdentity } from '@dot-protocol/sdk'
+import { createDOT, verifyDOT, LinearPredictor, createIdentity } from '@dotprotocol/sdk'
 ```
 
 ---
@@ -457,8 +457,8 @@ Entries:   N × 153 bytes (raw DOTs)
 
 ```bash
 pnpm test               # all packages
-pnpm --filter @dot-protocol/engine test
-pnpm --filter @dot-protocol/core   test:vectors  # cross-language
+pnpm --filter @dotprotocol/engine test
+pnpm --filter @dotprotocol/core   test:vectors  # cross-language
 ```
 
 Coverage achieved:

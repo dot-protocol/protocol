@@ -22,7 +22,7 @@ describe('DOT engine', () => {
   });
 
   it('created DOT is signed (verifiable)', async () => {
-    const { verifyDOT, fromBytes } = await import('@dot-protocol/core');
+    const { verifyDOT, fromBytes } = await import('@dotprotocol/core');
     const dot = await DOT.create({ WHAT: 'test' });
     const parsed = fromBytes(dot);
     expect(await verifyDOT(parsed)).toBe(true);
@@ -36,7 +36,7 @@ describe('DOT engine', () => {
   });
 
   it('chain is properly linked (second DOT has correct chain hash)', async () => {
-    const { fromBytes } = await import('@dot-protocol/core');
+    const { fromBytes } = await import('@dotprotocol/core');
     const dot1 = await DOT.create({ WHAT: 'first' });
     const dot2 = await DOT.create({ WHAT: 'second' });
 
@@ -76,7 +76,7 @@ describe('DOT engine', () => {
   });
 
   it('genesis DOT has 32 zero bytes in chain field', async () => {
-    const { fromBytes } = await import('@dot-protocol/core');
+    const { fromBytes } = await import('@dotprotocol/core');
     const dot = await DOT.create({ WHAT: 'genesis' });
     const parsed = fromBytes(dot);
     expect([...parsed.chain].every(b => b === 0)).toBe(true);
@@ -89,7 +89,7 @@ describe('DOT engine', () => {
   it('can create a PING (no payload)', async () => {
     const dot = await DOT.create({});
     expect(dot).toHaveLength(153);
-    const { fromBytes } = await import('@dot-protocol/core');
+    const { fromBytes } = await import('@dotprotocol/core');
     const parsed = fromBytes(dot);
     expect([...parsed.payload].every(b => b === 0)).toBe(true);
   });

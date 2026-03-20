@@ -44,7 +44,7 @@ describe('RelayClient state machine', () => {
   });
 
   it('transitions to connecting then authenticating on connect', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false });
 
@@ -58,7 +58,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('sends auth response to challenge', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false });
 
@@ -79,7 +79,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('transitions to connected after authenticated message', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -100,7 +100,7 @@ describe('RelayClient state machine', () => {
   });
 
   it('calls frame handler on incoming binary frame', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -122,7 +122,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('subscribe sends subscribe message when connected', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -137,7 +137,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('pre-connect subscribe is replayed after authentication', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -155,7 +155,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('onFrame unsubscribe function removes handler', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -179,7 +179,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('sendFrame sends packed frame when connected (covers lines 95-97)', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -200,7 +200,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('unsubscribe sends unsubscribe message when connected (covers lines 86-88)', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -222,7 +222,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('ping interval fires and sends ping (covers lines 138-140)', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     // Use a very short ping interval so the timer fires during the test
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 50 });
@@ -246,7 +246,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('onclose clears ping timer and disconnects (covers lines 149-151)', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -269,7 +269,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('reconnects after disconnect when reconnect=true (covers lines 151-153)', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     // Short reconnect delay so the test doesn't take long
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: true, reconnectDelayMs: 50, pingIntervalMs: 999999 });
@@ -296,7 +296,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('onStatus unsubscribe removes handler', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -312,7 +312,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('ignores incoming binary frame with wrong size', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 
@@ -333,7 +333,7 @@ describe('RelayClient state machine', () => {
   }));
 
   it('ignores malformed JSON text messages', withMockWS(async (mockWS) => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const kp = await createKeypair();
     const client = new RelayClient({ url: 'ws://localhost:8765', reconnect: false, pingIntervalMs: 999999 });
 

@@ -1,5 +1,5 @@
-import { checkChain } from '@dot-protocol/core';
-import type { DOT } from '@dot-protocol/core';
+import { checkChain } from '@dotprotocol/core';
+import type { DOT } from '@dotprotocol/core';
 import type { IChainStorage } from './storage.js';
 import { MemoryStorage } from './storage.js';
 

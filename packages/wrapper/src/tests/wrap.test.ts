@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { wrap, unwrap, createSession } from '../index.js';
-import { DotType } from '@dot-protocol/core';
+import { DotType } from '@dotprotocol/core';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

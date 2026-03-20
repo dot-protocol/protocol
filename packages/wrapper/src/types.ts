@@ -1,8 +1,8 @@
-// @dot-protocol/wrapper — types
+// @dotprotocol/wrapper — types
 
-import type { BLSKeypair } from '@dot-protocol/core';
-export { DotType } from '@dot-protocol/core';
-import { DotType } from '@dot-protocol/core';
+import type { BLSKeypair } from '@dotprotocol/core';
+export { DotType } from '@dotprotocol/core';
+import { DotType } from '@dotprotocol/core';
 
 // ─── Protocol ─────────────────────────────────────────────────────────────────
 

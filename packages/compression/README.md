@@ -1,19 +1,19 @@
-# @dot-protocol/compression
+# @dotprotocol/compression
 
 Batch packing for DOT Protocol — Ed25519 + BLS12-381 signature aggregation.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/compression)](https://www.npmjs.com/package/@dot-protocol/compression)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/compression)](https://www.npmjs.com/package/@dotprotocol/compression)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/compression
+npm install @dotprotocol/compression
 ```
 
 ## Quick start
 
 ```js
-import { pack, unpack } from '@dot-protocol/compression';
+import { pack, unpack } from '@dotprotocol/compression';
 
 // Pack 1000 DOTs for storage/transport
 const packed  = pack(dots);         // much smaller than 1000 × 153 bytes
@@ -55,7 +55,7 @@ const dots = unpack(packed);
 Streaming pack — useful for very large archives:
 
 ```js
-import { packStream } from '@dot-protocol/compression';
+import { packStream } from '@dotprotocol/compression';
 
 const writer = packStream(outputStream);
 for await (const dot of dotStream) {

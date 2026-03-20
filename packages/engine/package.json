@@ -45,9 +45,9 @@
     "vitest": "^2.0.0"
   },
   "dependencies": {
-    "@dot-protocol/compression": "workspace:*",
-    "@dot-protocol/core": "workspace:*",
-    "@dot-protocol/relay": "workspace:*",
+    "@dotprotocol/compression": "workspace:*",
+    "@dotprotocol/core": "workspace:*",
+    "@dotprotocol/relay": "workspace:*",
     "@noble/ciphers": "^2.1.1",
     "@noble/curves": "^2.0.1"
   }

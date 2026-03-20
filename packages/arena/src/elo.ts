@@ -2,11 +2,11 @@
  * DOT Protocol v0.3.0 — Arena Elo Engine
  *
  * Per-domain Elo ratings computed from prediction/resolution DOT pairs.
- * Re-exports and extends the @dot-protocol/chain scoring utilities.
+ * Re-exports and extends the @dotprotocol/chain scoring utilities.
  */
 
-import { updateElo, applyEloUpdates, ELO_DEFAULT } from '@dot-protocol/chain';
-import type { EloUpdate } from '@dot-protocol/chain';
+import { updateElo, applyEloUpdates, ELO_DEFAULT } from '@dotprotocol/chain';
+import type { EloUpdate } from '@dotprotocol/chain';
 import type { ArenaMatch } from './types.js';
 
 export { updateElo, applyEloUpdates, ELO_DEFAULT };

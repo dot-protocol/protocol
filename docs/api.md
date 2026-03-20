@@ -156,12 +156,12 @@ await DOT.shutdown();
 
 ---
 
-## `@dot-protocol/core`
+## `@dotprotocol/core`
 
 Raw cryptographic primitives. Zero dependencies.
 
 ```js
-import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dot-protocol/core';
+import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dotprotocol/core';
 ```
 
 ---
@@ -246,7 +246,7 @@ const dot = fromBytes(buf);      // DOT object
 ### `DotType`
 
 ```js
-import { DotType } from '@dot-protocol/core';
+import { DotType } from '@dotprotocol/core';
 
 DotType.PUBLIC    // 0x00
 DotType.CIRCLE    // 0x01
@@ -261,7 +261,7 @@ DotType.EPHEMERAL // 0x03
 12 alphabet faces + 1 Transformer production rule:
 
 ```js
-import { DOTFace, composeFaces, hasFace, activeFaces, validateFaceMask } from '@dot-protocol/core';
+import { DOTFace, composeFaces, hasFace, activeFaces, validateFaceMask } from '@dotprotocol/core';
 
 // Alphabet faces
 DOTFace.File          // 0x001 — data at rest
@@ -294,7 +294,7 @@ validateFaceMask(mask);            // { valid: true }
 Registry of deterministic, verifiable state transforms.
 
 ```js
-import { TransformRegistry } from '@dot-protocol/core';
+import { TransformRegistry } from '@dotprotocol/core';
 
 // Built-in transforms
 TransformRegistry.has('time-capsule');      // true
@@ -315,7 +315,7 @@ TransformRegistry.register({
 });
 
 // Serialize condition for inclusion in DOT hash
-import { serializeTransformCondition, deserializeTransformCondition } from '@dot-protocol/core';
+import { serializeTransformCondition, deserializeTransformCondition } from '@dotprotocol/core';
 
 const cond = {
   transformId: 'time-capsule',
@@ -331,7 +331,7 @@ const back  = deserializeTransformCondition(bytes);
 ### TEACH byte royalty — v0.3.0
 
 ```js
-import { computeRoyalty, validateTEACHConfig, DEFAULT_TEACH_CONFIG } from '@dot-protocol/core';
+import { computeRoyalty, validateTEACHConfig, DEFAULT_TEACH_CONFIG } from '@dotprotocol/core';
 
 // DEFAULT: 1% royalty, 3 generations deep, x402 payment
 DEFAULT_TEACH_CONFIG; // { byte: 0x01, royaltyBps: 100, propagationDepth: 3, paymentMethod: 'x402' }
@@ -344,12 +344,12 @@ validateTEACHConfig(config); // { valid: true } | { valid: false, reason: '...' 
 
 ---
 
-## `@dot-protocol/chain`
+## `@dotprotocol/chain`
 
 Append-only worldlines with pluggable storage.
 
 ```js
-import { createChain, appendDOT, getHead, verifyChain } from '@dot-protocol/chain';
+import { createChain, appendDOT, getHead, verifyChain } from '@dotprotocol/chain';
 ```
 
 ### Chain operations
@@ -369,7 +369,7 @@ import {
   buildScores, computeTier, computeEloPercentile,
   updateElo, applyEloUpdates, applyWidthDecay,
   ELO_DEFAULT, TIER_THRESHOLDS
-} from '@dot-protocol/chain';
+} from '@dotprotocol/chain';
 
 // Build scores from raw chain data
 const scores = buildScores({
@@ -407,12 +407,12 @@ Tier thresholds:
 
 ---
 
-## `@dot-protocol/relay`
+## `@dotprotocol/relay`
 
 CHORUS relay client — WebSocket transport for 153-byte DOTs.
 
 ```js
-import { RelayClient } from '@dot-protocol/relay';
+import { RelayClient } from '@dotprotocol/relay';
 
 const client = new RelayClient({
   url: 'wss://dotdotdot.rocks',
@@ -431,7 +431,7 @@ client.disconnect();
 Frame format (relay wire protocol):
 
 ```js
-import { packFrame, unpackFrame, FRAME_SIZE } from '@dot-protocol/relay';
+import { packFrame, unpackFrame, FRAME_SIZE } from '@dotprotocol/relay';
 
 const frame = packFrame(dotBytes, circleId);  // Uint8Array(FRAME_SIZE)
 const { dot, circleId } = unpackFrame(frame); // destructure
@@ -439,7 +439,7 @@ const { dot, circleId } = unpackFrame(frame); // destructure
 
 ---
 
-## `@dot-protocol/qr` — v0.3.0
+## `@dotprotocol/qr` — v0.3.0
 
 Physical DOT — the Falooda Protocol. A DOT printed as QR on paper IS communication.
 
@@ -450,7 +450,7 @@ import {
   encodeNested, decodeNested,
   selectQRSpec, verifyPhysicalDOTs,
   QR_CAPACITY,
-} from '@dot-protocol/qr';
+} from '@dotprotocol/qr';
 ```
 
 ### Encoding modes
@@ -502,7 +502,7 @@ const result = await verifyPhysicalDOTs(dots, 'binary');
 
 ---
 
-## `@dot-protocol/arena` — v0.3.0
+## `@dotprotocol/arena` — v0.3.0
 
 Elo engine, blind evaluation, prediction resolution.
 
@@ -511,7 +511,7 @@ import {
   resolveSession, verifyPrediction, verifyResolution, hashPredictionDOT,
   computeEloFromMatches, computeEloPercentile, rankLeaderboard,
   updateElo, ELO_DEFAULT,
-} from '@dot-protocol/arena';
+} from '@dotprotocol/arena';
 ```
 
 ### Blind evaluation protocol
@@ -563,12 +563,12 @@ const board = rankLeaderboard('prediction', [
 
 ---
 
-## `@dot-protocol/compression`
+## `@dotprotocol/compression`
 
 Batch packing — multiple DOTs into fewer bytes.
 
 ```js
-import { batchPack, batchUnpack } from '@dot-protocol/compression';
+import { batchPack, batchUnpack } from '@dotprotocol/compression';
 
 const packed = await batchPack(dots);    // Uint8Array — shared pubkey + deduped signatures
 const back   = batchUnpack(packed);      // DOT[]
@@ -579,12 +579,12 @@ const back   = batchUnpack(packed);      // DOT[]
 
 ---
 
-## `@dot-protocol/wrapper`
+## `@dotprotocol/wrapper`
 
 Wrap any binary payload as a DOT chain. The payload becomes the data; the chain is the proof.
 
 ```js
-import { wrap, unwrap, createSession } from '@dot-protocol/wrapper';
+import { wrap, unwrap, createSession } from '@dotprotocol/wrapper';
 
 const session = await createSession(keypair);
 const chain   = await wrap(session, binaryData, { chunkSize: 14 }); // fits in 16B payload
@@ -596,7 +596,7 @@ const data    = await unwrap(chain);                                  // origina
 ## Constants
 
 ```js
-import { DOT_SIZE, PAYLOAD_SIZE, OFF } from '@dot-protocol/core';
+import { DOT_SIZE, PAYLOAD_SIZE, OFF } from '@dotprotocol/core';
 
 DOT_SIZE     // 153
 PAYLOAD_SIZE // 16

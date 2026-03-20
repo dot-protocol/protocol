@@ -8,7 +8,7 @@ import {
   ELO_DEFAULT,
 } from '../elo.js';
 import type { ArenaMatch } from '../types.js';
-import { createKeypair, createDOT } from '@dot-protocol/core';
+import { createKeypair, createDOT } from '@dotprotocol/core';
 
 async function makeMockMatch(domain: string, correct: boolean): Promise<ArenaMatch> {
   const kp = await createKeypair();

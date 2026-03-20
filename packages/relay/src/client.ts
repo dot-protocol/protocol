@@ -2,7 +2,7 @@
 // client.ts — CHORUS relay client (browser + Node compatible)
 
 import { packFrame, unpackFrame, FRAME_SIZE, type RelayConfig, type RelayStatus } from './types.js';
-import type { Keypair } from '@dot-protocol/core';
+import type { Keypair } from '@dotprotocol/core';
 
 const PKCS8_PREFIX = new Uint8Array([
   0x30, 0x2e, 0x02, 0x01, 0x00, 0x30, 0x05, 0x06,

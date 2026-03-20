@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/qr",
+  "name": "@dotprotocol/qr",
   "version": "0.3.0",
   "description": "QR-DOT encoding: pack DOTs into scannable physical objects. Binary, steganographic, and nested modes.",
   "type": "module",
@@ -35,6 +35,6 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*"
+    "@dotprotocol/core": "workspace:*"
   }
 }

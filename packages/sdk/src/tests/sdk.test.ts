@@ -18,7 +18,7 @@ import {
   dotId,
 } from '../index.js';
 
-describe('@dot-protocol/sdk — umbrella smoke tests', () => {
+describe('@dotprotocol/sdk — umbrella smoke tests', () => {
   it('all imports are defined', () => {
     expect(createKeypair).toBeDefined();
     expect(createDOT).toBeDefined();

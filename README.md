@@ -36,15 +36,15 @@ DOT is a cryptographic observation format. A contact between two things that cha
 | Package | Install | Purpose |
 |---|---|---|
 | [`dot-protocol`](packages/engine) | `npm i dot-protocol` | **One-liner API** — boot, create, verify. Start here. |
-| [`@dot-protocol/core`](packages/core) | `npm i @dot-protocol/core` | Raw primitives — keypair, sign, verify, bytes |
-| [`@dot-protocol/chain`](packages/chain) | `npm i @dot-protocol/chain` | Append-only worldlines + scoring |
-| [`@dot-protocol/relay`](packages/relay) | `npm i @dot-protocol/relay` | CHORUS relay client — WebSocket transport |
-| [`@dot-protocol/identity`](packages/identity) | `npm i @dot-protocol/identity` | Persistent keypair + DID |
-| [`@dot-protocol/compression`](packages/compression) | `npm i @dot-protocol/compression` | Batch packing — Ed25519 + BLS12-381 |
-| [`@dot-protocol/wrapper`](packages/wrapper) | `npm i @dot-protocol/wrapper` | Wrap any binary as DOT chain |
-| [`@dot-protocol/qr`](packages/qr) | `npm i @dot-protocol/qr` | Physical DOT — encode/decode QR codes |
-| [`@dot-protocol/arena`](packages/arena) | `npm i @dot-protocol/arena` | Elo engine + blind prediction evaluation |
-| [`@dot-protocol/sdk`](packages/sdk) | `npm i @dot-protocol/sdk` | Everything re-exported from one install |
+| [`@dotprotocol/core`](packages/core) | `npm i @dotprotocol/core` | Raw primitives — keypair, sign, verify, bytes |
+| [`@dotprotocol/chain`](packages/chain) | `npm i @dotprotocol/chain` | Append-only worldlines + scoring |
+| [`@dotprotocol/relay`](packages/relay) | `npm i @dotprotocol/relay` | CHORUS relay client — WebSocket transport |
+| [`@dotprotocol/identity`](packages/identity) | `npm i @dotprotocol/identity` | Persistent keypair + DID |
+| [`@dotprotocol/compression`](packages/compression) | `npm i @dotprotocol/compression` | Batch packing — Ed25519 + BLS12-381 |
+| [`@dotprotocol/wrapper`](packages/wrapper) | `npm i @dotprotocol/wrapper` | Wrap any binary as DOT chain |
+| [`@dotprotocol/qr`](packages/qr) | `npm i @dotprotocol/qr` | Physical DOT — encode/decode QR codes |
+| [`@dotprotocol/arena`](packages/arena) | `npm i @dotprotocol/arena` | Elo engine + blind prediction evaluation |
+| [`@dotprotocol/sdk`](packages/sdk) | `npm i @dotprotocol/sdk` | Everything re-exported from one install |
 
 ---
 
@@ -81,7 +81,7 @@ await DOT.create({ WHAT: 'private message', WHO: recipientPublicKey });
 ### Low-level core primitives
 
 ```js
-import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dot-protocol/core';
+import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dotprotocol/core';
 
 const keypair = await createKeypair();
 const genesis = await createDOT({ keypair });
@@ -138,7 +138,7 @@ const contact = await DOT.create({ WHAT: aliceKey.slice(0, 16) });
 | `0x03` | `EPHEMERAL` | Dissolves after receipt |
 
 ```js
-import { DotType, createDOT } from '@dot-protocol/core';
+import { DotType, createDOT } from '@dotprotocol/core';
 const dot = await createDOT({ keypair, type: DotType.PRIVATE });
 ```
 
@@ -152,7 +152,7 @@ DOT is transport-agnostic. 153 bytes go anywhere:
 |---|---|
 | WebSocket / CHORUS | Built-in via `DOT.boot()` |
 | HTTP | POST `Uint8Array(153)` as binary body |
-| QR code | `@dot-protocol/qr` — ~19 DOTs per standard QR |
+| QR code | `@dotprotocol/qr` — ~19 DOTs per standard QR |
 | Bluetooth / NFC | Standard BLE/NFC data channel |
 | LoRa | 153 bytes fits comfortably |
 | SMS / paper | Hex encode (306 chars) |
@@ -169,7 +169,7 @@ The relay knows nothing. It forwards 153 bytes without reading them.
 DOTs can now describe deterministic, verifiable state transitions. Three built-ins:
 
 ```js
-import { TransformRegistry, serializeTransformCondition } from '@dot-protocol/core';
+import { TransformRegistry, serializeTransformCondition } from '@dotprotocol/core';
 
 // time-capsule: reveal at a timestamp
 // signer-approval: reveal when a key signs
@@ -184,7 +184,7 @@ const valid = spec.verify(inputDOT, outputDOT); // deterministic
 Composable bitfield faces declare what a DOT is:
 
 ```js
-import { composeFaces, hasFace, activeFaces, DOTFace } from '@dot-protocol/core';
+import { composeFaces, hasFace, activeFaces, DOTFace } from '@dotprotocol/core';
 
 const mask = composeFaces(DOTFace.QR, DOTFace.Container, DOTFace.Microdot);
 hasFace(mask, DOTFace.QR);  // true
@@ -196,7 +196,7 @@ activeFaces(mask);           // ['QR', 'Container', 'Microdot']
 Protocol-native reputation — no platform assigns it:
 
 ```js
-import { buildScores, computeTier } from '@dot-protocol/chain';
+import { buildScores, computeTier } from '@dotprotocol/chain';
 
 const scores = buildScores({ chainLength: 500, branchedChainCount: 25 });
 computeTier(scores); // 'observer' | 'contributor' | 'architect' | 'luminary'
@@ -205,7 +205,7 @@ computeTier(scores); // 'observer' | 'contributor' | 'architect' | 'luminary'
 ### Physical DOT (QR / Falooda Protocol)
 
 ```js
-import { encodeBinary, decodeBinary, selectQRSpec } from '@dot-protocol/qr';
+import { encodeBinary, decodeBinary, selectQRSpec } from '@dotprotocol/qr';
 
 const spec  = selectQRSpec(5, 'binary');  // 5 DOTs, QR version auto-selected
 const bytes = encodeBinary(dots);          // feed to any QR library
@@ -215,7 +215,7 @@ const back  = decodeBinary(bytes);         // reconstruct DOTs
 ### Arena (Elo + blind prediction evaluation)
 
 ```js
-import { resolveSession, rankLeaderboard, ELO_DEFAULT } from '@dot-protocol/arena';
+import { resolveSession, rankLeaderboard, ELO_DEFAULT } from '@dotprotocol/arena';
 
 const { matches } = await resolveSession(session, resolutionDOT);
 const board = rankLeaderboard('prediction', entries);

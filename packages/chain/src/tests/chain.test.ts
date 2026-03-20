@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createKeypair, createDOT, toBytes, fromBytes } from '@dot-protocol/core';
+import { createKeypair, createDOT, toBytes, fromBytes } from '@dotprotocol/core';
 import { createChain, appendDOT, getHead, getRange, verifyChain } from '../index.js';
 import { MemoryStorage } from '../index.js';
 

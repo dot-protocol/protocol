@@ -1,5 +1,5 @@
 // server.ts — Node.js CHORUS relay server (SDK entry point)
-// Browser-incompatible (uses ws package + Buffer). Import via '@dot-protocol/relay/server'.
+// Browser-incompatible (uses ws package + Buffer). Import via '@dotprotocol/relay/server'.
 
 export { packFrame, unpackFrame, FRAME_SIZE, DOT_SIZE, CIRCLE_ID_SIZE } from './types.js';
 

@@ -1,5 +1,5 @@
 /**
- * @dot-protocol/arena — v0.3.0
+ * @dotprotocol/arena — v0.3.0
  *
  * Elo engine, blind evaluation, prediction resolution.
  * DOT spreads like life, not like messages.

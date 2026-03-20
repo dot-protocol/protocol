@@ -3,7 +3,7 @@
  *
  * One singleton. One boot. Physics runs automatically.
  *
- *   import { DOT } from '@dot-protocol/engine';
+ *   import { DOT } from '@dotprotocol/engine';
  *   await DOT.boot({ offline: true });
  *   const bytes = await DOT.create({ WHAT: 'Hello, universe' }); // 153 bytes
  *
@@ -25,7 +25,7 @@ import { createBatchCompressor } from './compress.js';
 import { createWatchdog } from './watchdog.js';
 import { computeStatus, computeTrend } from './health.js';
 import { createBLETransport } from './ble.js';
-import { signBLS, aggregateSignatures, verifyAggregateSameSigner } from '@dot-protocol/core';
+import { signBLS, aggregateSignatures, verifyAggregateSameSigner } from '@dotprotocol/core';
 import { bls12_381 as blsCurve } from '@noble/curves/bls12-381.js';
 import type { DotIdentity, FullIdentity } from './identity.js';
 import type { Chain } from './chain.js';

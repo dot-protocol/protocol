@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/arena",
+  "name": "@dotprotocol/arena",
   "version": "0.3.0",
   "description": "DOT Protocol Arena — Elo engine, blind evaluation, prediction resolution. DOT spreads like life, not like messages.",
   "type": "module",
@@ -36,7 +36,7 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*",
-    "@dot-protocol/chain": "workspace:*"
+    "@dotprotocol/core": "workspace:*",
+    "@dotprotocol/chain": "workspace:*"
   }
 }

@@ -6,8 +6,8 @@ tags: [ecdh, encryption, bls, compression, sensor, puf, chacha20, x25519]
 
 dependency-graph:
   requires:
-    - "@dot-protocol/core (BLS, Ed25519, createDOT)"
-    - "@dot-protocol/compression (LinearPredictor)"
+    - "@dotprotocol/core (BLS, Ed25519, createDOT)"
+    - "@dotprotocol/compression (LinearPredictor)"
     - "@noble/curves/ed25519 (X25519 key conversion)"
     - "@noble/ciphers/chacha (ChaCha20 stream cipher)"
   provides:
@@ -76,7 +76,7 @@ Ed25519 identity keys converted to X25519 via `ed25519.utils.toMontgomery()` / `
 
 ### Task 7: BLS Batch Sealing (engine.ts)
 
-`DOT.seal(n)` signs the last N DOTs with BLS12-381 (G1 short signatures, 48 bytes). BLS private key derived deterministically: `SHA-256(ed25519_privkey || "bls-seal")`. `aggregateSignatures()` from `@dot-protocol/core` reduces N signatures to one 48-byte proof. `sealEvery` option enables auto-sealing.
+`DOT.seal(n)` signs the last N DOTs with BLS12-381 (G1 short signatures, 48 bytes). BLS private key derived deterministically: `SHA-256(ed25519_privkey || "bls-seal")`. `aggregateSignatures()` from `@dotprotocol/core` reduces N signatures to one 48-byte proof. `sealEvery` option enables auto-sealing.
 
 ### Task 8: Sensor PUF Fingerprint (`sensor.ts`)
 
@@ -98,7 +98,7 @@ Ed25519 identity keys converted to X25519 via `ed25519.utils.toMontgomery()` / `
 ### [Rule 1 - Bug] Fixed async createKeypair() test calls
 
 - **Found during:** Task 1 — crypto.test.ts
-- **Issue:** Plan's test code called `createKeypair()` synchronously. It returns a Promise in `@dot-protocol/core`.
+- **Issue:** Plan's test code called `createKeypair()` synchronously. It returns a Promise in `@dotprotocol/core`.
 - **Fix:** Added `await` to all `createKeypair()` calls in crypto.test.ts. Made all affected `it()` callbacks `async`.
 - **Commit:** 9039058e
 

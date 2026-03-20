@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/compression",
+  "name": "@dotprotocol/compression",
   "version": "0.3.0",
   "description": "DOT Protocol stream compression \u2014 batch v2, varint, RLE, dictionary, prediction, rANS.",
   "type": "module",
@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*",
+    "@dotprotocol/core": "workspace:*",
     "zstd-napi": "^0.0.12"
   },
   "devDependencies": {

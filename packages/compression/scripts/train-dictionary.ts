@@ -14,7 +14,7 @@
 
 import { createHash, gzipSync } from 'node:zlib';
 import { createHash as cryptoHash } from 'node:crypto';
-import { createKeypair, createBLSKeypair } from '@dot-protocol/core';
+import { createKeypair, createBLSKeypair } from '@dotprotocol/core';
 import { generateSensorStream, type SensorProfile } from '../src/sample-generator.js';
 import { serializeBatchV2 } from '../src/batch-v2.js';
 import { trainDictionary } from '../src/zstd.js';

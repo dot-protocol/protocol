@@ -1,19 +1,19 @@
-# @dot-protocol/arena
+# @dotprotocol/arena
 
 Elo engine + blind prediction evaluation for DOT Protocol.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/arena)](https://www.npmjs.com/package/@dot-protocol/arena)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/arena)](https://www.npmjs.com/package/@dotprotocol/arena)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/arena
+npm install @dotprotocol/arena
 ```
 
 ## Quick start
 
 ```js
-import { resolveSession, rankLeaderboard } from '@dot-protocol/arena';
+import { resolveSession, rankLeaderboard } from '@dotprotocol/arena';
 
 // Resolve predictions against oracle outcome
 const { matches, ratings } = await resolveSession(session, resolutionDOT);
@@ -31,7 +31,7 @@ const board = rankLeaderboard('prediction', entries);
 5. **Chain proves** the sequence — oracle cannot have seen predictions before resolving
 
 ```js
-import { hashPredictionDOT, resolveSession, verifyPrediction } from '@dot-protocol/arena';
+import { hashPredictionDOT, resolveSession, verifyPrediction } from '@dotprotocol/arena';
 
 // --- Predictor ---
 const predDOT    = await createDOT({ keypair, payload: myAnswer });
@@ -94,7 +94,7 @@ const board = rankLeaderboard('crypto', [
 ### Elo utilities
 
 ```js
-import { updateElo, computeEloFromMatches, computeEloPercentile } from '@dot-protocol/arena';
+import { updateElo, computeEloFromMatches, computeEloPercentile } from '@dotprotocol/arena';
 
 // Single match
 const { newRating, delta } = updateElo({

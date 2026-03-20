@@ -1,7 +1,7 @@
-// @dot-protocol/wrapper — unwrap()
+// @dotprotocol/wrapper — unwrap()
 
-import { deserializeBatchV2 } from '@dot-protocol/compression';
-import { verifyAggregateSameSigner } from '@dot-protocol/core';
+import { deserializeBatchV2 } from '@dotprotocol/compression';
+import { verifyAggregateSameSigner } from '@dotprotocol/core';
 import type { UnwrappedPayload, UnwrapOptions } from './types.js';
 import { PROTOCOL_FROM_ID } from './types.js';
 
@@ -213,7 +213,7 @@ async function decodeFrameWithoutBLSVerification(frame: Uint8Array): Promise<Uin
 
   if (hasTsDelta) {
     // Import delta decoder
-    const { decodeTimestampDeltas, encodeTimestampDeltas } = await import('@dot-protocol/compression');
+    const { decodeTimestampDeltas, encodeTimestampDeltas } = await import('@dotprotocol/compression');
     timestamps = decodeTimestampDeltas(body.subarray(bodyCursor), dotCount);
     tsColumnSize = encodeTimestampDeltas(timestamps).length;
   } else {
@@ -230,7 +230,7 @@ async function decodeFrameWithoutBLSVerification(frame: Uint8Array): Promise<Uin
   let typesEnd: number;
 
   if (hasTypeRLE) {
-    const { decodePayloadTypes } = await import('@dot-protocol/compression');
+    const { decodePayloadTypes } = await import('@dotprotocol/compression');
     const rleEnd = body.length - dotCount * PAYLOAD_SIZE_DOT;
     if (rleEnd <= tsEnd) {
       throw new RangeError('unwrap: buffer too short for RLE types + payloads');

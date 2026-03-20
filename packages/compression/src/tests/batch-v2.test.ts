@@ -6,7 +6,7 @@ import {
   DotType,
   createBLSKeypair,
   batchPackBLS,
-} from '@dot-protocol/core';
+} from '@dotprotocol/core';
 import { serializeBatchV2, deserializeBatchV2 } from '../batch-v2.js';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

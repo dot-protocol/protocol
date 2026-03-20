@@ -11,8 +11,8 @@
  * This module produces the raw bytes to encode.
  */
 
-import { toBytes, fromBytes } from '@dot-protocol/core';
-import type { DOT } from '@dot-protocol/core';
+import { toBytes, fromBytes } from '@dotprotocol/core';
+import type { DOT } from '@dotprotocol/core';
 import { QR_CAPACITY, type QREncoding, type QRDOTSpec } from './types.js';
 
 export const DOT_SIZE = 153 as const;

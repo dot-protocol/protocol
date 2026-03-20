@@ -1,20 +1,20 @@
-# @dot-protocol/relay
+# @dotprotocol/relay
 
 CHORUS relay client — WebSocket transport for DOT Protocol.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/relay)](https://www.npmjs.com/package/@dot-protocol/relay)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/relay)](https://www.npmjs.com/package/@dotprotocol/relay)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/relay
+npm install @dotprotocol/relay
 ```
 
 ## Quick start
 
 ```js
-import { RelayClient } from '@dot-protocol/relay';
-import { toBytes, fromBytes } from '@dot-protocol/core';
+import { RelayClient } from '@dotprotocol/relay';
+import { toBytes, fromBytes } from '@dotprotocol/core';
 
 const relay = new RelayClient('wss://dotdotdot.rocks');
 
@@ -87,7 +87,7 @@ relay.on('error',      (err) => { ... });
 Low-level frame serialization. Usually not needed directly:
 
 ```js
-import { packFrame, unpackFrame } from '@dot-protocol/relay';
+import { packFrame, unpackFrame } from '@dotprotocol/relay';
 
 const frame    = packFrame(dotBytes);   // Uint8Array — relay wire frame
 const dotBytes = unpackFrame(frame);    // Uint8Array(153)
@@ -111,7 +111,7 @@ The relay knows nothing. It forwards 153 bytes.
 The CHORUS relay is open source. Run your own:
 
 ```bash
-npx @dot-protocol/relay-server --port 8765
+npx @dotprotocol/relay-server --port 8765
 ```
 
 Point clients at `ws://localhost:8765`.

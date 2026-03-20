@@ -2,13 +2,13 @@
  * DOT Engine — Identity
  *
  * Get or create the device's DOT identity. Uses WebCrypto Ed25519 everywhere
- * (Node 18+ has globalThis.crypto.subtle). Falls back to @dot-protocol/core
+ * (Node 18+ has globalThis.crypto.subtle). Falls back to @dotprotocol/core
  * createKeypair() if Ed25519 generateKey is unavailable.
  *
  * Identity is created ONCE and reused. Clearing storage = new identity.
  */
 
-import { createKeypair } from '@dot-protocol/core';
+import { createKeypair } from '@dotprotocol/core';
 import { collectEntropy, hashEntropy } from './sensor.js';
 
 const STORAGE_KEY = 'dot:identity';
@@ -204,7 +204,7 @@ export async function getOrCreateIdentity(): Promise<FullIdentity> {
     return _cached;
   }
 
-  // Fallback: @dot-protocol/core createKeypair (uses @noble/curves)
+  // Fallback: @dotprotocol/core createKeypair (uses @noble/curves)
   const kp = await createKeypair();
   _cached = await buildIdentity(kp.privateKey, kp.publicKey);
   saveIdentity(kp.privateKey, kp.publicKey);

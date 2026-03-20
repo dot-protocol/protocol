@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 export default defineConfig({
   resolve: {
     alias: {
-      '@dot-protocol/core': resolve(__dirname, '../core/src/index.ts'),
+      '@dotprotocol/core': resolve(__dirname, '../core/src/index.ts'),
     },
   },
   test: {

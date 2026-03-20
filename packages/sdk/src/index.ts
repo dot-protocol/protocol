@@ -1,26 +1,26 @@
 /**
- * @dot-protocol/sdk
+ * @dotprotocol/sdk
  *
- * Umbrella package re-exporting all @dot-protocol/* packages.
+ * Umbrella package re-exporting all @dotprotocol/* packages.
  * Install this for the full DOT Protocol developer experience.
  *
  * @example
- * import { createDOT, wrap, dotId, serializeBatchV2 } from '@dot-protocol/sdk';
+ * import { createDOT, wrap, dotId, serializeBatchV2 } from '@dotprotocol/sdk';
  */
 
 // ── Core — DOT creation, signing, verification, BLS ─────────────────────────
-export * from '@dot-protocol/core';
+export * from '@dotprotocol/core';
 
 // ── Compression — batch v2, zstd, rANS, predictor, Weissman ─────────────────
-export * from '@dot-protocol/compression';
+export * from '@dotprotocol/compression';
 
 // ── Identity — keypair + genesis DOT + export/import ────────────────────────
 // (createIdentity, exportIdentity, importIdentity — no conflicts with core)
-export * from '@dot-protocol/identity';
+export * from '@dotprotocol/identity';
 
 // ── Chain — append-only worldline + pluggable storage ───────────────────────
 // (createChain, appendDOT, getHead, getRange, verifyChain, MemoryStorage — no conflicts)
-export * from '@dot-protocol/chain';
+export * from '@dotprotocol/chain';
 
 // ── Relay — CHORUS relay client + server ────────────────────────────────────
 // DOT_SIZE is excluded here — it conflicts with core's DOT_SIZE (both = 153).
@@ -33,7 +33,7 @@ export {
   decodeCircleId,
   FRAME_SIZE,
   CIRCLE_ID_SIZE,
-} from '@dot-protocol/relay';
+} from '@dotprotocol/relay';
 export type {
   RelayConfig,
   RelayStatus,
@@ -41,7 +41,7 @@ export type {
   RelayMessage,
   FrameHandler,
   StatusHandler,
-} from '@dot-protocol/relay';
+} from '@dotprotocol/relay';
 
 // ── QR — encode/decode DOTs into scannable physical objects (Falooda) ────────
 export {
@@ -54,14 +54,14 @@ export {
   selectQRSpec,
   verifyPhysicalDOTs,
   QR_CAPACITY,
-} from '@dot-protocol/qr';
+} from '@dotprotocol/qr';
 export type {
   QRDOTSpec,
   PhysicalDOT,
   QRDecodeResult,
   QREncoding,
   QRErrorCorrection,
-} from '@dot-protocol/qr';
+} from '@dotprotocol/qr';
 
 // ── Arena — Elo engine, blind evaluation, prediction resolution ──────────────
 export {
@@ -75,7 +75,7 @@ export {
   verifyPrediction,
   resolveSession,
   hashPredictionDOT,
-} from '@dot-protocol/arena';
+} from '@dotprotocol/arena';
 export type {
   PredictionDOT,
   ResolutionDOT,
@@ -83,7 +83,7 @@ export type {
   BlindEvalSession,
   LeaderboardEntry,
   EloUpdate,
-} from '@dot-protocol/arena';
+} from '@dotprotocol/arena';
 
 // ── Wrapper — wrap/unwrap any binary payload as DOT chain ───────────────────
 // DotType is excluded here — it is already exported by core above.
@@ -95,7 +95,7 @@ export {
   bridge,
   bridgeFetch,
   dotId,
-} from '@dot-protocol/wrapper';
+} from '@dotprotocol/wrapper';
 export type {
   WrappedChain,
   UnwrappedPayload,
@@ -107,4 +107,4 @@ export type {
   BridgeHandle,
   DotIdentity,
   IdentityOptions,
-} from '@dot-protocol/wrapper';
+} from '@dotprotocol/wrapper';

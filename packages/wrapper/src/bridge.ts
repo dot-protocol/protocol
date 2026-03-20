@@ -1,4 +1,4 @@
-// @dot-protocol/wrapper — bridge()
+// @dotprotocol/wrapper — bridge()
 // TCP proxy that translates DOT chains <-> HTTP requests.
 // Node.js only (net, fetch — not browser).
 

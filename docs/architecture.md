@@ -8,24 +8,24 @@ How the packages relate, what belongs where, and how to build with them.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                         @dot-protocol/sdk                           │
+│                         @dotprotocol/sdk                           │
 │                   (everything re-exported)                          │
 └────────┬────────┬───────────┬────────┬──────────┬──────────────────┘
          │        │           │        │          │
          ▼        ▼           ▼        ▼          ▼
-    dot-protocol  @dot-protocol/  @dot-protocol/  @dot-protocol/
+    dot-protocol  @dotprotocol/  @dotprotocol/  @dotprotocol/
     (engine)      qr              arena           wrapper
          │        │           │        │          │
          └────────┴─────┬─────┴────────┘          │
                         ▼                         │
-               @dot-protocol/relay                │
+               @dotprotocol/relay                │
                         │                         │
                         ▼                         │
-               @dot-protocol/chain ◄──────────────┘
+               @dotprotocol/chain ◄──────────────┘
                         │
                         ▼
-               @dot-protocol/core ◄── @dot-protocol/identity
-                                  ◄── @dot-protocol/compression
+               @dotprotocol/core ◄── @dotprotocol/identity
+                                  ◄── @dotprotocol/compression
 ```
 
 **Rule:** Arrows point from higher-level to lower-level. Higher-level packages may import from lower-level ones. Never the reverse.
@@ -34,7 +34,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ## Package Responsibilities
 
-### `@dot-protocol/core`
+### `@dotprotocol/core`
 
 **The atom.** No runtime dependencies. Pure functions only.
 
@@ -53,9 +53,9 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/chain`
+### `@dotprotocol/chain`
 
-**The worldline.** Depends only on `@dot-protocol/core`.
+**The worldline.** Depends only on `@dotprotocol/core`.
 
 - `WorldLine` class — append-only sequence of DOTs per identity
 - `checkChain()` re-export from core
@@ -71,7 +71,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/relay`
+### `@dotprotocol/relay`
 
 **Transport.** WebSocket client for CHORUS relay. Depends on core.
 
@@ -83,7 +83,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/identity`
+### `@dotprotocol/identity`
 
 **Persistence.** Keypair storage and DID generation. Depends on core.
 
@@ -95,7 +95,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/compression`
+### `@dotprotocol/compression`
 
 **Batch packing.** Ed25519 signature aggregation (BLS12-381 optional). Depends on core.
 
@@ -106,7 +106,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/qr`
+### `@dotprotocol/qr`
 
 **Physical DOTs.** Falooda Protocol. Depends on core.
 
@@ -121,7 +121,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/arena`
+### `@dotprotocol/arena`
 
 **Prediction + reputation.** Elo engine and blind evaluation. Depends on core + chain.
 
@@ -136,7 +136,7 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/wrapper`
+### `@dotprotocol/wrapper`
 
 **Legacy bridge.** Wrap any binary data as a DOT chain. Depends on core.
 
@@ -162,12 +162,12 @@ How the packages relate, what belongs where, and how to build with them.
 
 ---
 
-### `@dot-protocol/sdk`
+### `@dotprotocol/sdk`
 
 **Everything in one install.** Re-exports all packages. Use when you want one `npm install` to get everything.
 
 ```js
-import { DOT, createDOT, WorldLine, RelayClient, encodeBinary, resolveSession } from '@dot-protocol/sdk';
+import { DOT, createDOT, WorldLine, RelayClient, encodeBinary, resolveSession } from '@dotprotocol/sdk';
 ```
 
 ---
@@ -176,22 +176,22 @@ import { DOT, createDOT, WorldLine, RelayClient, encodeBinary, resolveSession } 
 
 | You want to... | Use |
 |---|---|
-| Create and verify DOTs | `@dot-protocol/core` |
-| Build a chain / worldline | `@dot-protocol/chain` |
-| Connect to CHORUS relay | `@dot-protocol/relay` |
-| Store keypairs on disk | `@dot-protocol/identity` |
-| Pack many DOTs efficiently | `@dot-protocol/compression` |
-| Encode DOTs into QR codes | `@dot-protocol/qr` |
-| Run prediction evaluation | `@dot-protocol/arena` |
-| Wrap existing binary data | `@dot-protocol/wrapper` |
+| Create and verify DOTs | `@dotprotocol/core` |
+| Build a chain / worldline | `@dotprotocol/chain` |
+| Connect to CHORUS relay | `@dotprotocol/relay` |
+| Store keypairs on disk | `@dotprotocol/identity` |
+| Pack many DOTs efficiently | `@dotprotocol/compression` |
+| Encode DOTs into QR codes | `@dotprotocol/qr` |
+| Run prediction evaluation | `@dotprotocol/arena` |
+| Wrap existing binary data | `@dotprotocol/wrapper` |
 | Build an app quickly | `dot-protocol` (engine) |
-| Install everything | `@dot-protocol/sdk` |
+| Install everything | `@dotprotocol/sdk` |
 
 ---
 
 ## The Transform Layer (v0.3.0)
 
-Transforms are deterministic state transitions. They live in `@dot-protocol/core`.
+Transforms are deterministic state transitions. They live in `@dotprotocol/core`.
 
 ```
 Input DOT ──── Transform ──── Output DOT
@@ -287,10 +287,10 @@ pnpm -r test
 Or per package:
 
 ```bash
-pnpm --filter @dot-protocol/core test
-pnpm --filter @dot-protocol/chain test
-pnpm --filter @dot-protocol/qr test
-pnpm --filter @dot-protocol/arena test
+pnpm --filter @dotprotocol/core test
+pnpm --filter @dotprotocol/chain test
+pnpm --filter @dotprotocol/qr test
+pnpm --filter @dotprotocol/arena test
 ```
 
 **Cross-language interop:**
@@ -313,12 +313,12 @@ assert verify_dot(dot)
 1. Create `packages/<name>/` with `package.json`, `src/index.ts`, `tsconfig.json`
 2. Set `"type": "module"` and build target to `dist/`
 3. Add to root `pnpm-workspace.yaml` (already includes `packages/*`)
-4. Add to `@dot-protocol/sdk` dependencies and re-exports
-5. Keep `@dot-protocol/core` as a dependency only — never create circular deps
+4. Add to `@dotprotocol/sdk` dependencies and re-exports
+5. Keep `@dotprotocol/core` as a dependency only — never create circular deps
 
 ### Adding a new transform
 
-1. Register in `@dot-protocol/core` via `TransformRegistry.register()`
+1. Register in `@dotprotocol/core` via `TransformRegistry.register()`
 2. Implement `verify(input, output)` — pure, deterministic
 3. Add built-in tests in `packages/core/src/tests/transform.test.ts`
 4. Document in `docs/api.md` under TransformRegistry

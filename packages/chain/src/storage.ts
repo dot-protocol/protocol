@@ -1,4 +1,4 @@
-import type { DOT } from '@dot-protocol/core';
+import type { DOT } from '@dotprotocol/core';
 
 /** Pluggable storage backend for a DOT chain. */
 export interface IChainStorage {

@@ -95,7 +95,7 @@ describe('engine — uncovered paths', () => {
   // Lines 333-337: decryptDot() — normal path (identity present)
   it('decryptDot() returns 16 bytes when identity is available', async () => {
     await DOT.boot({ offline: true });
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const { ecdh, encryptPayload } = await import('../crypto.js');
 
     // Create a recipient keypair and encrypt a payload as if we're the sender
@@ -134,7 +134,7 @@ describe('engine — uncovered paths', () => {
     // The "sender" encrypts to our (engine's) public key
     const senderKp = new Uint8Array(32).fill(42);
     // Use a real keypair from core for sender
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const sender = await createKeypair();
 
     const ourPub = DOT.me!.publicKey;
@@ -278,7 +278,7 @@ describe('physics — uncovered paths', () => {
   // Lines 119-122: WHO field triggers ECDH encryption
   it('DOT.create() with WHO field encrypts payload', async () => {
     await DOT.boot({ offline: true });
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const recipient = await createKeypair();
 
     const dot = await DOT.create({
@@ -726,7 +726,7 @@ describe('physics — remaining uncovered paths', () => {
 
   it('DOT.create() with WHEN override uses provided timestamp', async () => {
     await DOT.boot({ offline: true });
-    const { fromBytes } = await import('@dot-protocol/core');
+    const { fromBytes } = await import('@dotprotocol/core');
     const customTime = 1_700_000_000_000; // Nov 2023
     const dot = await DOT.create({ WHAT: 'timed', WHEN: customTime });
     const parsed = fromBytes(dot);
@@ -852,7 +852,7 @@ describe('engine — relay broadcast in create()', () => {
       expect(sent_after).toBeGreaterThan(sent_before);
 
       // Also exercise the onDot callback (lines 203-206): server sends a DOT frame
-      const { packFrame } = await import('@dot-protocol/relay');
+      const { packFrame } = await import('@dotprotocol/relay');
       const received: Uint8Array[] = [];
       DOT.on('dot', (d) => received.push(d as Uint8Array));
       const serverDot = new Uint8Array(153).fill(0x7E);
@@ -1218,7 +1218,7 @@ describe('relay — _open() frame handler and disconnect handler', () => {
     (globalThis as Record<string, unknown>)['WebSocket'] = TrackedMockWS;
 
     const { createRelay } = await import('../relay.js');
-    const { packFrame } = await import('@dot-protocol/relay');
+    const { packFrame } = await import('@dotprotocol/relay');
 
     const relay = createRelay({
       url: 'wss://tracked.test',

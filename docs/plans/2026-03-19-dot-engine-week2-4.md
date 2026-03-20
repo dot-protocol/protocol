@@ -6,7 +6,7 @@
 
 **Architecture:** Three layers — (1) engine physics layer gains ECDH encryption, batch BLS sealing, and real compression stats; (2) messenger PWA gains QR scan, camera DOT, offline support, and stats UI; (3) npm publish pipeline makes the engine installable by anyone in 10 minutes.
 
-**Tech Stack:** TypeScript, `@noble/curves` (ECDH), `@dot-protocol/compression` (rANS+predictor in browser), `jsQR` (QR scanning), `vite-plugin-pwa` (ServiceWorker), `vitest`, pnpm workspaces.
+**Tech Stack:** TypeScript, `@noble/curves` (ECDH), `@dotprotocol/compression` (rANS+predictor in browser), `jsQR` (QR scanning), `vite-plugin-pwa` (ServiceWorker), `vitest`, pnpm workspaces.
 
 **Branch:** Create `dot-engine-week2` from `main` before starting.
 
@@ -70,7 +70,7 @@ import {
   encryptPayload,
   decryptPayload,
 } from '../crypto.js';
-import { createKeypair } from '@dot-protocol/core';
+import { createKeypair } from '@dotprotocol/core';
 
 describe('DOT ECDH crypto', () => {
   it('converts Ed25519 pubkey to X25519', () => {
@@ -249,7 +249,7 @@ it('encrypted DOT: recipient can decrypt what sender encrypted', async () => {
   // Boot two engines (alice and bob) both offline
   const aliceEngine = createEngine(); // need factory — or test via crypto.ts directly
   // For now, test via crypto.ts functions directly (engine singleton makes two-instance hard)
-  const { createKeypair } = await import('@dot-protocol/core');
+  const { createKeypair } = await import('@dotprotocol/core');
   const { ecdh, encryptPayload, decryptPayload } = await import('../crypto.js');
   const alice = createKeypair();
   const bob = createKeypair();
@@ -280,7 +280,7 @@ git commit -m "feat(engine): ECDH encryption — Ed25519→X25519 ECDH + ChaCha2
 - Modify: `packages/engine/src/engine.ts` (wire compress.ts into stats)
 - Test: `packages/engine/src/tests/compress.test.ts`
 
-The existing `@dot-protocol/compression` uses `zstd-napi` which requires Node.js native bindings. The predictor + rANS pipeline is pure TypeScript and works in browser. This task wires it into the engine to give real `compressionRatio` in `DOT.stats()`.
+The existing `@dotprotocol/compression` uses `zstd-napi` which requires Node.js native bindings. The predictor + rANS pipeline is pure TypeScript and works in browser. This task wires it into the engine to give real `compressionRatio` in `DOT.stats()`.
 
 - [ ] **Step 1: Write failing test**
 
@@ -327,14 +327,14 @@ Run: `pnpm test` — expected FAIL.
 /**
  * Browser-safe compression measurement for DOT batches.
  *
- * Uses the predictor + rANS pipeline from @dot-protocol/compression (pure TS,
+ * Uses the predictor + rANS pipeline from @dotprotocol/compression (pure TS,
  * no native deps). Does NOT use zstd-napi. Measures compression ratio for
  * the engine's stats() output.
  *
  * For actual wire compression, the full serializeBatchV2 pipeline is used
  * in Node.js environments. In the browser, rANS-only compression is applied.
  */
-import { LinearPredictor, computeResidual, buildFrequencyTable, ransEncode } from '@dot-protocol/compression';
+import { LinearPredictor, computeResidual, buildFrequencyTable, ransEncode } from '@dotprotocol/compression';
 
 export interface CompressionStats {
   rawSize: number;
@@ -811,8 +811,8 @@ Live stats panel showing compression ratio, predictor accuracy, chain length, re
 
 ```tsx
 import React, { useEffect, useState } from 'react';
-import { DOT } from '@dot-protocol/engine';
-import type { EngineStats } from '@dot-protocol/engine';
+import { DOT } from '@dotprotocol/engine';
+import type { EngineStats } from '@dotprotocol/engine';
 
 interface Props {
   onBack: () => void;
@@ -956,8 +956,8 @@ if (_sealEvery > 0 && _dotsSinceLastSeal >= _sealEvery) {
   _dotsSinceLastSeal = 0;
 }
 
-// Implementation using @dot-protocol/core:
-import { createBLSKeypair, aggregateSignatures, signBLS } from '@dot-protocol/core';
+// Implementation using @dotprotocol/core:
+import { createBLSKeypair, aggregateSignatures, signBLS } from '@dotprotocol/core';
 
 // seal() takes last N DOT bytes, signs each with BLS, aggregates
 async seal(n?: number): Promise<Uint8Array> {
@@ -1162,7 +1162,7 @@ Set `"private": false` on packages that were marked private (engine was `"privat
 
 Create `packages/engine/README.md`:
 ```markdown
-# @dot-protocol/engine
+# @dotprotocol/engine
 
 > The DOT Game Engine. Physics for the DOT universe.
 
@@ -1171,13 +1171,13 @@ One import. One boot. Identity, proof, compression, and chains run automatically
 ## Install
 
 ```bash
-npm install @dot-protocol/engine
+npm install @dotprotocol/engine
 ```
 
 ## Hello World
 
 ```typescript
-import { DOT } from '@dot-protocol/engine';
+import { DOT } from '@dotprotocol/engine';
 
 await DOT.boot();
 console.log(DOT.me.did); // "dot:abc123..."
@@ -1251,7 +1251,7 @@ Create `packages/engine/src/tests/integration.test.ts`:
 ```typescript
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { DOT } from '../engine.js';
-import { verifyDOT, fromBytes, checkChain } from '@dot-protocol/core';
+import { verifyDOT, fromBytes, checkChain } from '@dotprotocol/core';
 
 describe('DOT engine — full flow integration', () => {
   beforeEach(async () => { await DOT.boot({ offline: true }); });
@@ -1289,7 +1289,7 @@ describe('DOT engine — full flow integration', () => {
   });
 
   it('ECDH round-trip: encrypt then decrypt', async () => {
-    const { createKeypair } = await import('@dot-protocol/core');
+    const { createKeypair } = await import('@dotprotocol/core');
     const { ecdh, encryptPayload, decryptPayload } = await import('../crypto.js');
     const alice = createKeypair();
     const bob = createKeypair();
@@ -1424,7 +1424,7 @@ Expected: clean commit history with one commit per task.
 
 **Week 3 Milestone:** `DOT.stats()` returns `compressionRatio > 3` after 50 correlated messages. `predictorAccuracy > 0.5`. `seal()` returns valid BLS 48-byte aggregate.
 
-**Week 4 Milestone:** `npm install @dot-protocol/engine && npx tsx hello.ts` works in < 10 minutes from zero. `hello.ts` creates an identity, creates 5 DOTs, verifies them, prints stats.
+**Week 4 Milestone:** `npm install @dotprotocol/engine && npx tsx hello.ts` works in < 10 minutes from zero. `hello.ts` creates an identity, creates 5 DOTs, verifies them, prints stats.
 
 ---
 

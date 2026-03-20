@@ -10,8 +10,8 @@
  * before posting its resolution. Only the outcome is verifiable.
  */
 
-import { verifyDOT } from '@dot-protocol/core';
-import { toBytes } from '@dot-protocol/core';
+import { verifyDOT } from '@dotprotocol/core';
+import { toBytes } from '@dotprotocol/core';
 import type { PredictionDOT, ResolutionDOT, ArenaMatch, BlindEvalSession } from './types.js';
 
 /**

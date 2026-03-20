@@ -2,7 +2,7 @@
 
 ## v0.2.0 — 2026-03-19
 
-### @dot-protocol/engine (NEW)
+### @dotprotocol/engine (NEW)
 - DOT Game Engine: one import, physics runs automatically
 - Identity from device entropy (WebCrypto + timing jitter PUF)
 - Ed25519 signing on every DOT.create()
@@ -17,24 +17,24 @@
 - Self-healing watchdog: auto-reconnect, predictor reset, auto-seal
 - 191 tests passing, 100% coverage
 
-### @dot-protocol/core
+### @dotprotocol/core
 - BLS12-381 signing and aggregation (signBLS, aggregateSignatures, verifyAggregateSameSigner)
 - .dot binary file format (writeDotFile, readDotFile, inspectDotFile)
 - Batch pack/unpack for Ed25519 and BLS frames
 
-### @dot-protocol/compression
+### @dotprotocol/compression
 - rANS (range Asymmetric Numeral Systems) entropy coding
 - LinearPredictor: context-4 last-value prediction
 - Weissman score computation
 - Browser-safe (no native deps, no zstd-napi)
 - W=29.2 over gzip at N=1000
 
-### @dot-protocol/relay
+### @dotprotocol/relay
 - CHORUS relay client with Ed25519 challenge-auth
 - Standalone relay server (WebSocket)
 - 185-byte binary frame format
 
-### @dot-protocol/chain, @dot-protocol/identity, @dot-protocol/wrapper, @dot-protocol/sdk
+### @dotprotocol/chain, @dotprotocol/identity, @dotprotocol/wrapper, @dotprotocol/sdk
 - Stability improvements and 100% test coverage
 
 ## v0.1.0 — 2026-02-01

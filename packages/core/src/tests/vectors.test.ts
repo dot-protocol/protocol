@@ -52,7 +52,7 @@ describe('test vectors', () => {
   });
 
   // Note: the test_vectors.json uses DOT v2 format (variable-length with headers and extensions),
-  // while @dot-protocol/core implements DOT v1 (fixed 153-byte wire format).
+  // while @dotprotocol/core implements DOT v1 (fixed 153-byte wire format).
   // Cross-format vector tests would require a v2 parser which is out of scope for this package.
   // The vectors are preserved for reference and future v2 compatibility testing.
   it('recognizes v2 vector format (variable-length with protocol header)', () => {

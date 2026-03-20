@@ -1,4 +1,4 @@
-// Mock engine — used when @dot-protocol/engine source isn't available yet.
+// Mock engine — used when @dotprotocol/engine source isn't available yet.
 // Mirrors the real engine API shape so the UI compiles and runs.
 
 export interface PeerInfo {

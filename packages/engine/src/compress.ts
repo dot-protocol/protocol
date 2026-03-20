@@ -3,7 +3,7 @@
  * Uses LinearPredictor residuals to estimate compression ratio.
  * No native deps — works in browser and Node.js.
  */
-import { LinearPredictor } from '@dot-protocol/compression';
+import { LinearPredictor } from '@dotprotocol/compression';
 
 export interface CompressionStats {
   rawSize: number;

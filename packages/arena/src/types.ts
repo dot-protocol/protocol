@@ -5,7 +5,7 @@
  * DOTs make claims. Reality signs resolutions. The chain remembers.
  */
 
-import type { DOT } from '@dot-protocol/core';
+import type { DOT } from '@dotprotocol/core';
 
 /** A prediction DOT — a claim about a future state */
 export interface PredictionDOT {

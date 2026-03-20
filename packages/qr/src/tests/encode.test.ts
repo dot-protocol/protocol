@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createKeypair, createDOT } from '@dot-protocol/core';
+import { createKeypair, createDOT } from '@dotprotocol/core';
 import {
   encodeBinary,
   decodeBinary,

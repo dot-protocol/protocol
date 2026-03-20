@@ -33,10 +33,10 @@ importers:
 
   packages/arena:
     dependencies:
-      '@dot-protocol/chain':
+      '@dotprotocol/chain':
         specifier: workspace:*
         version: link:../chain
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -46,13 +46,13 @@ importers:
 
   packages/chain:
     dependencies:
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
 
   packages/compression:
     dependencies:
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
       zstd-napi:
@@ -75,13 +75,13 @@ importers:
 
   packages/engine:
     dependencies:
-      '@dot-protocol/compression':
+      '@dotprotocol/compression':
         specifier: workspace:*
         version: link:../compression
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
-      '@dot-protocol/relay':
+      '@dotprotocol/relay':
         specifier: workspace:*
         version: link:../relay
       '@noble/ciphers':
@@ -103,7 +103,7 @@ importers:
 
   packages/identity:
     dependencies:
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
 
@@ -132,8 +132,8 @@ importers:
   packages/messenger:
     dependencies:
       dot-protocol:
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: workspace:*
+        version: link:../engine
       jsqr:
         specifier: ^1.4.0
         version: 1.4.0
@@ -174,7 +174,7 @@ importers:
 
   packages/qr:
     dependencies:
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -184,7 +184,7 @@ importers:
 
   packages/relay:
     dependencies:
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
     devDependencies:
@@ -201,28 +201,28 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@dot-protocol/arena':
+      '@dotprotocol/arena':
         specifier: workspace:*
         version: link:../arena
-      '@dot-protocol/chain':
+      '@dotprotocol/chain':
         specifier: workspace:*
         version: link:../chain
-      '@dot-protocol/compression':
+      '@dotprotocol/compression':
         specifier: workspace:*
         version: link:../compression
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
-      '@dot-protocol/identity':
+      '@dotprotocol/identity':
         specifier: workspace:*
         version: link:../identity
-      '@dot-protocol/qr':
+      '@dotprotocol/qr':
         specifier: workspace:*
         version: link:../qr
-      '@dot-protocol/relay':
+      '@dotprotocol/relay':
         specifier: workspace:*
         version: link:../relay
-      '@dot-protocol/wrapper':
+      '@dotprotocol/wrapper':
         specifier: workspace:*
         version: link:../wrapper
     devDependencies:
@@ -232,10 +232,10 @@ importers:
 
   packages/wrapper:
     dependencies:
-      '@dot-protocol/compression':
+      '@dotprotocol/compression':
         specifier: workspace:*
         version: link:../compression
-      '@dot-protocol/core':
+      '@dotprotocol/core':
         specifier: workspace:*
         version: link:../core
       '@noble/curves':
@@ -1968,9 +1968,6 @@ packages:
 
   dijkstrajs@1.0.3:
     resolution: {integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==}
-
-  dot-protocol@0.2.0:
-    resolution: {integrity: sha512-bsjoWwYbT0xvWHnMy+SGB/LViI+hfOzYipkEUGSa6YW05sc18b1guCLPUmfr7v7d2wr5QtVV2XxlN1UWmFFULw==}
 
   dts-resolver@2.1.3:
     resolution: {integrity: sha512-bihc7jPC90VrosXNzK0LTE2cuLP6jr0Ro8jk+kMugHReJVLIpHz/xadeq3MhuwyO4TD4OA3L1Q8pBBFRc08Tsw==}
@@ -5039,14 +5036,6 @@ snapshots:
   diff@8.0.3: {}
 
   dijkstrajs@1.0.3: {}
-
-  dot-protocol@0.2.0:
-    dependencies:
-      '@dot-protocol/compression': link:packages/compression
-      '@dot-protocol/core': link:packages/core
-      '@dot-protocol/relay': link:packages/relay
-      '@noble/ciphers': 2.1.1
-      '@noble/curves': 2.0.1
 
   dts-resolver@2.1.3: {}
 

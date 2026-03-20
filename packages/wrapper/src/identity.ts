@@ -1,4 +1,4 @@
-// @dot-protocol/wrapper — dot.id() hardware-bound identity
+// @dotprotocol/wrapper — dot.id() hardware-bound identity
 //
 // Generates an Ed25519 keypair, encrypts the private key with AES-256-GCM
 // (key derived via PBKDF2 from a passphrase), and stores it on disk.

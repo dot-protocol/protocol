@@ -1,19 +1,19 @@
-# @dot-protocol/identity
+# @dotprotocol/identity
 
 Persistent keypair + DID for DOT Protocol. Your key, your identity.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/identity)](https://www.npmjs.com/package/@dot-protocol/identity)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/identity)](https://www.npmjs.com/package/@dotprotocol/identity)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/identity
+npm install @dotprotocol/identity
 ```
 
 ## Quick start
 
 ```js
-import { loadOrCreate, generateDID } from '@dot-protocol/identity';
+import { loadOrCreate, generateDID } from '@dotprotocol/identity';
 
 // Load existing keypair or create a new one
 const keypair = await loadOrCreate('./my-identity.json');

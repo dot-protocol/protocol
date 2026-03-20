@@ -1,13 +1,13 @@
-# @dot-protocol/sdk
+# @dotprotocol/sdk
 
 Everything DOT Protocol in one install. Re-exports all packages.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/sdk)](https://www.npmjs.com/package/@dot-protocol/sdk)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/sdk)](https://www.npmjs.com/package/@dotprotocol/sdk)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/sdk
+npm install @dotprotocol/sdk
 ```
 
 ## Usage
@@ -42,7 +42,7 @@ import {
 
   // Wrapper
   wrap, unwrap,
-} from '@dot-protocol/sdk';
+} from '@dotprotocol/sdk';
 ```
 
 ## When to use
@@ -56,9 +56,9 @@ import {
 For production apps that run in the browser, import only what you need:
 
 ```bash
-npm install @dot-protocol/core        # if you only need primitives
+npm install @dotprotocol/core        # if you only need primitives
 npm install dot-protocol              # if you want the high-level API
-npm install @dot-protocol/qr          # if you only need QR
+npm install @dotprotocol/qr          # if you only need QR
 ```
 
 The SDK is the kitchen sink. Smaller focused installs produce smaller bundles.
@@ -68,14 +68,14 @@ The SDK is the kitchen sink. Smaller focused installs produce smaller bundles.
 | Package | Exports |
 |---|---|
 | `dot-protocol` | `DOT` |
-| `@dot-protocol/core` | Primitives, types, faces, transforms |
-| `@dot-protocol/chain` | WorldLine, Four-Score |
-| `@dot-protocol/relay` | RelayClient, frames |
-| `@dot-protocol/identity` | Keypair persistence, DID |
-| `@dot-protocol/compression` | pack / unpack |
-| `@dot-protocol/qr` | QR encode / decode |
-| `@dot-protocol/arena` | Elo, resolution |
-| `@dot-protocol/wrapper` | Binary wrap / unwrap |
+| `@dotprotocol/core` | Primitives, types, faces, transforms |
+| `@dotprotocol/chain` | WorldLine, Four-Score |
+| `@dotprotocol/relay` | RelayClient, frames |
+| `@dotprotocol/identity` | Keypair persistence, DID |
+| `@dotprotocol/compression` | pack / unpack |
+| `@dotprotocol/qr` | QR encode / decode |
+| `@dotprotocol/arena` | Elo, resolution |
+| `@dotprotocol/wrapper` | Binary wrap / unwrap |
 
 ## License
 

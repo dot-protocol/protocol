@@ -17,7 +17,7 @@ import * as http from 'node:http';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { writeFileSync, rmSync, existsSync } from 'node:fs';
-import { createKeypair } from '@dot-protocol/core';
+import { createKeypair } from '@dotprotocol/core';
 
 // ─── session.ts: createSessionFromKeypair (lines 33-44) ──────────────────────
 
@@ -229,8 +229,8 @@ describe('unwrap() — no blsPublicKey (decodeFrameWithoutBLSVerification)', () 
   it('no-delta no-RLE frame decodes without blsPublicKey (raw ts + raw types path)', async () => {
     // Build a frame with timestampDelta=false, payloadTypeRLE=false
     // so decodeFrameWithoutBLSVerification hits the else branches
-    const { serializeBatchV2 } = await import('@dot-protocol/compression');
-    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dot-protocol/core');
+    const { serializeBatchV2 } = await import('@dotprotocol/compression');
+    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dotprotocol/core');
     const keypair = await createKeypair();
     const blsKeypair = createBLSKeypair();
 
@@ -278,8 +278,8 @@ describe('unwrap() — no blsPublicKey (decodeFrameWithoutBLSVerification)', () 
   it('buffer too short for payloads triggers RangeError (line 250-251)', async () => {
     // Build a valid frame with raw types (no RLE) but not enough payload bytes
     // Use a no-delta, no-RLE frame with 1 dot but no payload bytes after types
-    const { serializeBatchV2 } = await import('@dot-protocol/compression');
-    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dot-protocol/core');
+    const { serializeBatchV2 } = await import('@dotprotocol/compression');
+    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dotprotocol/core');
     const keypair = await createKeypair();
     const blsKeypair = createBLSKeypair();
 
@@ -314,8 +314,8 @@ describe('unwrap() — no blsPublicKey (decodeFrameWithoutBLSVerification)', () 
     // Create a DOT whose payload header claims originalLength = 0xFFFFFFFF (way too large).
     // When unwrapped via the unverified path, decodeFrameWithoutBLSVerification returns the DOT,
     // assembled = 16 bytes, then originalLength check fires: dataEnd > 16 → RangeError.
-    const { serializeBatchV2, encodeTimestampDeltas, encodePayloadTypes } = await import('@dot-protocol/compression');
-    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dot-protocol/core');
+    const { serializeBatchV2, encodeTimestampDeltas, encodePayloadTypes } = await import('@dotprotocol/compression');
+    const { createBLSKeypair, createDOT, toBytes, DotType } = await import('@dotprotocol/core');
     const keypair = await createKeypair();
     const blsKeypair = createBLSKeypair();
 

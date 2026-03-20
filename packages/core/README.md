@@ -1,19 +1,19 @@
-# @dot-protocol/core
+# @dotprotocol/core
 
 Raw primitives for the DOT Protocol. Zero runtime dependencies. This is the atom — everything else is built on top of it.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/core)](https://www.npmjs.com/package/@dot-protocol/core)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/core)](https://www.npmjs.com/package/@dotprotocol/core)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/core
+npm install @dotprotocol/core
 ```
 
 ## Quick start
 
 ```js
-import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dot-protocol/core';
+import { createKeypair, createDOT, verifyDOT, checkChain, toBytes, fromBytes } from '@dotprotocol/core';
 
 const keypair = await createKeypair();
 const genesis = await createDOT({ keypair });
@@ -79,7 +79,7 @@ const parsed = fromBytes(bytes);  // DOT object
 ### `DotType`
 
 ```js
-import { DotType } from '@dot-protocol/core';
+import { DotType } from '@dotprotocol/core';
 
 DotType.PUBLIC    // 0x00 — visible to anyone
 DotType.CIRCLE    // 0x01 — visible to circle members
@@ -92,7 +92,7 @@ DotType.EPHEMERAL // 0x03 — dissolves after receipt
 Composable bitfield that describes what a DOT is:
 
 ```js
-import { DOTFace, composeFaces, hasFace, activeFaces } from '@dot-protocol/core';
+import { DOTFace, composeFaces, hasFace, activeFaces } from '@dotprotocol/core';
 
 const mask = composeFaces(DOTFace.QR, DOTFace.Container);
 hasFace(mask, DOTFace.QR);  // true
@@ -104,7 +104,7 @@ activeFaces(mask);           // ['QR', 'Container']
 Register and retrieve deterministic transforms:
 
 ```js
-import { TransformRegistry } from '@dot-protocol/core';
+import { TransformRegistry } from '@dotprotocol/core';
 
 const spec = TransformRegistry.get('time-capsule');
 const valid = spec.verify(inputDOT, outputDOT);
@@ -121,7 +121,7 @@ Built-in transforms: `time-capsule`, `signer-approval`, `chain-depth-gate`.
 ### Constants
 
 ```js
-import { DOT_SIZE, PAYLOAD_SIZE, OFF } from '@dot-protocol/core';
+import { DOT_SIZE, PAYLOAD_SIZE, OFF } from '@dotprotocol/core';
 
 DOT_SIZE     // 153
 PAYLOAD_SIZE // 16

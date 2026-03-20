@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/core",
+  "name": "@dotprotocol/core",
   "version": "0.3.0",
   "description": "153-byte cryptographic observation format. Ed25519 + SHA-256. Zero dependencies.",
   "type": "module",

@@ -5,7 +5,7 @@ import {
   encryptPayload,
   decryptPayload,
 } from '../crypto.js';
-import { createKeypair } from '@dot-protocol/core';
+import { createKeypair } from '@dotprotocol/core';
 
 describe('DOT ECDH crypto', () => {
   it('converts Ed25519 pubkey to X25519', async () => {

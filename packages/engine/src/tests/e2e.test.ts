@@ -8,12 +8,12 @@
  *
  * Uses the DOT singleton sequentially (Alice first, Bob second) because the
  * engine is a process-level singleton. Cross-layer verification via
- * @dot-protocol/core proves the engine produces valid DOTs the core accepts.
+ * @dotprotocol/core proves the engine produces valid DOTs the core accepts.
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { DOT } from '../engine.js';
-import { verifyDOT, checkChain, fromBytes } from '@dot-protocol/core';
+import { verifyDOT, checkChain, fromBytes } from '@dotprotocol/core';
 
 // ---------------------------------------------------------------------------
 // Shared state captured during Alice's session
@@ -116,7 +116,7 @@ describe('Alice — DOT creation and chain', () => {
     }
   });
 
-  it('9: Each DOT signature verifies with Alice\'s public key (via @dot-protocol/core)', async () => {
+  it('9: Each DOT signature verifies with Alice\'s public key (via @dotprotocol/core)', async () => {
     const chain = DOT.getChain()!;
     for (const entry of chain.entries) {
       const dot = fromBytes(entry.dot);
@@ -154,7 +154,7 @@ describe('Alice — BLS sealing', () => {
     expect(valid).toBe(false);
   });
 
-  it('13: Tampered DOT bytes fail @dot-protocol/core signature verification', async () => {
+  it('13: Tampered DOT bytes fail @dotprotocol/core signature verification', async () => {
     const chain = DOT.getChain()!;
     const originalBytes = chain.entries[0]!.dot;
     const tampered = new Uint8Array(originalBytes);
@@ -235,11 +235,11 @@ describe('Alice — chain accessors', () => {
 });
 
 // ---------------------------------------------------------------------------
-// Cross-layer verification: @dot-protocol/core checkChain
+// Cross-layer verification: @dotprotocol/core checkChain
 // ---------------------------------------------------------------------------
 
 describe('Cross-layer verification', () => {
-  it('All Alice DOTs pass @dot-protocol/core checkChain', async () => {
+  it('All Alice DOTs pass @dotprotocol/core checkChain', async () => {
     const chain = DOT.getChain()!;
     const dots = chain.entries.map(e => fromBytes(e.dot));
     const result = await checkChain(dots);

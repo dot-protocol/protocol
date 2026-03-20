@@ -1,19 +1,19 @@
-# @dot-protocol/chain
+# @dotprotocol/chain
 
 Append-only worldlines + Four-Score reputation system for DOT Protocol.
 
-[![npm](https://img.shields.io/npm/v/@dot-protocol/chain)](https://www.npmjs.com/package/@dot-protocol/chain)
+[![npm](https://img.shields.io/npm/v/@dotprotocol/chain)](https://www.npmjs.com/package/@dotprotocol/chain)
 
 ## Install
 
 ```bash
-npm install @dot-protocol/chain
+npm install @dotprotocol/chain
 ```
 
 ## Quick start
 
 ```js
-import { buildScores, computeTier, updateElo } from '@dot-protocol/chain';
+import { buildScores, computeTier, updateElo } from '@dotprotocol/chain';
 
 // Build reputation scores from a worldline
 const scores = buildScores({

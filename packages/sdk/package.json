@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/sdk",
+  "name": "@dotprotocol/sdk",
   "version": "0.3.0",
   "description": "DOT Protocol SDK \u2014 one install for signing, compression, wrapping, and identity.",
   "type": "module",
@@ -36,13 +36,13 @@
     "@types/node": "^20.0.0"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*",
-    "@dot-protocol/compression": "workspace:*",
-    "@dot-protocol/identity": "workspace:*",
-    "@dot-protocol/chain": "workspace:*",
-    "@dot-protocol/relay": "workspace:*",
-    "@dot-protocol/wrapper": "workspace:*",
-    "@dot-protocol/qr": "workspace:*",
-    "@dot-protocol/arena": "workspace:*"
+    "@dotprotocol/core": "workspace:*",
+    "@dotprotocol/compression": "workspace:*",
+    "@dotprotocol/identity": "workspace:*",
+    "@dotprotocol/chain": "workspace:*",
+    "@dotprotocol/relay": "workspace:*",
+    "@dotprotocol/wrapper": "workspace:*",
+    "@dotprotocol/qr": "workspace:*",
+    "@dotprotocol/arena": "workspace:*"
   }
 }

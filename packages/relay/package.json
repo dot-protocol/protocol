@@ -1,5 +1,5 @@
 {
-  "name": "@dot-protocol/relay",
+  "name": "@dotprotocol/relay",
   "version": "0.3.0",
   "description": "CHORUS relay client and server for DOT Protocol.",
   "type": "module",
@@ -25,7 +25,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dot-protocol/core": "workspace:*"
+    "@dotprotocol/core": "workspace:*"
   },
   "optionalDependencies": {
     "ws": "^8.18.0"
