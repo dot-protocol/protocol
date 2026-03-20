@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AXXIS — Seal the Truth</title>
+<style>
+/* Florence v3 — Parchment & Ink */
+:root {
+  --parchment: #F4ECD6;
+  --cream: #FAF6EC;
+  --ink: #1C1108;
+  --ink2: #3D2B1A;
+  --muted: #8A7860;
+  --border: #D4C4A8;
+  --sienna: #8B3A1E;
+  --gold: #C89432;
+  --sage: #3D5A48;
+  --code-bg: #EDE5CF;
+  --surface: #F0E6CC;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--parchment);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,'Helvetica Neue',sans-serif;
+  font-size:14px;line-height:1.5;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse at 15% 15%,rgba(200,148,50,.05) 0%,transparent 60%),
+    radial-gradient(ellipse at 85% 85%,rgba(139,58,30,.04) 0%,transparent 60%);
+}
+
+/* ── Header ── */
+#hdr{
+  display:flex;align-items:center;gap:14px;
+  padding:11px 22px;
+  border-bottom:1px solid var(--border);
+  background:rgba(244,236,214,.94);
+  backdrop-filter:blur(8px);
+  position:sticky;top:0;z-index:100;
+}
+#wordmark{
+  font-family:Georgia,serif;font-size:18px;letter-spacing:.08em;
+  display:flex;align-items:center;gap:7px;
+}
+#wordmark .sym{color:var(--sienna)}
+#relays{display:flex;gap:10px;font-size:11px;color:var(--muted);font-family:monospace}
+.rdot{width:6px;height:6px;border-radius:50%;background:var(--border);display:inline-block;margin-right:4px;vertical-align:middle}
+.rdot.on{background:var(--sage)}
+.rdot.blink{background:var(--gold);animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+#nbadge{
+  margin-left:auto;padding:3px 10px;border:1px solid var(--border);
+  border-radius:20px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+}
+#nbadge.on{border-color:var(--sage);color:var(--sage)}
+
+/* ── Layout ── */
+#app{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 48px)}
+
+/* ── Sidebar ── */
+#sb{
+  border-right:1px solid var(--border);padding:18px 14px;
+  display:flex;flex-direction:column;gap:22px;
+  background:rgba(240,230,204,.35);
+}
+.sbh{
+  font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding-bottom:6px;
+  border-bottom:1px solid var(--border);margin-bottom:10px;
+}
+#idcard{
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:6px;padding:13px;position:relative;overflow:hidden;
+}
+#idcard::after{
+  content:'';position:absolute;top:0;right:0;width:55px;height:55px;
+  background:radial-gradient(circle at top right,rgba(200,148,50,.09),transparent 70%);
+  pointer-events:none;
+}
+#idseal{font-size:26px;display:block;margin-bottom:6px;transition:color .3s}
+#pkdisp{
+  font-family:'SFMono-Regular','Courier New',monospace;
+  font-size:10px;color:var(--muted);word-break:break-all;
+  line-height:1.5;cursor:pointer;transition:color .2s;
+}
+#pkdisp:hover{color:var(--sienna)}
+#pkdisp .pk{color:var(--gold);font-weight:600}
+#chainstats{font-size:11px;color:var(--muted);margin-top:8px}
+#chainstats b{color:var(--ink)}
+#genbtn{
+  width:100%;margin-top:10px;padding:7px 10px;
+  background:var(--sienna);color:#FAF6EC;border:none;border-radius:4px;
+  font-family:Georgia,serif;font-size:12px;letter-spacing:.04em;
+  cursor:pointer;transition:background .2s,transform .1s;
+}
+#genbtn:hover{background:#7A3319}
+#genbtn:active{transform:scale(.98)}
+.peerrow{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);margin-bottom:5px}
+.peerrow .pi{font-size:13px}
+
+/* ── Main ── */
+#main{display:flex;flex-direction:column;overflow:hidden}
+#tabs{
+  display:flex;border-bottom:1px solid var(--border);
+  padding:0 22px;background:rgba(240,230,204,.25);
+}
+.tab{
+  padding:11px 16px;font-size:12px;letter-spacing:.05em;color:var(--muted);
+  cursor:pointer;border:none;border-bottom:2px solid transparent;
+  background:none;position:relative;top:1px;transition:color .2s;
+}
+.tab:hover{color:var(--ink)}
+.tab.act{color:var(--sienna);border-bottom-color:var(--sienna)}
+#panel{flex:1;overflow-y:auto;padding:22px}
+
+/* ── Compose ── */
+#carea{max-width:620px}
+.clabel{
+  font-family:Georgia,serif;font-size:16px;color:var(--ink2);
+  margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.clabel .sym{color:var(--sienna)}
+#ctext{
+  width:100%;min-height:110px;padding:13px 15px;
+  border:1px solid var(--border);border-radius:6px;
+  background:var(--cream);color:var(--ink);
+  font-family:system-ui;font-size:14px;line-height:1.6;
+  resize:vertical;outline:none;transition:border-color .2s,box-shadow .2s;
+}
+#ctext:focus{border-color:var(--sienna);box-shadow:0 0 0 3px rgba(139,58,30,.08)}
+#ctext::placeholder{color:var(--muted);font-style:italic}
+.cmeta{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.tsel{
+  padding:4px 8px;border:1px solid var(--border);border-radius:3px;
+  background:var(--cream);color:var(--ink);font-size:11px;font-family:monospace;
+}
+.ctog{display:flex;align-items:center;gap:5px;cursor:pointer}
+.ctog input{accent-color:var(--sienna)}
+#sealbtn{
+  margin-top:12px;padding:9px 22px;background:var(--sage);color:#FAF6EC;
+  border:none;border-radius:4px;font-family:Georgia,serif;font-size:13px;
+  letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:7px;
+  transition:background .2s,transform .1s;
+}
+#sealbtn:hover{background:#2E4638}
+#sealbtn:active{transform:scale(.98)}
+#sealbtn:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── DOT card ── */
+.dc{
+  background:var(--cream);border:1px solid var(--border);
+  border-radius:6px;padding:13px 15px;margin-bottom:9px;
+  transition:border-color .2s;animation:fi .28s ease;
+}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.dc:hover{border-color:var(--gold)}
+.dch{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:11px;color:var(--muted);font-family:monospace}
+.dchk{color:var(--sage);font-size:12px}
+.dtb{
+  padding:1px 5px;border:1px solid var(--border);border-radius:2px;
+  font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+}
+.dhash{font-family:monospace;font-size:10px;color:var(--gold);cursor:pointer;margin-left:auto}
+.dhash:hover{color:var(--sienna)}
+.dpay{font-size:14px;line-height:1.5;color:var(--ink);word-break:break-word;margin-bottom:7px}
+.dhex{
+  font-family:monospace;font-size:10px;color:var(--muted);
+  background:var(--code-bg);padding:5px 8px;border-radius:3px;
+  word-break:break-all;margin-bottom:7px;
+}
+.dcf{font-size:10px;color:var(--muted);font-family:monospace;display:flex;gap:10px;flex-wrap:wrap}
+.dchain{color:var(--sienna)}
+
+/* ── Chain view ── */
+.cview{display:flex;flex-direction:column;max-width:620px}
+.cnode{display:flex;align-items:flex-start;gap:10px}
+.cline{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:18px}
+.cmark{width:7px;height:7px;border:2px solid var(--sienna);border-radius:50%;background:var(--parchment);flex-shrink:0;margin-top:5px}
+.cconn{width:2px;flex:1;min-height:18px;background:linear-gradient(to bottom,var(--sienna),var(--border));margin:3px 0}
+.ccard{flex:1;margin-bottom:7px}
+
+/* ── Room ── */
+.rmsgs{max-width:620px;display:flex;flex-direction:column;gap:9px;margin-bottom:14px;max-height:48vh;overflow-y:auto}
+.rmsg{display:flex;gap:9px;align-items:flex-start}
+.mav{
+  width:26px;height:26px;border-radius:50%;background:var(--surface);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:11px;flex-shrink:0;font-family:monospace;color:var(--sienna);
+}
+.mac{font-size:10px;color:var(--muted);margin-bottom:2px;font-family:monospace}
+.mtxt{font-size:14px;line-height:1.5}
+.mseal{
+  display:inline-block;background:var(--code-bg);border:1px solid var(--border);
+  border-radius:3px;padding:1px 5px;font-size:9px;font-family:monospace;color:var(--sage);
+}
+.rinput{
+  flex:1;padding:8px 11px;border:1px solid var(--border);border-radius:4px;
+  background:var(--cream);color:var(--ink);font-size:14px;outline:none;
+}
+.rinput:focus{border-color:var(--sienna)}
+.rsbtn{
+  padding:8px 15px;background:var(--sienna);color:#FAF6EC;border:none;
+  border-radius:4px;font-family:Georgia,serif;font-size:13px;cursor:pointer;
+}
+.rsbtn:hover{background:#7A3319}
+
+/* ── Export ── */
+.expbox{
+  width:100%;font-family:monospace;font-size:10px;padding:10px;
+  border:1px solid var(--border);border-radius:4px;background:var(--code-bg);
+  color:var(--muted);word-break:break-all;resize:vertical;min-height:80px;outline:none;
+}
+
+/* ── Empty state ── */
+.empty{text-align:center;padding:50px 20px;color:var(--muted);font-family:Georgia,serif;font-style:italic}
+.esym{font-size:32px;margin-bottom:10px}
+
+/* ── Toast ── */
+#toast{
+  position:fixed;bottom:22px;right:22px;background:var(--ink);color:#FAF6EC;
+  padding:9px 16px;border-radius:6px;font-size:12px;
+  opacity:0;transform:translateY(7px);transition:all .22s ease;
+  z-index:1000;pointer-events:none;
+}
+#toast.show{opacity:1;transform:none}
+
+/* ── Section label ── */
+.slabel{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:11px}
+
+/* ── Misc ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+@media(max-width:600px){#app{grid-template-columns:1fr}#sb{display:none}}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div id="wordmark"><span class="sym">◉</span> AXXIS</div>
+  <div id="relays">
+    <span><span class="rdot blink" id="rd1"></span><span id="rl1">relay.damus.io</span></span>
+    <span><span class="rdot" id="rd2"></span><span id="rl2">nos.lol</span></span>
+  </div>
+  <div id="nbadge">OFFLINE</div>
+</div>
+
+<div id="app">
+  <div id="sb">
+    <div>
+      <div class="sbh">Identity</div>
+      <div id="idcard">
+        <span id="idseal" class="sym">◉</span>
+        <div id="pkdisp" title="Click to copy">No key generated</div>
+        <div id="chainstats"></div>
+        <button id="genbtn" onclick="A.gen()">Generate Key ◉</button>
+      </div>
+    </div>
+    <div>
+      <div class="sbh">Network</div>
+      <div class="peerrow"><span class="pi">📡</span><span id="nstatus">Nostr: connecting…</span></div>
+      <div class="peerrow"><span class="pi">🔵</span><span id="bstatus">BLE: idle</span></div>
+    </div>
+    <div style="margin-top:auto">
+      <div class="sbh">Protocol</div>
+      <div style="font-size:10px;color:var(--muted);line-height:1.7;font-family:monospace">
+        DOT v1 · Ed25519<br>AES-256-GCM · SHA-256<br>
+        <span style="color:var(--gold)">◉</span> Seal anything.<br>
+        <span style="color:var(--sage)">✓</span> Verify everything.
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div id="tabs">
+      <button class="tab act" onclick="A.tab('compose',this)">Compose</button>
+      <button class="tab" onclick="A.tab('chain',this)">Chain</button>
+      <button class="tab" onclick="A.tab('room',this)">The Room</button>
+      <button class="tab" onclick="A.tab('explore',this)">Explore</button>
+    </div>
+    <div id="panel"></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════════
+//  SECP256K1 — Minimal BIP-340 Schnorr for Nostr (NIP-01)
+// ═══════════════════════════════════════════════════════════
+const K1 = (() => {
+  const P  = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFC2Fn;
+  const N  = 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141n;
+  const Gx = 0x79BE667EF9DCBBAC55A06295CE870B07029BFCDB2DCE28D959F2815B16F81798n;
+  const Gy = 0x483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8n;
+  const mod = (a,b=P) => { const r=a%b; return r>=0n?r:b+r; };
+  const pow = (x,e,m) => { let r=1n; x=mod(x,m); while(e>0n){if(e&1n)r=r*x%m;e>>=1n;x=x*x%m} return r; };
+  const inv = x => pow(mod(x),P-2n);
+  const add = (A,B) => {
+    if(!A)return B; if(!B)return A;
+    const [x1,y1]=[...A],[x2,y2]=[...B];
+    if(x1===x2&&y1===y2){const m=3n*x1*x1*inv(2n*y1);const x3=mod(m*m-2n*x1);return[x3,mod(m*(x1-x3)-y1)];}
+    if(x1===x2)return null;
+    const m=mod((y2-y1)*inv(x2-x1));const x3=mod(m*m-x1-x2);return[x3,mod(m*(x1-x3)-y1)];
+  };
+  const mul = (k,pt) => { let R=null,Q=pt; while(k>0n){if(k&1n)R=add(R,Q);Q=add(Q,Q);k>>=1n} return R; };
+  const G = [Gx,Gy];
+  const b32 = n => { const b=new Uint8Array(32); for(let i=31;i>=0;i--){b[i]=Number(n&0xFFn);n>>=8n} return b; };
+  const n32 = a => a.reduce((acc,b)=>(acc<<8n)|BigInt(b),0n);
+  const cat = (...a) => { const t=a.reduce((s,x)=>s+x.length,0),r=new Uint8Array(t);let o=0;for(const x of a){r.set(x,o);o+=x.length}return r; };
+  const liftX = x => { const c=mod(x*x*x+7n),y=pow(c,(P+1n)/4n,P); return mod(y*y)!==c?null:[x,y%2n===0n?y:P-y]; };
+  async function tagH(tag,msg) {
+    const enc=new TextEncoder(),tb=enc.encode(tag);
+    const th=new Uint8Array(await crypto.subtle.digest('SHA-256',tb));
+    return new Uint8Array(await crypto.subtle.digest('SHA-256',cat(th,th,msg)));
+  }
+  async function sign(mh,priv) {
+    const d0=mod(priv,N); if(!d0)throw new Error('bad key');
+    const Pp=mul(d0,G),d=Pp[1]%2n===0n?d0:N-d0,Pb=b32(Pp[0]);
+    const k0=mod(n32(await tagH('BIP0340/nonce',cat(b32(d),Pb,mh))),N); if(!k0)throw new Error('zero nonce');
+    const R=mul(k0,G),k=R[1]%2n===0n?k0:N-k0,Rb=b32(R[0]);
+    const e=mod(n32(await tagH('BIP0340/challenge',cat(Rb,Pb,mh))),N);
+    return cat(Rb,b32(mod(k+e*d,N)));
+  }
+  const pubX = priv => b32(mul(mod(priv,N),G)[0]);
+  const fromB = a => a.reduce((acc,b)=>(acc<<8n)|BigInt(b),0n);
+  return { sign, pubX, fromB, b32, n32 };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  DOT PROTOCOL — Ed25519 via native Web Crypto
+// ═══════════════════════════════════════════════════════════
+const DOT = (() => {
+  const MAG = [0x89,0x44,0x4F,0x54];
+  const TNAME = {1:'OBSERVATION',2:'IDENTITY',7:'CHAIN_LINK',9:'ARCHIVE',10:'RELATION'};
+  const HP = 0x08; // FLAG_HAS_PARENT
+  const sha = async d => new Uint8Array(await crypto.subtle.digest('SHA-256',d));
+  const cat = (...a) => { const t=a.reduce((s,x)=>s+x.length,0),r=new Uint8Array(t);let o=0;for(const x of a){r.set(x instanceof Uint8Array?x:new Uint8Array(x),o);o+=x.length}return r; };
+  const u32 = n => { const b=new Uint8Array(4);new DataView(b.buffer).setUint32(0,n>>>0,false);return b; };
+  const u16 = n => { const b=new Uint8Array(2);new DataView(b.buffer).setUint16(0,n,false);return b; };
+  const i64 = n => {
+    const b=new Uint8Array(8),v=new DataView(b.buffer),big=BigInt(Math.floor(n));
+    v.setUint32(0,Number(big>>32n)>>>0,false);v.setUint32(4,Number(big&0xFFFFFFFFn)>>>0,false);return b;
+  };
+  const p8 = s => cat(new Uint8Array([0x30,0x2e,0x02,0x01,0x00,0x30,0x05,0x06,0x03,0x2b,0x65,0x70,0x04,0x22,0x04,0x20]),s);
+  const hex = b => Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('');
+  const unhex = h => new Uint8Array((h.match(/../g)||[]).map(x=>parseInt(x,16)));
+  const b64 = b => btoa(String.fromCharCode(...b));
+  const ub64 = s => { const b=atob(s); return new Uint8Array(b.length).map((_,i)=>b.charCodeAt(i)); };
+
+  async function genKeys() {
+    const kp = await crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
+    const pub = new Uint8Array(await crypto.subtle.exportKey('raw',kp.publicKey));
+    const priv = new Uint8Array(await crypto.subtle.exportKey('pkcs8',kp.privateKey));
+    return { sk:kp.privateKey, vk:kp.publicKey, pub, seed:priv.slice(16,48) };
+  }
+  async function fromSeed(seedH,pubH) {
+    const seed=unhex(seedH),pub=unhex(pubH);
+    const sk=await crypto.subtle.importKey('pkcs8',p8(seed).buffer,{name:'Ed25519'},false,['sign']);
+    const vk=await crypto.subtle.importKey('raw',pub.buffer,{name:'Ed25519'},false,['verify']);
+    return { sk, vk, pub, seed };
+  }
+  async function seal(payload,kp,{type=1,parent=null,ts=null}={}) {
+    const enc=new TextEncoder();
+    const pl=typeof payload==='string'?enc.encode(payload):(payload instanceof Uint8Array?payload:new Uint8Array(payload));
+    const now=ts??Date.now()*1000;
+    let flags=0; if(parent)flags|=HP;
+    const hdr=cat(new Uint8Array(MAG),new Uint8Array([1,1,flags,type]),u32(pl.length));
+    let body=cat(new Uint8Array([1]),u16(32),kp.pub,i64(now));
+    if(parent){const ph=await sha(parent instanceof Uint8Array?parent:new Uint8Array(parent));body=cat(body,new Uint8Array([1,32]),ph);}
+    body=cat(body,pl);
+    const msg=cat(hdr,body);
+    const sig=new Uint8Array(await crypto.subtle.sign('Ed25519',kp.sk,msg));
+    return cat(msg,new Uint8Array([1]),u16(64),sig);
+  }
+  async function verify(bytes) {
+    try {
+      const d=bytes instanceof Uint8Array?bytes:new Uint8Array(bytes);
+      const v=new DataView(d.buffer,d.byteOffset);
+      if(d[0]!==0x89||d[1]!==0x44||d[2]!==0x4F||d[3]!==0x54)return{ok:false,err:'Bad magic'};
+      const flags=d[6],type=d[7],plen=v.getUint32(8,false);
+      let o=12; o++; const kl=v.getUint16(o,false);o+=2; const pub=d.slice(o,o+kl);o+=kl;
+      const tsH=v.getUint32(o,false),tsL=v.getUint32(o+4,false);o+=8;
+      const tsUs=(BigInt(tsH)<<32n)|BigInt(tsL>>>0);
+      let ph=null;
+      if(flags&HP){o++;const hl=d[o];o++;ph=d.slice(o,o+hl);o+=hl;}
+      const pl=d.slice(o,o+plen);o+=plen;
+      const sp=o;o++;const sl=v.getUint16(o,false);o+=2;const sig=d.slice(o,o+sl);
+      const vk=await crypto.subtle.importKey('raw',pub.buffer,{name:'Ed25519'},false,['verify']);
+      const valid=await crypto.subtle.verify('Ed25519',vk,sig,d.slice(0,sp));
+      const h=await sha(d);
+      let txt=null;try{txt=new TextDecoder().decode(pl);}catch{}
+      return{ok:valid,pub,pubHex:hex(pub),tsUs,type,tn:TNAME[type]||`0x${type.toString(16)}`,pl,txt,ph,h,hx:hex(h)};
+    } catch(e){return{ok:false,err:e.message};}
+  }
+  return { genKeys, fromSeed, seal, verify, hex, unhex, b64, ub64 };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  NOSTR — NIP-01 WebSocket client
+// ═══════════════════════════════════════════════════════════
+const NOSTR = (() => {
+  const RELAYS=['wss://relay.damus.io','wss://nos.lol','wss://relay.primal.net'];
+  const socks=new Map(),subs=new Map(),ev={};
+  let cnt=0;
+  const on=(e,f)=>(ev[e]=ev[e]||[]).push(f);
+  const emit=(e,d)=>(ev[e]||[]).forEach(f=>f(d));
+  function connectAll(){
+    RELAYS.forEach(url=>{
+      try{
+        const s=new WebSocket(url);
+        s.onopen=()=>{cnt++;emit('up',{url,cnt});};
+        s.onclose=()=>{socks.delete(url);cnt=Math.max(0,cnt-1);emit('dn',{url});};
+        s.onerror=()=>{};
+        s.onmessage=({data})=>{
+          try{const m=JSON.parse(data);if(m[0]==='EVENT'){const h=subs.get(m[1]);if(h)h(m[2]);}}catch{}
+        };
+        socks.set(url,s);
+      }catch{}
+    });
+  }
+  const send=m=>{const j=JSON.stringify(m);socks.forEach(s=>{if(s.readyState===1)s.send(j);});};
+  function sub(filter,cb){const id=Math.random().toString(36).slice(2,10);subs.set(id,cb);send(['REQ',id,filter]);return id;}
+  function unsub(id){subs.delete(id);send(['CLOSE',id]);}
+  async function pub(content,nkp,tags=[],kind=1){
+    const at=Math.floor(Date.now()/1000);
+    const e={pubkey:nkp.pubHex,created_at:at,kind,tags,content};
+    const serial=JSON.stringify([0,e.pubkey,e.created_at,e.kind,e.tags,e.content]);
+    const h=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(serial)));
+    e.id=DOT.hex(h);
+    e.sig=DOT.hex(await K1.sign(h,nkp.priv));
+    send(['EVENT',e]);return e;
+  }
+  return { connectAll, sub, unsub, pub, cnt:()=>cnt, on };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  DB — IndexedDB
+// ═══════════════════════════════════════════════════════════
+const DB = (() => {
+  let idb;
+  async function open(){
+    return new Promise((ok,fail)=>{
+      const r=indexedDB.open('axxis_v1',1);
+      r.onupgradeneeded=e=>{
+        const d=e.target.result;
+        if(!d.objectStoreNames.contains('dots')){const s=d.createObjectStore('dots',{keyPath:'hash'});s.createIndex('ts','ts');}
+        if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv',{keyPath:'k'});
+      };
+      r.onsuccess=e=>{idb=e.target.result;ok();};r.onerror=fail;
+    });
+  }
+  const tx=(s,m='readonly')=>idb.transaction(s,m).objectStore(s);
+  const put=(s,o)=>new Promise((ok,f)=>{const r=tx(s,'readwrite').put(o);r.onsuccess=ok;r.onerror=f;});
+  const get=(s,k)=>new Promise((ok,f)=>{const r=tx(s).get(k);r.onsuccess=()=>ok(r.result);r.onerror=f;});
+  const all=s=>new Promise((ok,f)=>{const res=[],r=tx(s).openCursor(null);r.onsuccess=e=>{const c=e.target.result;if(c){res.push(c.value);c.continue();}else ok(res);};r.onerror=f;});
+  async function saveDot(hash,bytes,meta={}){await put('dots',{hash,bytes:Array.from(bytes),ts:Date.now(),...meta});}
+  async function loadDot(hash){const r=await get('dots',hash);return r?new Uint8Array(r.bytes):null;}
+  async function allDots(){return(await all('dots')).sort((a,b)=>b.ts-a.ts);}
+  async function setKV(k,v){await put('kv',{k,v});}
+  async function getKV(k){const r=await get('kv',k);return r?.v;}
+  return { open, saveDot, loadDot, allDots, setKV, getKV };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  BLE — Local peer discovery
+// ═══════════════════════════════════════════════════════════
+const BLE = (() => {
+  const peers=[];
+  async function scan(){
+    if(!navigator.bluetooth)return{err:'Bluetooth not available'};
+    try{
+      const d=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[]});
+      const peer={id:d.id,name:d.name||'Unknown peer'};peers.push(peer);return{ok:true,peer};
+    }catch(e){return{err:e.message};}
+  }
+  return { scan, peers };
+})();
+
+// ═══════════════════════════════════════════════════════════
+//  SERVICE WORKER — offline cache
+// ═══════════════════════════════════════════════════════════
+if('serviceWorker' in navigator){
+  const sw=`const C='ax1';
+self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',e=>e.waitUntil(self.clients.claim()));
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET')return;
+  e.respondWith(caches.open(C).then(async c=>{
+    const r=await c.match(e.request);if(r)return r;
+    const f=await fetch(e.request);if(f.ok)c.put(e.request,f.clone());return f;
+  }).catch(()=>caches.match(e.request)));
+});`;
+  navigator.serviceWorker.register(
+    URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))
+  ).catch(()=>{});
+}
+
+// ═══════════════════════════════════════════════════════════
+//  APP
+// ═══════════════════════════════════════════════════════════
+const A = (() => {
+  let kp=null,nkp=null,chain=[];
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const toast=(m,d=2500)=>{const t=$('toast');t.textContent=m;t.className='show';setTimeout(()=>t.className='',d);};
+  const fmtKey=h=>`<span class="pk">${h.slice(0,4)}</span>${h.slice(4,10)}…${h.slice(-6)}`;
+  const fmtTs=us=>{const d=new Date(Number(BigInt(us)/1000n));return d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+' '+d.toLocaleDateString([],{month:'short',day:'numeric'});};
+
+  // ── Identity ──────────────────────────────────────────
+  async function gen(){
+    try{
+      kp=await DOT.genKeys();
+      const pb=crypto.getRandomValues(new Uint8Array(32));
+      const priv=K1.fromB(pb);
+      const pub=K1.pubX(priv);
+      nkp={priv,pubHex:DOT.hex(pub)};
+      await DB.setKV('id',{seedH:DOT.hex(kp.seed),pubH:DOT.hex(kp.pub),nph:DOT.hex(pb)});
+      renderID();toast('◉ New identity sealed');
+    }catch(e){toast('Key gen failed: '+e.message);}
+  }
+  async function loadID(){
+    const s=await DB.getKV('id');if(!s)return false;
+    try{
+      kp=await DOT.fromSeed(s.seedH,s.pubH);
+      const pb=DOT.unhex(s.nph),priv=K1.fromB(pb),pub=K1.pubX(priv);
+      nkp={priv,pubHex:DOT.hex(pub)};
+      renderID();return true;
+    }catch{return false;}
+  }
+  function renderID(){
+    if(!kp)return;
+    const h=DOT.hex(kp.pub);
+    $('pkdisp').innerHTML=fmtKey(h);
+    $('pkdisp').title=h;
+    $('pkdisp').onclick=()=>{navigator.clipboard?.writeText(h);toast('Public key copied');};
+    $('idseal').style.color=`hsl(${parseInt(h.slice(0,6),16)%360},55%,35%)`;
+    $('chainstats').innerHTML=`<b>${chain.length}</b> DOT${chain.length!==1?'s':''} sealed`;
+  }
+
+  // ── DOT card HTML ──────────────────────────────────────
+  function dotCard(r,bytes){
+    if(!r.ok)return`<div class="dc"><div class="dpay" style="color:var(--sienna)">⚠ ${esc(r.err||'Verification failed')}</div></div>`;
+    const isText=r.txt!=null&&r.txt.length>0&&r.txt.length<2000;
+    const bsize=bytes?bytes.length:(r.pl?.length||0);
+    return`<div class="dc">
+      <div class="dch">
+        <span class="dchk">✓</span>
+        <span class="dtb">${r.tn||'OBS'}</span>
+        ${r.ph?`<span class="dchain" title="Chained">⇢</span>`:''}
+        <span class="dhash" title="${r.hx}" onclick="navigator.clipboard?.writeText('${r.hx}');A.toast('Hash copied')">${r.hx?.slice(0,8)}…</span>
+      </div>
+      <div class="${isText?'dpay':'dhex'}">${isText?esc(r.txt):DOT.hex(r.pl||new Uint8Array()).slice(0,80)+'…'}</div>
+      <div class="dcf">
+        <span>${r.tsUs?fmtTs(r.tsUs):''}</span>
+        <span>${r.pl?.length||0}B payload · ${bsize}B total</span>
+        <span style="color:var(--gold)">${r.pubHex?fmtKey(r.pubHex).replace(/<[^>]+>/g,''):''}</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Tabs ──────────────────────────────────────────────
+  function tab(name,btn){
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('act'));
+    btn.classList.add('act');
+    ({compose:renderCompose,chain:renderChain,room:renderRoom,explore:renderExplore})[name]?.();
+  }
+
+  // ── Compose ───────────────────────────────────────────
+  function renderCompose(){
+    $('panel').innerHTML=`
+      <div id="carea">
+        <div class="clabel"><span class="sym">◉</span> Seal an Observation</div>
+        <textarea id="ctext" placeholder="What is true? Seal it here…"></textarea>
+        <div class="cmeta">
+          <select class="tsel" id="tsel">
+            <option value="1">OBSERVATION</option>
+            <option value="7">CHAIN_LINK</option>
+            <option value="9">ARCHIVE</option>
+          </select>
+          <label class="ctog"><input type="checkbox" id="cchain"> Chain to previous</label>
+          <span id="cbytes" style="margin-left:auto">0 B</span>
+        </div>
+        <button id="sealbtn" onclick="A.doSeal()">◉ Seal DOT</button>
+      </div>
+      <div style="margin-top:28px">
+        <div class="slabel">Recent DOTs</div>
+        <div id="dlist"></div>
+      </div>`;
+    $('ctext').addEventListener('input',e=>{$('cbytes').textContent=new TextEncoder().encode(e.target.value).length+' B';});
+    renderDlist();
+  }
+  async function renderDlist(){
+    const el=$('dlist');if(!el)return;
+    const rows=await DB.allDots();
+    if(!rows.length){el.innerHTML='<div class="empty"><div class="esym">◎</div>No DOTs yet. Seal your first observation above.</div>';return;}
+    const cards=await Promise.all(rows.slice(0,25).map(async d=>{
+      const r=await DOT.verify(new Uint8Array(d.bytes));
+      return dotCard(r,new Uint8Array(d.bytes));
+    }));
+    el.innerHTML=cards.join('');
+  }
+  async function doSeal(){
+    if(!kp){toast('Generate an identity first');return;}
+    const text=$('ctext')?.value?.trim();if(!text){toast('Nothing to seal');return;}
+    const type=parseInt($('tsel')?.value||'1');
+    const useChain=$('cchain')?.checked&&chain.length>0;
+    const parent=useChain?chain[chain.length-1]:null;
+    const btn=$('sealbtn');btn.disabled=true;btn.textContent='Sealing…';
+    try{
+      const db=await DOT.seal(text,kp,{type,parent});
+      const r=await DOT.verify(db);
+      await DB.saveDot(r.hx,db,{type,pubH:DOT.hex(kp.pub)});
+      chain.push(db);
+      if(nkp&&NOSTR.cnt()>0){
+        try{await NOSTR.pub(`[DOT:${r.hx.slice(0,16)}] ${text.slice(0,120)}`,nkp,[['t','axxis'],['dot',r.hx]]);}catch{}
+      }
+      $('ctext').value='';$('cbytes').textContent='0 B';
+      renderID();renderDlist();
+      toast(`◉ Sealed — ${r.hx.slice(0,8)}…`);
+    }catch(e){toast('Seal failed: '+e.message);}
+    finally{btn.disabled=false;btn.innerHTML='◉ Seal DOT';}
+  }
+
+  // ── Chain ─────────────────────────────────────────────
+  async function renderChain(){
+    const rows=await DB.allDots();
+    if(!rows.length){$('panel').innerHTML='<div class="empty"><div class="esym">⛓</div>No chain yet. Seal DOTs from Compose.</div>';return;}
+    const vd=await Promise.all(rows.map(async d=>({r:await DOT.verify(new Uint8Array(d.bytes)),bytes:new Uint8Array(d.bytes)})));
+    $('panel').innerHTML=`
+      <div class="slabel">${vd.length} DOT${vd.length!==1?'s':''}</div>
+      <div class="cview">${vd.map((x,i)=>`
+        <div class="cnode">
+          <div class="cline">
+            <div class="cmark"></div>
+            ${i<vd.length-1?'<div class="cconn"></div>':''}
+          </div>
+          <div class="ccard">${dotCard(x.r,x.bytes)}</div>
+        </div>`).join('')}
+      </div>`;
+  }
+
+  // ── Room ──────────────────────────────────────────────
+  let roomSub=null;
+  function renderRoom(){
+    $('panel').innerHTML=`
+      <div class="slabel">The Room — Nostr #axxis</div>
+      <div class="rmsgs" id="rmsgs">
+        <div class="empty" style="padding:20px">
+          <div class="esym">📡</div>
+          Connecting to Nostr…<br>Messages from #axxis will appear here.
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;max-width:620px;margin-top:10px">
+        <input class="rinput" id="rinput" placeholder="Speak into the room…" onkeydown="if(event.key==='Enter')A.sendRoom()">
+        <button class="rsbtn" onclick="A.sendRoom()">◉ Send</button>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:7px">
+        Messages are sealed as DOTs and broadcast via Nostr. ${NOSTR.cnt()>0?`Connected to ${NOSTR.cnt()} relay(s).`:'Not connected.'}
+      </div>`;
+    if(roomSub)NOSTR.unsub(roomSub);
+    roomSub=NOSTR.sub({kinds:[1],'#t':['axxis'],limit:30},addMsg);
+  }
+  const msgs=[];
+  function addMsg(ev){
+    msgs.push(ev);
+    const c=$('rmsgs');if(!c)return;
+    const dot=(ev.content.match(/\[DOT:([a-f0-9]+)\]/)||[])[1];
+    const text=ev.content.replace(/\[DOT:[a-f0-9]+\]\s*/,'');
+    const d=document.createElement('div');d.className='rmsg';
+    d.innerHTML=`<div class="mav">${ev.pubkey.slice(0,2)}</div>
+      <div><div class="mac">${ev.pubkey.slice(0,10)}… · ${new Date(ev.created_at*1000).toLocaleTimeString()}</div>
+      <div class="mtxt">${esc(text)}${dot?` <span class="mseal">◉ ${dot.slice(0,8)}…</span>`:''}</div></div>`;
+    c.querySelector('.empty')?.remove();
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+  }
+  async function sendRoom(){
+    const inp=$('rinput'),text=inp?.value?.trim();
+    if(!text||!nkp){toast(nkp?'Nothing to send':'Generate identity first');return;}
+    let ref='';
+    if(kp){try{const db=await DOT.seal(text,kp);const r=await DOT.verify(db);await DB.saveDot(r.hx,db);chain.push(db);ref=`[DOT:${r.hx.slice(0,16)}] `;}catch{}}
+    try{const ev=await NOSTR.pub(ref+text,nkp,[['t','axxis']]);addMsg(ev);inp.value='';toast('◉ Sent to the Room');}
+    catch{toast('Send failed — no relay connected');}
+  }
+
+  // ── Explore ───────────────────────────────────────────
+  function renderExplore(){
+    $('panel').innerHTML=`
+      <div style="max-width:620px">
+        <div class="slabel">Verify a DOT</div>
+        <textarea class="expbox" id="earea" placeholder="Paste a DOT as hex or base64…"></textarea>
+        <div style="display:flex;gap:8px;margin:8px 0 16px">
+          <button onclick="A.verifyPasted()" style="padding:7px 14px;background:var(--sage);color:#FAF6EC;border:none;border-radius:4px;font-family:Georgia,serif;cursor:pointer">✓ Verify</button>
+          <button onclick="A.exportDot()" style="padding:7px 14px;background:var(--cream);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:12px">Export last DOT</button>
+        </div>
+        <div id="eres"></div>
+        <div class="slabel" style="margin-top:24px">BLE Peer Discovery</div>
+        <button onclick="A.scanBLE()" style="padding:7px 14px;background:var(--cream);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:13px">🔵 Scan for Nearby Peers</button>
+        <div id="bres" style="margin-top:10px;font-size:12px;color:var(--muted)"></div>
+        <div class="slabel" style="margin-top:24px">Identity</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Your Ed25519 public key is your identity. Share it. No server required.</div>
+        <textarea class="expbox" id="idexport" readonly style="min-height:60px" placeholder="Generate a key to see your public key here"></textarea>
+      </div>`;
+    if(kp)$('idexport').value='DOT Public Key:\n'+DOT.hex(kp.pub)+'\n\nNostr Public Key (npub):\n'+nkp.pubHex;
+  }
+  async function verifyPasted(){
+    const raw=$('earea')?.value?.trim();if(!raw)return;
+    try{
+      let bytes;
+      if(/^[0-9a-fA-F\s]+$/.test(raw)){bytes=DOT.unhex(raw.replace(/\s/g,''));}
+      else{bytes=DOT.ub64(raw);}
+      const r=await DOT.verify(bytes);
+      $('eres').innerHTML=dotCard(r,bytes);
+    }catch(e){$('eres').innerHTML=`<div class="dc" style="border-color:var(--sienna)"><div class="dpay" style="color:var(--sienna)">⚠ ${esc(e.message)}</div></div>`;}
+  }
+  async function exportDot(){
+    const rows=await DB.allDots();if(!rows.length){toast('No DOTs yet');return;}
+    const last=new Uint8Array(rows[0].bytes);
+    $('earea').value=DOT.b64(last);
+    toast('Last DOT exported as base64 — copy and share via any medium');
+  }
+  async function scanBLE(){
+    const r=await BLE.scan();
+    const el=$('bres');
+    if(r.err)el.textContent='⚠ '+r.err;
+    else el.textContent=`🔵 Found: ${r.peer.name} (${r.peer.id.slice(0,12)}…)`;
+    $('bstatus').textContent=`BLE: ${BLE.peers.length} peer${BLE.peers.length!==1?'s':''}`;
+  }
+
+  // ── Nostr status listeners ────────────────────────────
+  NOSTR.on('up',({cnt})=>{
+    $('nbadge').textContent=cnt+' RELAY'+(cnt>1?'S':'');$('nbadge').className='on';
+    $('nstatus').textContent=`Nostr: ${cnt} relay${cnt>1?'s':''}`;
+    $('rd1').className='rdot on';
+  });
+  NOSTR.on('dn',()=>{
+    if(!NOSTR.cnt()){$('nbadge').textContent='OFFLINE';$('nbadge').className='';}
+  });
+
+  // ── Init ──────────────────────────────────────────────
+  async function init(){
+    await DB.open();
+    const had=await loadID();
+    NOSTR.connectAll();
+    renderCompose();
+    // Load chain from DB
+    const rows=await DB.allDots();
+    // Restore chain order (approximate, by timestamp)
+    chain=rows.map(d=>new Uint8Array(d.bytes));
+    if(!had)setTimeout(()=>toast('Welcome to AXXIS. Generate a key to begin. ◉',4000),600);
+    setTimeout(()=>{
+      if(!NOSTR.cnt())$('nstatus').textContent='Nostr: no relay';
+    },5000);
+  }
+
+  return { gen, tab, doSeal, sendRoom, verifyPasted, exportDot, scanBLE, toast, init };
+})();
+
+document.addEventListener('DOMContentLoaded', () => A.init());
+</script>
+</body>
+</html>

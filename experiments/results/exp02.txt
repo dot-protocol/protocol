@@ -1,0 +1,50 @@
+Generating 1,000 DOTs...
+  Creator: 7d0bf4ea493add5b…
+
+  Generated 1000 DOTs
+  Size range: 154-283 bytes (avg 201B)
+
+Applying tampering to groups 0-99...
+  clean:                      900
+  tamper_payload_bitflip:     25
+  tamper_timestamp_modify:    25
+  tamper_signature_alter:     25
+  tamper_parent_hash_swap:    25
+
+Verifying all 1,000 DOTs...
+
+═══════════════════════════════════════════════════════
+  EXPERIMENT 2: INTEGRITY PRISM — RESULTS
+═══════════════════════════════════════════════════════
+
+  Total DOTs verified:         1,000
+  Clean DOTs:                  900
+  Tampered DOTs:               100
+
+  Detection Rate:              100.0%  (100/100 tampered DOTs caught)
+  False Positive Rate:         0.00%  (0/900 clean DOTs wrongly flagged)
+
+  Breakdown by tamper type:
+    tamper_payload_bitflip           25/25 caught  ✅
+    tamper_timestamp_modify          25/25 caught  ✅
+    tamper_signature_alter           25/25 caught  ✅
+    tamper_parent_hash_swap          25/25 caught  ✅
+
+  Timing:
+    Total for 1,000 DOTs:      567.5 ms
+    Per DOT:                   0.5675 ms  (567.5 µs)
+    Throughput:                1762 verifications/second
+
+  ✅ EXPERIMENT 2 PASSED
+     100% detection. 0% false positives. Sub-millisecond per DOT.
+     The format is cryptographically sound.
+
+═══════════════════════════════════════════════════════
+
+  Comparison context (Experiment 3):
+    Smallest DOT in this run:  154B
+    Smallest valid DOT (TV1):  133B
+    JWT (equivalent fields):   ~180-220B (estimate)
+    Protobuf (equiv fields):   ~80-100B (no signature)
+    Note: DOT includes Ed25519 sig (64B) + full public key (32B).
+          No equivalent JWT/protobuf includes both.

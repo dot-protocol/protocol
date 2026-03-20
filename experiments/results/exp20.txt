@@ -1,0 +1,23 @@
+======================================================================
+  EXPERIMENT 20: MINIMUM VIABLE ARCHIVE (100 OBSERVATIONS)
+======================================================================
+
+  Observations:        100
+  Payload bytes:       8,143  (raw text)
+  Total DOT bytes:     23,709  (23.2 KB)
+  Avg DOT size:        237.1 bytes
+  DOT overhead:        15,566 bytes (191.2%)
+
+  Seal time:           35.1 ms (0.351 ms/DOT)
+  Verify time:         57.1 ms (0.571 ms/DOT)
+  Chain valid:         True
+
+  TRANSMISSION:
+    BLE (1 Mbps):      0.19 seconds
+    QR codes needed:   9 × v40 QR
+    Email attachment:  trivially small
+
+  Saved to: /Users/blaze/Movies/Kin/projects/dot-protocol/experiments/results/minimum_viable_archive.dot
+
+  ✅ EXP-20 PASSED
+======================================================================

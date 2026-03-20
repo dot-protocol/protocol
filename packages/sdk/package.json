@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/sdk",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "DOT Protocol SDK \u2014 one install for signing, compression, wrapping, and identity.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -41,7 +41,8 @@
     "@dot-protocol/identity": "workspace:*",
     "@dot-protocol/chain": "workspace:*",
     "@dot-protocol/relay": "workspace:*",
-    "@dot-protocol/wrapper": "workspace:*"
-  },
-  "private": true
+    "@dot-protocol/wrapper": "workspace:*",
+    "@dot-protocol/qr": "workspace:*",
+    "@dot-protocol/arena": "workspace:*"
+  }
 }

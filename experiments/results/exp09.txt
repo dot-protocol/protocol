@@ -1,0 +1,21 @@
+============================================================
+  EXPERIMENT 09: MIDDLE-OUT CLUSTER COMPRESSION
+============================================================
+
+  DOTs:           100 city descriptions
+  Cities:         10 unique, with variations
+  Payload range:  95-117 bytes
+  Avg payload:    105 bytes
+
+  Approach                          Bytes     Ratio
+  ------------------------------ --------  --------
+  A) Raw payloads                  10,525     1.000
+  B) Linear deltas (compressed)       983     0.093
+  C) Middle-out (compressed)          994     0.094
+
+  Middle-out vs Linear: 1.011x (larger)
+  Centroid:       payload[17] — 106 bytes
+    'Lagos is a historic city of 3 million people located in Nige...'
+
+  EXPERIMENT 09 COMPLETE
+============================================================

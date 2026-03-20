@@ -1,7 +1,7 @@
 {
   "name": "dot-protocol",
-  "version": "0.2.0",
-  "description": "DOT — 153-byte cryptographic primitive. Identity, signing, chaining, compression, encryption, and BLS sealing. Automatic.",
+  "version": "0.3.0",
+  "description": "DOT \u2014 153-byte cryptographic primitive. Identity, signing, chaining, compression, encryption, and BLS sealing. Automatic.",
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",

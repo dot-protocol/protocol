@@ -1,0 +1,838 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for rans.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="prettify.css" />
+    <link rel="stylesheet" href="base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="index.html">All files</a> rans.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>120/120</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>33/33</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>3/3</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">100% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>120/120</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line high'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a>
+<a name='L169'></a><a href='#L169'>169</a>
+<a name='L170'></a><a href='#L170'>170</a>
+<a name='L171'></a><a href='#L171'>171</a>
+<a name='L172'></a><a href='#L172'>172</a>
+<a name='L173'></a><a href='#L173'>173</a>
+<a name='L174'></a><a href='#L174'>174</a>
+<a name='L175'></a><a href='#L175'>175</a>
+<a name='L176'></a><a href='#L176'>176</a>
+<a name='L177'></a><a href='#L177'>177</a>
+<a name='L178'></a><a href='#L178'>178</a>
+<a name='L179'></a><a href='#L179'>179</a>
+<a name='L180'></a><a href='#L180'>180</a>
+<a name='L181'></a><a href='#L181'>181</a>
+<a name='L182'></a><a href='#L182'>182</a>
+<a name='L183'></a><a href='#L183'>183</a>
+<a name='L184'></a><a href='#L184'>184</a>
+<a name='L185'></a><a href='#L185'>185</a>
+<a name='L186'></a><a href='#L186'>186</a>
+<a name='L187'></a><a href='#L187'>187</a>
+<a name='L188'></a><a href='#L188'>188</a>
+<a name='L189'></a><a href='#L189'>189</a>
+<a name='L190'></a><a href='#L190'>190</a>
+<a name='L191'></a><a href='#L191'>191</a>
+<a name='L192'></a><a href='#L192'>192</a>
+<a name='L193'></a><a href='#L193'>193</a>
+<a name='L194'></a><a href='#L194'>194</a>
+<a name='L195'></a><a href='#L195'>195</a>
+<a name='L196'></a><a href='#L196'>196</a>
+<a name='L197'></a><a href='#L197'>197</a>
+<a name='L198'></a><a href='#L198'>198</a>
+<a name='L199'></a><a href='#L199'>199</a>
+<a name='L200'></a><a href='#L200'>200</a>
+<a name='L201'></a><a href='#L201'>201</a>
+<a name='L202'></a><a href='#L202'>202</a>
+<a name='L203'></a><a href='#L203'>203</a>
+<a name='L204'></a><a href='#L204'>204</a>
+<a name='L205'></a><a href='#L205'>205</a>
+<a name='L206'></a><a href='#L206'>206</a>
+<a name='L207'></a><a href='#L207'>207</a>
+<a name='L208'></a><a href='#L208'>208</a>
+<a name='L209'></a><a href='#L209'>209</a>
+<a name='L210'></a><a href='#L210'>210</a>
+<a name='L211'></a><a href='#L211'>211</a>
+<a name='L212'></a><a href='#L212'>212</a>
+<a name='L213'></a><a href='#L213'>213</a>
+<a name='L214'></a><a href='#L214'>214</a>
+<a name='L215'></a><a href='#L215'>215</a>
+<a name='L216'></a><a href='#L216'>216</a>
+<a name='L217'></a><a href='#L217'>217</a>
+<a name='L218'></a><a href='#L218'>218</a>
+<a name='L219'></a><a href='#L219'>219</a>
+<a name='L220'></a><a href='#L220'>220</a>
+<a name='L221'></a><a href='#L221'>221</a>
+<a name='L222'></a><a href='#L222'>222</a>
+<a name='L223'></a><a href='#L223'>223</a>
+<a name='L224'></a><a href='#L224'>224</a>
+<a name='L225'></a><a href='#L225'>225</a>
+<a name='L226'></a><a href='#L226'>226</a>
+<a name='L227'></a><a href='#L227'>227</a>
+<a name='L228'></a><a href='#L228'>228</a>
+<a name='L229'></a><a href='#L229'>229</a>
+<a name='L230'></a><a href='#L230'>230</a>
+<a name='L231'></a><a href='#L231'>231</a>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a>
+<a name='L236'></a><a href='#L236'>236</a>
+<a name='L237'></a><a href='#L237'>237</a>
+<a name='L238'></a><a href='#L238'>238</a>
+<a name='L239'></a><a href='#L239'>239</a>
+<a name='L240'></a><a href='#L240'>240</a>
+<a name='L241'></a><a href='#L241'>241</a>
+<a name='L242'></a><a href='#L242'>242</a>
+<a name='L243'></a><a href='#L243'>243</a>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a>
+<a name='L249'></a><a href='#L249'>249</a>
+<a name='L250'></a><a href='#L250'>250</a>
+<a name='L251'></a><a href='#L251'>251</a>
+<a name='L252'></a><a href='#L252'>252</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">16442x</span>
+<span class="cline-any cline-yes">16442x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">26x</span>
+<span class="cline-any cline-yes">2763x</span>
+<span class="cline-any cline-yes">2763x</span>
+<span class="cline-any cline-yes">2763x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3329x</span>
+<span class="cline-any cline-yes">3329x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">14x</span>
+<span class="cline-any cline-yes">3329x</span>
+<span class="cline-any cline-yes">3329x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-yes">6912x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-yes">27x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">24x</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-yes">792x</span>
+<span class="cline-any cline-yes">792x</span>
+<span class="cline-any cline-yes">792x</span>
+<span class="cline-any cline-yes">792x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-yes">7883x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-yes">23x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-yes">4352x</span>
+<span class="cline-any cline-yes">4352x</span>
+<span class="cline-any cline-yes">4352x</span>
+<span class="cline-any cline-yes">69632x</span>
+<span class="cline-any cline-yes">69632x</span>
+<span class="cline-any cline-yes">4352x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">18x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-yes">677x</span>
+<span class="cline-any cline-yes">5971x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-yes">17x</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">/**
+ * rANS (Asymmetric Numeral Systems) entropy coder for byte-level data.
+ *
+ * Implements table-based streaming rANS with a 32-bit state and 16-bit output
+ * chunks. Symbols are bytes (0-255). Frequencies are normalised to sum = 4096
+ * (SCALE = 2^12). Laplace smoothing ensures no zero-frequency symbols.
+ *
+ * State invariant: x in [RANS_L, RANS_L * 2^16). With RANS_L = 2^15 this is
+ * [32768, 2147483648) which fits comfortably in a 32-bit unsigned integer.
+ *
+ * For DOT XOR residuals the zero byte dominates → near-zero bits per symbol.
+ */
+&nbsp;
+/** Precision of the frequency table: 2^SCALE_BITS total slots. */
+const SCALE_BITS = 12;
+const SCALE = 1 &lt;&lt; SCALE_BITS; // 4096
+&nbsp;
+/**
+ * Lower bound of the normalisation interval.
+ * State x is always in [RANS_L, RANS_L * 65536).
+ * RANS_L = 2^15 so max state = 2^15 * 2^16 - 1 = 2^31 - 1 &lt; 2^32.  ✓
+ */
+const RANS_L = 1 &lt;&lt; 15; // 32768
+&nbsp;
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+&nbsp;
+/**
+ * Normalised frequency table over 256 symbols.
+ * sum(freq) === 4096, freq[b] &gt;= 1 for all b.
+ */
+export interface FrequencyTable {
+  /** Normalised frequency for each byte value (0-255). */
+  freq: Uint16Array; // length 256, sum = 4096
+  /** Cumulative frequencies. cumFreq[b] = sum(freq[0..b-1]). */
+  cumFreq: Uint16Array; // length 257, cumFreq[0]=0, cumFreq[256]=4096
+}
+&nbsp;
+// ---------------------------------------------------------------------------
+// buildFrequencyTable
+// ---------------------------------------------------------------------------
+&nbsp;
+/**
+ * Build a FrequencyTable from byte data using Largest Remainder Method (LRM)
+ * to guarantee exact normalisation to SCALE = 4096.
+ *
+ * Steps:
+ *  1. Count raw occurrences of each byte.
+ *  2. Add 1 to every count (Laplace smoothing) — eliminates zero frequencies.
+ *  3. Assign floor(count/total * SCALE) to each symbol; ensure minimum of 1.
+ *  4. Distribute remaining slots to symbols with largest fractional remainders.
+ *  5. Build cumulative prefix sums.
+ *
+ * @param data - Representative byte data (e.g., XOR residuals).
+ */
+export function buildFrequencyTable(data: Uint8Array): FrequencyTable {
+  // Step 1: raw counts
+  const rawCounts = new Float64Array(256);
+  for (let i = 0; i &lt; data.length; i++) {
+    rawCounts[data[i]!]++;
+  }
+&nbsp;
+  // Step 2: Laplace smoothing — every symbol gets at least 1 count
+  const counts = new Float64Array(256);
+  for (let i = 0; i &lt; 256; i++) {
+    counts[i] = rawCounts[i]! + 1;
+  }
+&nbsp;
+  const total = counts.reduce((a, b) =&gt; a + b, 0);
+&nbsp;
+  // Step 3: floor allocation, minimum 1 per symbol
+  const freq = new Uint16Array(256);
+  const remainders = new Float64Array(256);
+  let allocated = 0;
+&nbsp;
+  for (let i = 0; i &lt; 256; i++) {
+    const exact = (counts[i]! / total) * SCALE;
+    const floored = Math.floor(exact);
+    const f = Math.max(1, floored);
+    freq[i] = f;
+    allocated += f;
+    // Store remainder for LRM — use exact - floored (pre-clamp remainder)
+    remainders[i] = floored &gt;= 1 ? exact - floored : 0;
+  }
+&nbsp;
+  // Step 4: Largest Remainder Method — correct the total to exactly SCALE
+  const delta = SCALE - allocated; // positive = under, negative = over
+  if (delta &gt; 0) {
+    // Under-allocated: give extra slots to highest remainders
+    const indices = Array.from({ length: 256 }, (_, i) =&gt; i);
+    indices.sort((a, b) =&gt; remainders[b]! - remainders[a]!);
+    for (let k = 0; k &lt; delta; k++) {
+      freq[indices[k % 256]!]! + 1; // suppress lint
+      freq[indices[k % 256]!] += 1;
+    }
+  } else if (delta &lt; 0) {
+    // Over-allocated: remove slots from largest frequencies (keep min=1)
+    const indices = Array.from({ length: 256 }, (_, i) =&gt; i);
+    indices.sort((a, b) =&gt; freq[b]! - freq[a]!);
+    let toRemove = -delta;
+    let k = 0;
+    while (toRemove &gt; 0) {
+      const idx = indices[k % 256]!;
+      if (freq[idx]! &gt; 1) {
+        freq[idx] -= 1;
+        toRemove--;
+      }
+      k++;
+    }
+  }
+&nbsp;
+  // Step 5: cumulative prefix sums
+  const cumFreq = new Uint16Array(257);
+  for (let i = 0; i &lt; 256; i++) {
+    cumFreq[i + 1] = cumFreq[i]! + freq[i]!;
+  }
+&nbsp;
+  return { freq, cumFreq };
+}
+&nbsp;
+// ---------------------------------------------------------------------------
+// ransEncode
+// ---------------------------------------------------------------------------
+&nbsp;
+/**
+ * rANS encode a byte sequence.
+ *
+ * Processes symbols in REVERSE order (standard rANS convention). Emits 16-bit
+ * output chunks (lo byte, hi byte) when normalizing. After all symbols, flushes
+ * the 32-bit state (4 bytes LE). Reverses the whole output so the decoder sees:
+ * [state_BE_4bytes] [oldest_chunk...] [newest_chunk].
+ *
+ * @param symbols - Input bytes to encode.
+ * @param table   - FrequencyTable built from representative data.
+ */
+export function ransEncode(symbols: Uint8Array, table: FrequencyTable): Uint8Array {
+  if (symbols.length === 0) {
+    return new Uint8Array(0);
+  }
+&nbsp;
+  const output: number[] = [];
+  let x = RANS_L;
+&nbsp;
+  // L_over_M = floor(RANS_L / SCALE) = floor(2^15 / 2^12) = 8
+  const L_over_M = Math.floor(RANS_L / SCALE); // 8
+&nbsp;
+  // Process symbols in REVERSE order
+  for (let i = symbols.length - 1; i &gt;= 0; i--) {
+    const s = symbols[i]!;
+    const fs = table.freq[s]!;
+    const cs = table.cumFreq[s]!;
+&nbsp;
+    // Normalise: emit 16-bit chunk(s) until x is in the valid pre-encode range.
+    // Valid range before encoding s: x in [RANS_L/SCALE*fs, RANS_L/SCALE*fs*65536)
+    const upperBound = L_over_M * fs * 65536;
+    while (x &gt;= upperBound) {
+      output.push(x &amp; 0xff);
+      output.push((x &gt;&gt;&gt; 8) &amp; 0xff);
+      x = Math.floor(x / 65536);
+    }
+&nbsp;
+    // Encode symbol: maps x in [L/M*fs, L/M*fs*B) to [L, L*B) bijectively
+    x = Math.floor(x / fs) * SCALE + (x % fs) + cs;
+  }
+&nbsp;
+  // Flush final state (4 bytes, little-endian)
+  // State fits in 32 bits since RANS_L = 2^15 and x &lt; RANS_L * 65536 = 2^31
+  output.push(x &amp; 0xff);
+  output.push((x &gt;&gt;&gt; 8) &amp; 0xff);
+  output.push((x &gt;&gt;&gt; 16) &amp; 0xff);
+  output.push((x &gt;&gt;&gt; 24) &amp; 0xff);
+&nbsp;
+  // Reverse so the decoder reads state first, then chunks in oldest-to-newest order.
+  // After reversing, state bytes are [b3,b2,b1,b0] (big-endian) at positions 0..3.
+  output.reverse();
+  return new Uint8Array(output);
+}
+&nbsp;
+// ---------------------------------------------------------------------------
+// ransDecode
+// ---------------------------------------------------------------------------
+&nbsp;
+/**
+ * rANS decode a byte sequence encoded by ransEncode.
+ *
+ * @param encoded - Output of ransEncode.
+ * @param table   - Same FrequencyTable used for encoding.
+ * @param length  - Number of original symbols (required for correct termination).
+ */
+export function ransDecode(
+  encoded: Uint8Array,
+  table: FrequencyTable,
+  length: number,
+): Uint8Array {
+  if (length === 0) {
+    return new Uint8Array(0);
+  }
+&nbsp;
+  // Build a fast slot→symbol lookup table (length SCALE = 4096)
+  const cumToSym = new Uint8Array(SCALE);
+  for (let sym = 0; sym &lt; 256; sym++) {
+    const start = table.cumFreq[sym]!;
+    const end = table.cumFreq[sym + 1]!;
+    for (let j = start; j &lt; end; j++) {
+      cumToSym[j] = sym;
+    }
+  }
+&nbsp;
+  // Read initial 32-bit state.
+  // The encoder pushes LE bytes [b0,b1,b2,b3] last, then reverses the whole output,
+  // so in the stream they appear as [b3,b2,b1,b0] = big-endian.
+  // Use DataView for a clean big-endian read without JS bitwise sign issues.
+  const initBuf = new ArrayBuffer(4);
+  const initView = new DataView(initBuf);
+  initView.setUint8(0, encoded[0]!);
+  initView.setUint8(1, encoded[1]!);
+  initView.setUint8(2, encoded[2]!);
+  initView.setUint8(3, encoded[3]!);
+  let x = initView.getUint32(0, false); // big-endian = MSB first
+&nbsp;
+  let streamPos = 4;
+  const output = new Uint8Array(length);
+&nbsp;
+  for (let i = 0; i &lt; length; i++) {
+    // Identify symbol: slot = x mod SCALE
+    const slot = x &amp; (SCALE - 1);
+    const s = cumToSym[slot]!;
+    output[i] = s;
+&nbsp;
+    const fs = table.freq[s]!;
+    const cs = table.cumFreq[s]!;
+&nbsp;
+    // Advance state: x = fs * floor(x / SCALE) + slot - cs
+    x = fs * Math.floor(x / SCALE) + slot - cs;
+&nbsp;
+    // Renormalise: pull 16-bit chunks from the stream until x &gt;= RANS_L.
+    // Each chunk was pushed as [lo, hi] then reversed, so in stream order it's [hi, lo]
+    // = big-endian. Read accordingly.
+    while (x &lt; RANS_L &amp;&amp; streamPos + 2 &lt;= encoded.length) {
+      const hi = encoded[streamPos]!;
+      const lo = encoded[streamPos + 1]!;
+      const chunk = (hi &lt;&lt; 8) | lo;
+      // x * 65536 max: (RANS_L - 1) * 65536 = 2147418112 &lt; 2^31, safe for Number
+      x = x * 65536 + chunk;
+      streamPos += 2;
+    }
+  }
+&nbsp;
+  return output;
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-03-19T15:40:57.385Z
+            </div>
+        <script src="prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="sorter.js"></script>
+        <script src="block-navigation.js"></script>
+    </body>
+</html>
+    

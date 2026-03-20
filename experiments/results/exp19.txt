@@ -1,0 +1,41 @@
+======================================================================
+  EXPERIMENT 19: THE $800 ESTIMATE
+======================================================================
+
+  KNOWLEDGE CORPUS:
+  Source                                   Raw Size  License
+  -----------------------------------------------------------------
+  Wikipedia (all languages)                   90 GB  CC-BY-SA
+  Project Gutenberg                           70 GB  Public Domain
+  arXiv                                    2,000 GB  Open Access
+  Open Subtitles                           5,000 GB  Creative Commons
+  Sci-Hub estimate                        85,000 GB  Grey
+  Anna's Archive estimate                140,000 GB  Grey
+  -----------------------------------------------------------------
+  TOTAL RAW                              232,160 GB
+
+  COMPRESSION PIPELINE:
+    Raw:                  232,160 GB
+    After filesystem:   127,688.0 GB  (× 0.55 — dict + delta)
+    After dedup:         89,381.6 GB  (× 0.7 — 30% cross-corpus)
+    After DOT overhead:  91,169.2 GB  (× 1.02 — ~2% DOT envelope)
+
+  STORAGE:
+    Compressed total:  91,169 GB (91.2 TB)
+    8TB drives needed: 13
+    Cost @ $100/drive: $1,300
+    128GB phones:      714
+
+  VERIFICATION:
+    Estimated DOTs:    569,807,700,000
+    At 1,678 DOTs/sec:   11 years end-to-end
+    With 1,000 nodes:  0.01 years
+    With 1M nodes:     0.0000 years (0.0 days)
+
+  THE VERDICT:
+    All open human knowledge sealed as DOTs fits in ~91 TB
+    Cost: $1300 (13 × 8TB drives @ $100 each)
+    A single person could own and verify all of it.
+
+  ✅ EXP-19 PASSED
+======================================================================

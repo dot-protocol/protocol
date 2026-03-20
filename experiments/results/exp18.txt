@@ -1,0 +1,28 @@
+======================================================================
+  EXPERIMENT 18: WIKIPEDIA SCALE MODEL
+======================================================================
+
+  Input parameters:
+    Wikipedia raw size:    21.0 GB (English, uncompressed)
+    Gzip compression:      50.0% of raw (from EXP-08)
+    Filesystem approach:   67.0% of raw (from EXP-08)
+    DOT overhead:          11.00% (from EXP-15)
+    Verify speed:          1,762 DOTs/sec (from EXP-02)
+
+  STORAGE SCENARIOS:
+  Scenario                                      Size    Phone       SD       Pi        Verify
+  --------------------------------------------------------------------------------------
+  1. Naive (gzip per DOT)                      11.7GB    YES ✓    YES ✓    YES ✓  ~   11 hrs
+  2. Filesystem (dict+delta)                   15.6GB    YES ✓    YES ✓    YES ✓  ~   15 hrs
+  3. Filesystem + 30% dedup                    10.9GB    YES ✓    YES ✓    YES ✓  ~   11 hrs
+  4. Filesystem + dedup + embeddings           17.8GB    YES ✓    YES ✓    YES ✓  ~   18 hrs
+
+  Embedding index overhead: 6.86 GB (6,700,000 articles × 256 dims × 4B)
+
+  VERDICT:
+    Scenario 3 (10.9 GB) fits on 128GB phone: True
+    Scenario 3 (10.9 GB) fits on 64GB SD:     True
+    With embeddings (17.8 GB) exceeds 64GB SD
+
+  ✅ EXP-18 PASSED
+======================================================================

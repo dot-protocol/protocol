@@ -1,0 +1,27 @@
+/Users/blaze/Movies/Kin/projects/dot-protocol/experiments/exp04_cold_open.py:61: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+  ts_iso = datetime.datetime.utcfromtimestamp(ts_seconds).strftime("%Y-%m-%dT%H:%M:%SZ")
+============================================================
+  EXPERIMENT 04: COLD OPEN — RESULTS
+============================================================
+
+  File:             genesis.dot (160 bytes)
+
+  === MANUAL PARSE (no library) ===
+  Magic bytes:      89444f54 (b'\x89DOT')
+  Version:          1
+  Crypto suite:     1 (Ed25519+X25519+AES-256-GCM+SHA-256)
+  Flags:            0x00
+  DOT type:         0x01 (OBSERVATION)
+  Payload length:   38 bytes
+  Key type:         1 (Ed25519)
+  Key length:       32 bytes
+  Creator key:      9951f4fcc92beb04a31279b538594a71... (32 bytes)
+  Timestamp:        1741564800000000 µs → 2025-03-10T00:00:00Z
+  Payload:          'The act of observation leaves its dot.'
+
+  === LIBRARY VERIFY ===
+  Verified:         True
+  DOT hash:         f4209e7c0ba692c3b9dace7d51642d54edd5a3cc402c836c80a2cab36fe61640
+
+  EXPERIMENT 04 PASSED — cold parse + verify successful
+============================================================

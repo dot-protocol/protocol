@@ -1,0 +1,21 @@
+============================================================
+  EXPERIMENT 07: MULTI-OBSERVER CHAIN — RESULTS
+============================================================
+
+  Observers: alice, bob, carol, dave, eve
+  Chain length: 50 DOTs
+
+  Chain valid:     True
+
+  Observer distribution:
+    alice   : 10 DOTs  ██████████
+    bob     : 10 DOTs  ██████████
+    carol   : 10 DOTs  ██████████
+    dave    : 10 DOTs  ██████████
+    eve     : 10 DOTs  ██████████
+
+  Total size:      9,646 bytes (9.4 KB)
+  Avg DOT size:    192 bytes
+
+  EXPERIMENT 07 PASSED
+============================================================

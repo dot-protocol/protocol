@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/chain",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "DOT Protocol chain \u2014 append-only DOT worldline with pluggable storage.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -27,6 +27,5 @@
     "dist",
     "README.md",
     "LICENSE"
-  ],
-  "private": true
+  ]
 }

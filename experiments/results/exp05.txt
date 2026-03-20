@@ -1,0 +1,26 @@
+============================================================
+  EXPERIMENT 05: CHAIN 10K — RESULTS
+============================================================
+
+  Building chain of 10,000 DOTs...
+  Build complete: 3500.6 ms total, 0.350 ms/DOT
+  Verifying chain integrity...
+
+  BUILD STATS:
+    Total build time:    3500.6 ms
+    Build per DOT:       0.3501 ms (350.1 µs)
+    Throughput:          2857 DOTs/second
+
+  VERIFY STATS:
+    Total verify time:   5707.9 ms
+    Verify per DOT:      0.5708 ms (570.8 µs)
+    Throughput:          1752 verifications/second
+
+  CHAIN STATS:
+    Total DOTs:          10,000
+    Total chain size:    2,332,118 bytes (2.22 MB)
+    Avg DOT size:        233 bytes
+    Chain valid:         True
+
+  EXPERIMENT 05 PASSED
+============================================================

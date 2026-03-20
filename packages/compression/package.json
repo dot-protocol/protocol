@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/compression",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "DOT Protocol stream compression \u2014 batch v2, varint, RLE, dictionary, prediction, rANS.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -31,6 +31,5 @@
     "dist",
     "README.md",
     "LICENSE"
-  ],
-  "private": true
+  ]
 }

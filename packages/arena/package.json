@@ -1,0 +1,42 @@
+{
+  "name": "@dot-protocol/arena",
+  "version": "0.3.0",
+  "description": "DOT Protocol Arena — Elo engine, blind evaluation, prediction resolution. DOT spreads like life, not like messages.",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsdown",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "dot-protocol",
+    "elo",
+    "prediction",
+    "blind-evaluation",
+    "arena"
+  ],
+  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "@dot-protocol/core": "workspace:*",
+    "@dot-protocol/chain": "workspace:*"
+  }
+}

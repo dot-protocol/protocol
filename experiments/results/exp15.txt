@@ -1,0 +1,25 @@
+=================================================================
+  EXPERIMENT 15: FILE SPLITTING & RECONSTRUCTION
+=================================================================
+
+  Original file:       1,048,576 bytes (1 MB)
+  Piece size:          262,144 bytes (256 KB)
+  Pieces:              4
+
+  DOT sizes:
+    Piece 0 DOT:       262,266 bytes
+    Piece 1 DOT:       262,266 bytes
+    Piece 2 DOT:       262,266 bytes
+    Piece 3 DOT:       262,266 bytes
+    Archive DOT:       668 bytes
+    Total DOT size:    1,049,732 bytes
+
+  Original SHA-256:    ddb24689b5f13baecc7c8bafc7289b30...
+  Reconstructed SHA:   ddb24689b5f13baecc7c8bafc7289b30...
+  Reconstruction valid: True
+
+  DOT overhead:        0.11%
+  (1,156 bytes overhead for 4 pieces + archive)
+
+  EXPERIMENT 15 PASSED
+=================================================================

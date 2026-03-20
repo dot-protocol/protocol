@@ -43,6 +43,48 @@ export type {
   StatusHandler,
 } from '@dot-protocol/relay';
 
+// ── QR — encode/decode DOTs into scannable physical objects (Falooda) ────────
+export {
+  encodeBinary,
+  decodeBinary,
+  encodeSteganographic,
+  decodeSteganographic,
+  encodeNested,
+  decodeNested,
+  selectQRSpec,
+  verifyPhysicalDOTs,
+  QR_CAPACITY,
+} from '@dot-protocol/qr';
+export type {
+  QRDOTSpec,
+  PhysicalDOT,
+  QRDecodeResult,
+  QREncoding,
+  QRErrorCorrection,
+} from '@dot-protocol/qr';
+
+// ── Arena — Elo engine, blind evaluation, prediction resolution ──────────────
+export {
+  updateElo,
+  applyEloUpdates,
+  computeEloFromMatches,
+  computeEloPercentile,
+  rankLeaderboard,
+  ELO_DEFAULT,
+  verifyResolution,
+  verifyPrediction,
+  resolveSession,
+  hashPredictionDOT,
+} from '@dot-protocol/arena';
+export type {
+  PredictionDOT,
+  ResolutionDOT,
+  ArenaMatch,
+  BlindEvalSession,
+  LeaderboardEntry,
+  EloUpdate,
+} from '@dot-protocol/arena';
+
 // ── Wrapper — wrap/unwrap any binary payload as DOT chain ───────────────────
 // DotType is excluded here — it is already exported by core above.
 export {

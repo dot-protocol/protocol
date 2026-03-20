@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/identity",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "DOT Protocol identity \u2014 keypair + genesis DOT + export/import.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -28,6 +28,5 @@
     "dist",
     "README.md",
     "LICENSE"
-  ],
-  "private": true
+  ]
 }

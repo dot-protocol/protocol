@@ -1,0 +1,20 @@
+=======================================================
+  EXPERIMENT 03: MINIMUM DOT — RESULTS
+=======================================================
+
+  Payload:          1 byte (0x00)
+  DOT size:         123 bytes
+
+  Wire format breakdown:
+    Header:         12 bytes  (MAGIC+VERSION+SUITE+FLAGS+TYPE+LEN)
+    Key section:    35 bytes  (KEY_TYPE+KEY_LEN+PUBKEY)
+    Timestamp:       8 bytes
+    Payload:         1 byte
+    Signature:      67 bytes  (KEY_TYPE+SIG_LEN+SIG)
+    Total:         123 bytes
+
+  Verified:         True
+  DOT hash:         77870fe0456d37974fca168ccc248a9e...
+
+  EXPERIMENT 03 PASSED — minimum DOT is 123 bytes
+=======================================================

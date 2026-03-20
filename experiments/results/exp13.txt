@@ -1,0 +1,27 @@
+======================================================================
+  EXPERIMENT 13: KNOWLEDGE GRAPH IN DOTS
+======================================================================
+
+  Graph:             20 nodes + 30 relations = 50 DOTs
+  Total size:        14,894 bytes (14.5 KB)
+  Avg node DOT:      235 bytes
+  Avg relation DOT:  339 bytes
+  All verified:      50/50 (28.6 ms)
+
+  QUERY RESULTS:
+  A) Physics domain nodes (3 µs):
+     ['Newton', 'Einstein', 'Marie Curie', 'Feynman', 'Hawking']
+
+  B) Influenced by Newton (1 µs):
+     ['Einstein', 'Feynman', 'Hawking']
+
+  C) Archimedes → DOT path (10 µs):
+     Archimedes → DOT
+     (1 hops)
+
+  D) Connected to DOT within 2 hops (12 µs):
+     ['Ada Lovelace', 'Archimedes', 'Aristotle', 'Darwin', 'Einstein', 'Feynman', 'Gödel', 'Hawking', 'Mendel', 'Newton', 'Observer', 'Pasteur', 'Sagan', 'Satoshi', 'Shannon', 'Tesla', 'Turing']
+     (17 nodes)
+
+  EXPERIMENT 13 PASSED
+======================================================================

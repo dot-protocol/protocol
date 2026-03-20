@@ -34,6 +34,8 @@ export interface DOT {
   ts: number;
   type: DotType;
   payload: Uint8Array;
+  /** v0.3.0: bitfield of active DOTFaces (optional — 0 = no face metadata) */
+  faceMask?: number;
 }
 
 export interface CreateDOTInput {

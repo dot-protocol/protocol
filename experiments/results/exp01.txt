@@ -1,0 +1,17 @@
+=======================================================
+  EXPERIMENT 01: GENESIS DOT — RESULTS
+=======================================================
+
+  Seed source:      hashlib.sha256(b'genesis-observer')
+  Creator key:      9951f4fcc92beb04a31279b538594a71ccdb73ad2ee8419a26fb39f7ab8b185f
+
+  DOT size:         160 bytes
+  DOT hash:         f4209e7c0ba692c3b9dace7d51642d54edd5a3cc402c836c80a2cab36fe61640
+  Signature valid:  True
+  DOT type:         OBSERVATION
+  Payload:          The act of observation leaves its dot.
+
+  Saved to:         /Users/blaze/Movies/Kin/projects/dot-protocol/experiments/results/genesis.dot
+
+  EXPERIMENT 01 PASSED
+=======================================================

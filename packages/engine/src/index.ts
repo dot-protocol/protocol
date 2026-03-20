@@ -1,4 +1,14 @@
 export { DOT } from './engine.js';
+
+// v0.3.0 — Transform execution + condition evaluation
+export {
+  executeTransform,
+  checkTimeCapsule,
+  checkChainDepthGate,
+  checkSignerApproval,
+  evaluateCondition,
+} from './transform-executor.js';
+export type { TransformExecutionResult } from './transform-executor.js';
 export { createRelay } from './relay.js';
 export { collectEntropy, hashEntropy, deviceFingerprint } from './sensor.js';
 export { ecdh, edToX25519Pub, edToX25519Priv, encryptPayload, decryptPayload } from './crypto.js';

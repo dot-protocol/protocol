@@ -1,0 +1,86 @@
+# DOT Protocol — AI Interaction Guide
+
+This is the `llms.txt` for the DOT Protocol repository.
+
+## What is DOT?
+
+DOT is a universal container for verified observations. Every DOT is:
+- Signed with Ed25519 (creator identity, tamper detection)
+- Optionally encrypted with AES-256-GCM (sealed letters)
+- Content-addressed via SHA-256 (immutable reference)
+- Self-contained (no server, no registry, no app required to verify)
+
+## Quick Usage
+
+```python
+import dot_protocol as dot
+
+# Create
+keypair = dot.generate_keypair()
+sealed  = dot.create(b"any payload", keypair)
+
+# Verify (works on encrypted DOTs too)
+v = dot.verify(sealed)
+# v.verified, v.creator_key_hex, v.timestamp_us, v.dot_type_name
+
+# Open (provide keypair only for encrypted DOTs)
+result = dot.open(sealed)
+# result.payload, result.verified, result.creator_key_hex
+```
+
+## Key Files for AI Context
+
+- `dot_protocol/__init__.py` — 5 public functions: create, open, verify, chain, rotate
+- `dot_protocol/crypto.py` — keypair generation, signing, ECDH encryption
+- `dot_protocol/container.py` — wire format encoder/decoder, all constants
+- `test_vectors/test_vectors.json` — canonical byte-level test cases (source of truth)
+- `SPEC.md` — full wire format specification
+
+## Wire Format Summary
+
+12-byte header: `\x89DOT` + VERSION(1) + CRYPTO_SUITE(1) + FLAGS(1) + DOT_TYPE(1) + PAYLOAD_LENGTH(4)
+Then: CREATOR_KEY + TIMESTAMP + [PARENT_HASH] + [RECIPIENTS] + PAYLOAD + [TLV_EXTENSIONS] + SIGNATURE
+
+## Crypto
+
+Suite 1: Ed25519 + X25519 + AES-256-GCM + HKDF-SHA256 + SHA-256
+
+One 32-byte seed → Ed25519 signing keypair → X25519 encryption keypair (libsodium derivation).
+Only Ed25519 public key in headers. X25519 derived at open time. Saves 32 bytes per DOT.
+
+## Test Vectors
+
+`test_vectors/test_vectors.json` contains 10 canonical test cases:
+- TV1: Minimal OBSERVATION (133 bytes)
+- TV2: Identity DOT with TLV extensions (212 bytes)
+- TV3: Sealed Letter, 1 recipient (266 bytes)
+- TV4: Chained DOT with parent hash (173 bytes)
+- TV5: Key Rotation DOT (472 bytes)
+- TV6: Anti-DOT deletion signal (154 bytes)
+- TV7: Unknown optional extension — must skip silently (200 bytes)
+- TV8: Unknown critical extension — must raise error (186 bytes)
+- TV9: Corrupted signature — verify() must return False (133 bytes)
+- TV10: Corrupted ciphertext — open() must raise (266 bytes)
+
+## Implementation Notes for AI
+
+1. **The signature covers header + body**. Signature is the final section.
+2. **TLV extension sentinel**: tag=0x0000 + length=0x00000000 (6 bytes total).
+3. **Critical TLV check**: if `tag & 0x8000 != 0` and tag is unknown → reject.
+4. **Anti-DOT payload**: 32 raw bytes = SHA-256 of target DOT (not hex-encoded).
+5. **Encrypted session key per recipient**: 60 bytes = 12 nonce + 32 ciphertext + 16 auth tag.
+6. **Key derivation**: `nacl.signing.SigningKey(seed).to_curve25519_private_key()` for X25519.
+   Do NOT use `crypto_sign_ed25519_sk_to_curve25519` with PyNaCl — the sk format differs.
+7. **Timestamp**: microseconds since Unix epoch, big-endian int64.
+8. **Payload length** in header: length of raw payload section (after encryption if encrypted).
+
+## What DOT Does NOT Do
+
+- Does not guarantee truth (only integrity and authorship)
+- Does not include routing or relay logic (that's Layer 2)
+- Does not define discovery (Phase 2: Nostr bridge; Phase 3: BLE mesh)
+- Does not include the Rosetta VM executor (spec in SPEC.md, executor is Layer 2)
+
+## License
+
+MIT

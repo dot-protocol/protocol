@@ -1,0 +1,31 @@
+======================================================================
+  EXPERIMENT 23: CONCURRENT CHAIN BUILDING
+======================================================================
+
+  Observers:  5
+  DOTs each:  20  (100 total per phase)
+
+  PHASE 1 — WITHOUT LOCK:
+    Total time:           7.9 ms
+    DOTs appended:        100
+    Threading errors:     0
+    Chain link errors:    95  ← race conditions corrupt links
+    Chain integrity:      CORRUPTED (expected)
+
+  PHASE 2 — WITH LOCK:
+    Total time:           36.2 ms
+    DOTs appended:        100
+    All sigs valid:       True
+    Chain links valid:    True
+    Chain integrity:      INTACT ✓
+
+  Lock overhead:  36.2 ms vs 7.9 ms  (+360%)
+
+  KEY INSIGHT:
+    A shared chain requires serialized access (lock or single writer).
+    Without a lock, race conditions break parent-hash links.
+    The DOT protocol is append-only by design — concurrent reads are safe,
+    but concurrent writes to a shared chain require coordination.
+
+  ✅ EXP-23 PASSED
+======================================================================

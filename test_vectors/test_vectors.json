@@ -1,0 +1,309 @@
+{
+  "meta": {
+    "protocol": "DOT",
+    "version": "1.0",
+    "crypto_suite": 1,
+    "crypto_suite_description": "Ed25519 + X25519 + AES-256-GCM + SHA-256 + HKDF-SHA256",
+    "generated_by": "dot_protocol Python reference implementation",
+    "generated_at": "2026-03-10T00:00:00Z",
+    "canonical": true,
+    "note": "These vectors ARE the truth. If Python and any other language produce different bytes for the same inputs, the other language is wrong."
+  },
+  "fixed_seeds": {
+    "SEED_ALICE": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+    "SEED_BOB": "098e53a423f515414b15e0db50e1c47a078eae9b71794d978c29efda544fa22b",
+    "SEED_OLD": "1df5480f044cb0c854731653baea6319802026675ef16e3c59b74abc8760bf2e",
+    "SEED_NEW": "290c1ddb832552ddcfe1fcd389505696df46f05e4d2cece6cf3c9e306e6fefd9",
+    "derivation": "sha256('DOT-test-seed-{n}') where n is the seed index (1=Alice, 2=Bob, 10=Old, 11=New)"
+  },
+  "fixed_timestamp_us": 1741564800000000,
+  "fixed_timestamp_iso": "2026-03-10T00:00:00.000000Z",
+  "key_material": {
+    "alice": {
+      "seed_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+      "ed25519_public_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+      "x25519_public_hex": "2f97ff7fc9fd268315c0a1ce6d687286619e6805db95952878a44ca6904a6811"
+    },
+    "bob": {
+      "seed_hex": "098e53a423f515414b15e0db50e1c47a078eae9b71794d978c29efda544fa22b",
+      "ed25519_public_hex": "99fc3da35fc34ed2c06f1073d3ed29390db0cfaec09fcc74bcf0752b1cbabf3d",
+      "x25519_public_hex": "b7d510673760f58726307fa349847d2453cf1e8510b2297b7c621b1e01d75e3c"
+    },
+    "old_keypair": {
+      "seed_hex": "1df5480f044cb0c854731653baea6319802026675ef16e3c59b74abc8760bf2e",
+      "ed25519_public_hex": "314ca3c1b827fd53e96266a4e84a0252c38f9014058ca81e51e38a2a74ea064c",
+      "x25519_public_hex": "dddd0d4ecf9326924dac4df68460182d04a4a92f64d51b33a00439d4623a7b35"
+    },
+    "new_keypair": {
+      "seed_hex": "290c1ddb832552ddcfe1fcd389505696df46f05e4d2cece6cf3c9e306e6fefd9",
+      "ed25519_public_hex": "18a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad",
+      "x25519_public_hex": "30700dbe5b109a5eb721c39f43def776845c4b58250e745c722ab92099377b15"
+    }
+  },
+  "vectors": [
+    {
+      "id": "TV1",
+      "description": "Minimal unencrypted OBSERVATION DOT. No extensions, no parent, no recipients.",
+      "dot_hex": "89444f54010100010000000b010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00068656c6c6f20776f726c64010040f238a99823c0032ad9fc0a0212029eb57545e752205f0c26ae9976f802d12b03babaddf7e67feae385c9ee76ef485bcacecf21f327b1df105fb05eca5998ef00",
+      "inputs": {
+        "payload_hex": "68656c6c6f20776f726c64",
+        "payload_ascii": "hello world",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "dot_type": "OBSERVATION",
+        "dot_type_byte": 1,
+        "timestamp_us": 1741564800000000
+      },
+      "expect": {
+        "dot_size_bytes": 133,
+        "dot_hash_hex": "76d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "OBSERVATION",
+        "payload_hex": "68656c6c6f20776f726c64",
+        "has_parent": false,
+        "extensions": {}
+      }
+    },
+    {
+      "id": "TV2",
+      "description": "Identity DOT. Amara's refugee identity: name, birthdate, origin city. Arabic language extension. No encryption \u2014 identity is public by design. The genesis use case of the DOT protocol.",
+      "dot_hex": "89444f540101040200000036010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e0007b226e616d65223a22416d617261222c22626f726e223a22313939382d30332d3135222c226f726967696e223a22416c6570706f227d0001000000106170706c69636174696f6e2f6a736f6e0006000000026172000000000000010040a626d413cdabca13b8c9bdd7e773fbdc9f2d2226951e00ae39d421df7b519c077d48c4ba9849d778e0ceced04b660adc2f0b08812e73f63e817bd6f03f13e80d",
+      "inputs": {
+        "payload_hex": "7b226e616d65223a22416d617261222c22626f726e223a22313939382d30332d3135222c226f726967696e223a22416c6570706f227d",
+        "payload_utf8": "{\"name\":\"Amara\",\"born\":\"1998-03-15\",\"origin\":\"Aleppo\"}",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "dot_type": "IDENTITY",
+        "dot_type_byte": 2,
+        "timestamp_us": 1741564800000000,
+        "extensions": {
+          "TLV_CONTENT_TYPE": {
+            "tag_hex": "0001",
+            "value_hex": "6170706c69636174696f6e2f6a736f6e",
+            "value_ascii": "application/json"
+          },
+          "TLV_LANGUAGE": {
+            "tag_hex": "0006",
+            "value_hex": "6172",
+            "value_ascii": "ar"
+          }
+        }
+      },
+      "expect": {
+        "dot_size_bytes": 212,
+        "dot_hash_hex": "885ea89df690b1e9a3aba7d9b3f7213e72df4b8232bbd1dcb5b7cd772b5d22e8",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "IDENTITY",
+        "payload_hex": "7b226e616d65223a22416d617261222c22626f726e223a22313939382d30332d3135222c226f726967696e223a22416c6570706f227d",
+        "payload_parsed": {
+          "name": "Amara",
+          "born": "1998-03-15",
+          "origin": "Aleppo"
+        },
+        "has_parent": false,
+        "extensions": {
+          "1": "6170706c69636174696f6e2f6a736f6e",
+          "6": "6172"
+        }
+      }
+    },
+    {
+      "id": "TV3",
+      "description": "Sealed Letter. Encrypted with AES-256-GCM session key. Alice sends to Bob. Bob can decrypt; anyone else sees only ciphertext. Session key is sealed with X25519 ECDH + HKDF-SHA256 + AES-256-GCM.",
+      "dot_hex": "89444f540101030600000030010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e0000101002099fc3da35fc34ed2c06f1073d3ed29390db0cfaec09fcc74bcf0752b1cbabf3df6a663f8f09c1e8ca607642b690128862ac0325c4a5303007bf280d1fb2ab6a700fcb1794fe70b8d8553b1cf304a06e435faa494c2928c38a22c8149cb4f1ee3b33f8e4516c2ab0f0cfe3bfa140b75b13ab80bea4a41e630248c735fc135933d6b14b146e3304138da304f96010040184078f699d6cfea4d51061838f722103bd7577eda9eabaf2173efbfd7b010eb32dbc9b6b772908f77eb9b7baffa45c5f4fbd83e8eacd76d5db3b40456f8ef0f",
+      "inputs": {
+        "payload_hex": "466f7220426f6227732065796573206f6e6c792e",
+        "payload_ascii": "For Bob's eyes only.",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "seed_bob_hex": "098e53a423f515414b15e0db50e1c47a078eae9b71794d978c29efda544fa22b",
+        "dot_type": "SEALED_LETTER",
+        "dot_type_byte": 6,
+        "timestamp_us": 1741564800000000,
+        "urandom_pool_label": "TV3",
+        "urandom_pool_hex": "f125e8dcd938590c15a8cd7f321c7b4194a05654346f7869575568d70c5aa785cb4f1ee3b33f8e4516c2ab0ff6a663f8f09c1e8ca607642b"
+      },
+      "expect": {
+        "dot_size_bytes": 266,
+        "dot_hash_hex": "23068c8f28b3ad4ebc0cfb67ba7534063f3b283e51bd4583a74452bf31416017",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "recipient_key_hex": "99fc3da35fc34ed2c06f1073d3ed29390db0cfaec09fcc74bcf0752b1cbabf3d",
+        "verified": true,
+        "encrypted": true,
+        "dot_type_name": "SEALED_LETTER",
+        "plaintext_hex": "466f7220426f6227732065796573206f6e6c792e",
+        "open_without_keypair": "raises NotAddressedToYouError",
+        "open_with_alice_keypair": "raises NotAddressedToYouError",
+        "open_with_bob_keypair": "returns plaintext",
+        "has_parent": false
+      }
+    },
+    {
+      "id": "TV4",
+      "description": "Chained DOT. TV4 references TV1 as parent via SHA-256 hash. Creates a Merkle chain of verifiable history. Parent hash in PARENT_HASH section must equal SHA-256(TV1 bytes).",
+      "dot_hex": "89444f540101080700000011010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a7512240012076d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d5468697320666f6c6c6f7773205456312e0100409fae9f8702a2f9cfe6ad2a4a5e420626e2ad0b93b3df43b00057e2a89483117bce93dc818f48b84ca38fe15035b2ae5faa4d243199954ffdb2e73b0f4dfdf40a",
+      "inputs": {
+        "payload_hex": "5468697320666f6c6c6f7773205456312e",
+        "payload_ascii": "This follows TV1.",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "dot_type": "CHAIN_LINK",
+        "dot_type_byte": 7,
+        "timestamp_us": 1741564801000000,
+        "parent_dot_hex": "89444f54010100010000000b010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00068656c6c6f20776f726c64010040f238a99823c0032ad9fc0a0212029eb57545e752205f0c26ae9976f802d12b03babaddf7e67feae385c9ee76ef485bcacecf21f327b1df105fb05eca5998ef00"
+      },
+      "expect": {
+        "dot_size_bytes": 173,
+        "dot_hash_hex": "453d4cef6e4a8110a73bf6c82ca74d4eebde802a6244c3647cf2c2922450a937",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "CHAIN_LINK",
+        "payload_hex": "5468697320666f6c6c6f7773205456312e",
+        "has_parent": true,
+        "parent_hash_hex": "76d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d",
+        "parent_hash_algo_byte": 1
+      }
+    },
+    {
+      "id": "TV5",
+      "description": "Key Rotation DOT. Signed by the NEW key. Payload contains JSON with old_public_key, new_public_key, and rotation_proof. rotation_proof = Ed25519 signature of new_public_key bytes by old_private_key. Verifiers: check creator_key == new_public_key, then verify rotation_proof with old_public_key over new_public_key bytes.",
+      "dot_hex": "89444f54010104030000014201002018a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad00062ff1a741e0007b226f6c645f7075626c69635f6b6579223a202233313463613363316238323766643533653936323636613465383461303235326333386639303134303538636138316535316533386132613734656130363463222c20226e65775f7075626c69635f6b6579223a202231386137333963363730396536303530366636653032366234636238653231376433386631356337343461373636353866313461623766383632336264366164222c2022726f746174696f6e5f70726f6f66223a20223539633837306534383234333866303139333261643334646266666463373739656666313236666237353337326661393063656232623136333835623334616537303566336463653739613937393136363464383430656437393737353531366533363961346165313836613261396430393130613438306565373663393062227d0001000000106170706c69636174696f6e2f6a736f6e00000000000001004027c3fe9b30958da303bd74af6fc5eb186b9086e0d383b86990a8dae2c78b3798d764c0ac7813c3105646e0f08fb47e3113194ad6927786776a89a6255c7d8200",
+      "inputs": {
+        "seed_old_hex": "1df5480f044cb0c854731653baea6319802026675ef16e3c59b74abc8760bf2e",
+        "seed_new_hex": "290c1ddb832552ddcfe1fcd389505696df46f05e4d2cece6cf3c9e306e6fefd9",
+        "old_public_key_hex": "314ca3c1b827fd53e96266a4e84a0252c38f9014058ca81e51e38a2a74ea064c",
+        "new_public_key_hex": "18a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad",
+        "timestamp_us": 1741564800000000
+      },
+      "expect": {
+        "dot_size_bytes": 472,
+        "dot_hash_hex": "c1a2c9cbe34181dc4e295728443f185faebdd85f3bae89e67905d3daf8ced0f6",
+        "creator_key_hex": "18a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "ROTATION",
+        "payload_json": {
+          "old_public_key": "314ca3c1b827fd53e96266a4e84a0252c38f9014058ca81e51e38a2a74ea064c",
+          "new_public_key": "18a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad",
+          "rotation_proof": "59c870e482438f01932ad34dbffdc779eff126fb75372fa90ceb2b16385b34ae705f3dce79a9791664d840ed79775516e369a4ae186a2a9d0910a480ee76c90b"
+        },
+        "rotation_proof_verifies": true,
+        "rotation_proof_message_hex": "18a739c6709e60506f6e026b4cb8e217d38f15c744a76658f14ab7f8623bd6ad",
+        "has_parent": false
+      }
+    },
+    {
+      "id": "TV6",
+      "description": "Anti-DOT. Deletion signal targeting TV1. Payload = SHA-256 of the target DOT bytes (32 bytes, binary). FLAG_IS_ANTI_DOT (0x10) set in FLAGS byte. DOT_TYPE forced to ANTI_DOT (0x05). Relay nodes tombstone the target upon receipt. 1.237\u00d7 amplification factor is Layer 2 (trust graph propagation) \u2014 Layer 1 (this wire format) only carries the tombstone signal.",
+      "dot_hex": "89444f540101100500000020010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00076d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d0100402c6a9f88d980195e3aad57d78539d94ee7183c4248a1a292315e11c3905115c377d714558af1bfc7b2fb8e2b5ffdac5b003da2e243dbe9762169b33b3975c208",
+      "inputs": {
+        "target_dot_hex": "89444f54010100010000000b010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00068656c6c6f20776f726c64010040f238a99823c0032ad9fc0a0212029eb57545e752205f0c26ae9976f802d12b03babaddf7e67feae385c9ee76ef485bcacecf21f327b1df105fb05eca5998ef00",
+        "target_dot_hash_hex": "76d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d",
+        "payload_hex": "76d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "timestamp_us": 1741564800000000
+      },
+      "expect": {
+        "dot_size_bytes": 154,
+        "dot_hash_hex": "7745d17194ecf3b9628eb1579aeb74317b497af57652b5b0f7b923976f31bdc5",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "ANTI_DOT",
+        "flags_is_anti_dot_bit": true,
+        "payload_hex": "76d52bd49758fd05e5e4a00ecf4498210857a353e7cb3f0dbea364f2cc8ce80d",
+        "payload_interpretation": "SHA-256 of target DOT to tombstone",
+        "has_parent": false
+      }
+    },
+    {
+      "id": "TV7",
+      "description": "Unknown optional TLV extension (tag 0x00FF). High bit of tag byte is CLEAR \u2192 extension is optional. Decoders that don't know this tag MUST silently skip it and continue. verified=True, payload accessible, extension value preserved.",
+      "dot_hex": "89444f54010104010000001f010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00048617320756e6b6e6f776e206f7074696f6e616c20657874656e73696f6e2e00010000000a746578742f706c61696e00ff000000136675747572652d666561747572652d64617461000000000000010040fbff3c1377a48f5dcc8ab04db897de43f52419ecb350be465d852ccd1471f084c2d5ac9e7a47c8867160dd2e2e93981f284a5532da2835d1f90e5f640cba6f01",
+      "inputs": {
+        "payload_hex": "48617320756e6b6e6f776e206f7074696f6e616c20657874656e73696f6e2e",
+        "payload_ascii": "Has unknown optional extension.",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "timestamp_us": 1741564800000000,
+        "extensions": {
+          "TLV_CONTENT_TYPE_0x0001": "746578742f706c61696e",
+          "UNKNOWN_OPTIONAL_0x00FF": "6675747572652d666561747572652d64617461"
+        }
+      },
+      "expect": {
+        "dot_size_bytes": 200,
+        "dot_hash_hex": "66fc5485da852a03111208e0ca47c6ca07dd942428dae0e14b15665cfb900a69",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": true,
+        "encrypted": false,
+        "dot_type_name": "OBSERVATION",
+        "unknown_tag_handling": "silently_skip",
+        "extensions_include_unknown": true,
+        "extensions": {
+          "1": "746578742f706c61696e",
+          "255": "6675747572652d666561747572652d64617461"
+        }
+      }
+    },
+    {
+      "id": "TV8",
+      "description": "Unknown critical TLV extension (tag 0x80FF). High bit of tag byte is SET \u2192 extension is critical. Decoders that don't know this tag MUST raise UnknownCriticalExtensionError and refuse to process the DOT. This is the forward-compatibility safety mechanism.",
+      "dot_hex": "89444f54010104010000001f010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00048617320756e6b6e6f776e20637269746963616c20657874656e73696f6e2e80ff000000156d616e6461746f72792d6675747572652d646174610000000000000100405b0a9cb321f78f5a5b1f2fabb9d44686fdb66609317d0ac1a27f3d23b13dea5b52aafd12038c0e0e2dd36a0ea3cf37f18ceb5207b8f6c2a3df86f3887b1c3b0f",
+      "inputs": {
+        "payload_hex": "48617320756e6b6e6f776e20637269746963616c20657874656e73696f6e2e",
+        "payload_ascii": "Has unknown critical extension.",
+        "seed_alice_hex": "307c2f274e858624e2f27c338812eb9b9e81f00dfd9557f4fbe7e4f1e12b7aaa",
+        "timestamp_us": 1741564800000000,
+        "extensions": {
+          "UNKNOWN_CRITICAL_0x80FF": "6d616e6461746f72792d6675747572652d64617461"
+        }
+      },
+      "expect": {
+        "dot_size_bytes": 186,
+        "dot_hash_hex": "d49b5fa6dac5ed18c3462bde71d80f2e48321e045be7b8112dc10b177a5234cd",
+        "creator_key_hex": "c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d",
+        "verified": "unknown \u2014 raises before verification in some implementations",
+        "encrypted": false,
+        "open_behavior": "raises UnknownCriticalExtensionError",
+        "verify_behavior": "may succeed (signature check) but open MUST refuse",
+        "unknown_critical_tag_handling": "reject"
+      }
+    },
+    {
+      "id": "TV9",
+      "description": "Corrupted signature. TV1 bytes with one byte flipped in the Ed25519 signature section. verify() MUST return verified=False. open() MUST raise SignatureVerificationError. The exact error type and message may vary, but verified=False is required.",
+      "dot_hex": "89444f54010100010000000b010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00068656c6c6f20776f726c64010040f238a99823c0032ad9fc0a0212029eb57545e752205f0c26ae9976f802d12b03baba22f7e67feae385c9ee76ef485bcacecf21f327b1df105fb05eca5998ef00",
+      "inputs": {
+        "source": "TV1 with byte at offset -30 XORed with 0xFF",
+        "original_dot_hex": "89444f54010100010000000b010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e00068656c6c6f20776f726c64010040f238a99823c0032ad9fc0a0212029eb57545e752205f0c26ae9976f802d12b03babaddf7e67feae385c9ee76ef485bcacecf21f327b1df105fb05eca5998ef00",
+        "corruption_offset_from_end": 30,
+        "corruption_xor": "0xFF"
+      },
+      "expect": {
+        "dot_size_bytes": 133,
+        "verify_result_verified": false,
+        "open_behavior": "raises SignatureVerificationError",
+        "dot_hash_hex": "e8370f3400f123fe7cdd88d24e930322d2cf526cb94f79e5e3e7643f24434e0b"
+      }
+    },
+    {
+      "id": "TV10",
+      "description": "Corrupted payload in an encrypted DOT. TV3 bytes with one byte flipped in the middle. Behavior depends on WHAT was corrupted: if signature section: verify()=False, open() raises SignatureVerificationError. if ciphertext payload: verify() may succeed (sig over ciphertext), but open() raises ValueError (AES-GCM authentication failure). Either way: tampering is detected. Authentication is non-negotiable.",
+      "dot_hex": "89444f540101030600000030010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e0000101002099fc3da35fc34ed2c06f1073d3ed29390db0cfaec09fcc74bcf0752b1cbabf3df6a663f8f09c1e8ca607642b690128862ac0325c4a5303007bf280d1fb2ab6a700fcb1794fe70b8d8553f3cf304a06e435faa494c2928c38a22c8149cb4f1ee3b33f8e4516c2ab0f0cfe3bfa140b75b13ab80bea4a41e630248c735fc135933d6b14b146e3304138da304f96010040184078f699d6cfea4d51061838f722103bd7577eda9eabaf2173efbfd7b010eb32dbc9b6b772908f77eb9b7baffa45c5f4fbd83e8eacd76d5db3b40456f8ef0f",
+      "inputs": {
+        "source": "TV3 with byte at offset len//2 XORed with 0x42",
+        "original_dot_hex": "89444f540101030600000030010020c73222549a94eb11f12338be9b66fc98828979d9e8ced83c795d2fc73819819d00062ff1a741e0000101002099fc3da35fc34ed2c06f1073d3ed29390db0cfaec09fcc74bcf0752b1cbabf3df6a663f8f09c1e8ca607642b690128862ac0325c4a5303007bf280d1fb2ab6a700fcb1794fe70b8d8553b1cf304a06e435faa494c2928c38a22c8149cb4f1ee3b33f8e4516c2ab0f0cfe3bfa140b75b13ab80bea4a41e630248c735fc135933d6b14b146e3304138da304f96010040184078f699d6cfea4d51061838f722103bd7577eda9eabaf2173efbfd7b010eb32dbc9b6b772908f77eb9b7baffa45c5f4fbd83e8eacd76d5db3b40456f8ef0f",
+        "corruption_offset": 133,
+        "corruption_xor": "0x42"
+      },
+      "expect": {
+        "dot_size_bytes": 266,
+        "verify_result_verified": false,
+        "open_behavior": "raises SignatureVerificationError or ValueError",
+        "dot_hash_hex": "5317a1e7d7f8ccad35a317ee1454a0a8293406c84a713303371010a9a5c0963f",
+        "note": "If verify_result_verified=True, the signature was over the ciphertext and the corruption hit the ciphertext. open() will still fail on AES-GCM auth tag."
+      }
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@dot-protocol/core",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "153-byte cryptographic observation format. Ed25519 + SHA-256. Zero dependencies.",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,6 +37,5 @@
   },
   "dependencies": {
     "@noble/curves": "^2.0.1"
-  },
-  "private": true
+  }
 }

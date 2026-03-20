@@ -1,0 +1,24 @@
+============================================================
+  EXPERIMENT 06: MERKLE TREE VS LINEAR CHAIN
+============================================================
+
+  Creating 1024 DOTs...
+  Merkle tree built over 1024 DOTs
+  Tree depth: 10 levels
+  Root hash: 4db83bd48c4e063911dd49a53460f463...
+
+  LINEAR CHAIN (hash DOTs #0-#511):
+    Time:              0.230 ms
+    Operations:        512 hash operations
+
+  MERKLE PROOF (DOT #512):
+    Time:              0.003991 ms (3.99 µs)
+    Proof hops:        10 (log2(1024) = 10)
+    Proof size:        320 bytes (10 × 32)
+    Proof valid:       True
+
+  SPEEDUP:             58x faster with Merkle
+  (Any DOT in 1024-DOT archive verifiable in 10 operations vs 512)
+
+  EXPERIMENT 06 PASSED
+============================================================

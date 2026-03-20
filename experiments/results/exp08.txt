@@ -1,0 +1,27 @@
+=================================================================
+  EXPERIMENT 08: CHAIN COMPRESSION RATIO — RESULTS
+=================================================================
+
+  DOTs:          1000
+  Payload range: 77-88 bytes
+
+  Approach                            Bytes     Ratio
+  ------------------------------ ----------  --------
+  A) Raw (no compression)           205,465     1.000
+  B) Naive gzip                      75,733     0.369
+  C) Chain-aware factoring           67,799     0.330
+  D) Middle-out                       7,636     0.037
+
+  Component breakdown (approach C):
+    Pubkey (stored once):    32 bytes
+    Timestamps (compressed): 33 bytes
+    Payloads (compressed):   3515 bytes
+    Signatures (compressed): 64026 bytes
+    Headers (compressed):    193 bytes
+
+  Gzip ratio:        0.369  (63.1% reduction)
+  Chain-aware ratio: 0.330  (67.0% reduction)
+  Middle-out ratio:  0.037  (96.3% reduction)
+
+  EXPERIMENT 08 COMPLETE
+=================================================================

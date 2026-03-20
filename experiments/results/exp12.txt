@@ -1,0 +1,25 @@
+=================================================================
+  EXPERIMENT 12: DOT FILESYSTEM VS DOT WRAPPER
+=================================================================
+
+  Articles:           100 (50 cities + 50 person bios)
+
+  APPROACH A (Naive — 1 DOT per article):
+    Total size:       25,365 bytes (24.8 KB)
+    Avg DOT size:     253 bytes
+    5 random verified: True
+
+  APPROACH B (Filesystem — dict + templates + deltas + archive):
+    Dictionary DOT:   2,230 bytes
+    City template:    219 bytes
+    Person template:  267 bytes
+    100 delta DOTs:   38,529 bytes total
+    Archive DOT:      7,309 bytes
+    Total size:       48,554 bytes (47.4 KB)
+    5 random verified: True
+
+  Filesystem ratio:   1.914 vs naive
+  Size reduction:     -91.4%
+
+  EXPERIMENT 12 COMPLETE
+=================================================================

@@ -22,3 +22,15 @@ export { BLS_PUBKEY_SIZE, BLS_SIG_SIZE } from './bls.js';
 export { writeDotFile, readDotFile, inspectDotFile } from './dot-file.js';
 export type { DotFile, DotFileHeader } from './dot-file-types.js';
 export { DOT_FILE_MAGIC, DOT_FILE_VERSION, DOT_FILE_HEADER_SIZE, DOT_FILE_FLAGS } from './dot-file-types.js';
+
+// v0.3.0 — 12+1 Face Architecture (Correction: Grammar Audit)
+export { DOTFace, ALPHABET_FACES, validateFaceMask, hasFace, composeFaces, activeFaces } from './faces.js';
+export type { DOTFaceMask } from './faces.js';
+
+// v0.3.0 — Transform Registry (Correction #43: DOT is a lens, not a thermometer)
+export { TransformRegistry, registerBuiltinTransforms, serializeTransformCondition, deserializeTransformCondition } from './transform.js';
+export type { TransformSpec, Schema, TransformCondition, TimeCapsuleCondition, SignerApprovalCondition, ChainDepthGateCondition } from './transform.js';
+
+// v0.3.0 — TEACH Byte Royalty (Article II.6)
+export { computeRoyalty, validateTEACHConfig, DEFAULT_TEACH_CONFIG } from './teach.js';
+export type { TEACHConfig, PropagationEvent, PaymentMethod } from './teach.js';

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "dot-protocol"
+version = "1.0.0"
+description = "The universal container for verified observations. Seal and verify anything in 3 lines."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["cryptography", "identity", "protocol", "signing", "encryption", "ed25519"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "PyNaCl>=1.5.0",
+    "cryptography>=41.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov",
+]
+
+[project.urls]
+Homepage = "https://github.com/axxis-io/dot-protocol"
+Repository = "https://github.com/axxis-io/dot-protocol"
+"Bug Tracker" = "https://github.com/axxis-io/dot-protocol/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dot_protocol*"]
+
+[tool.pytest.ini_options]
+testpaths = ["test_vectors"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

@@ -1,0 +1,36 @@
+  Created 24 DOTs (8 pieces × 3 replicas)
+=================================================================
+  EXPERIMENT 16: REDUNDANCY & PARTIAL RECOVERY
+=================================================================
+
+  File size:           524,288 bytes (512 KB)
+  Piece size:          65,536 bytes (64 KB)
+  Pieces:              8
+  Replication factor:  3x
+  Total DOTs:          24
+
+  REMOVAL TEST:
+    DOTs removed:      7 (30%)
+    DOTs surviving:    17
+
+  RECOVERY:
+    Lost pieces:       none
+    Recoverable:       8/8
+    Full recovery:     True
+    SHA-256 matches:   True
+
+  Piece status (P=piece, C=copy, ✓=survived, ✗=removed):
+    Piece 0: [✗✓✓] ✅
+    Piece 1: [✗✗✓] ✅
+    Piece 2: [✓✗✗] ✅
+    Piece 3: [✓✓✓] ✅
+    Piece 4: [✓✓✓] ✅
+    Piece 5: [✓✓✓] ✅
+    Piece 6: [✓✗✗] ✅
+    Piece 7: [✓✓✓] ✅
+
+  Minimum copies needed: 1 (any single surviving copy suffices)
+  With 3x replication, can survive loss of 2 copies per piece
+
+  EXPERIMENT 16 PASSED
+=================================================================

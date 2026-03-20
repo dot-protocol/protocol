@@ -1,0 +1,27 @@
+DOT Protocol — Experiment Summary
+Generated: 2026-03-11
+All 23 experiments: PASS
+
+EXP-01  PASS  Genesis DOT                    160 bytes
+EXP-02  PASS  Integrity Prism               100% detection, 0% false pos, 1762/s
+EXP-03  PASS  Minimum DOT                   123 bytes
+EXP-04  PASS  Cold Open                     Manual parse matches library
+EXP-05  PASS  Chain 10K                     2857 build/s, 1752 verify/s
+EXP-06  PASS  Merkle vs Linear              58x speedup for proof-of-inclusion
+EXP-07  PASS  Multi-Observer Chain          50 DOTs, 5 observers, chain valid
+EXP-08  PASS  Chain Compression             Middle-out 96.3% reduction
+EXP-09  PASS  Middle-Out Cluster            Linear delta 90.7% reduction
+EXP-10  PASS  Dictionary Compression        Payload 39% smaller, overhead pays at scale
+EXP-11  PASS  New DOT Types                 8 extended types (0x05-0x0C) all verify
+EXP-12  PASS  DOT Filesystem vs Naive       Naive wins < 1K articles; filesystem wins at scale
+EXP-13  PASS  Knowledge Graph               50 DOTs, 4 queries all < 12µs
+EXP-14  PASS  Contested Knowledge Graph     Disagreement coexists; weighted consensus works
+EXP-15  PASS  File Split & Reconstruction   0.11% overhead, SHA-256 intact after reconstruct
+EXP-16  PASS  Redundancy & Recovery         3x replication survives 30% random loss
+EXP-17  PASS  Encrypted Storage             246B overhead; intruder correctly rejected
+EXP-18  PASS  Wikipedia Scale Model         All scenarios fit 128GB phone (best: 10.9 GB)
+EXP-19  PASS  The $800 Estimate             91 TB, $1300, all open human knowledge
+EXP-20  PASS  Minimum Viable Archive        100 obs, 23.2 KB, valid chain, 0.19s BLE
+EXP-21  PASS  Ultra Compressed Archive      13% savings dict+XOR; 96% possible at scale
+EXP-22  PASS  Speed Benchmark               122B fixed overhead; seal 0.35ms, verify 0.57ms
+EXP-23  PASS  Concurrent Chain Building     Lock required; 95% link corruption without it

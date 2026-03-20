@@ -1,0 +1,15 @@
+=================================================================
+  EXPERIMENT 17: ENCRYPTED STORAGE
+=================================================================
+
+  Payload size:          54,000 bytes (~52 KB)
+  Encrypted DOT size:    54,246 bytes
+  Encryption overhead:   246 bytes
+
+  Test 1 — verify() without keypair:  True (signature still checkable)
+  Test 2 — open() with owner:         True (payload decrypted correctly)
+  Test 3 — open() with intruder:      True (NotAddressedToYouError raised)
+  Test 4 — open() with no keypair:    True (NotAddressedToYouError raised)
+
+  ✅ EXP-17 PASSED
+=================================================================

@@ -1,0 +1,17 @@
+======================================================================
+  EXPERIMENT 21: ULTRA COMPRESSED ARCHIVE
+======================================================================
+
+  Dictionary:          13 3-word phrases
+  Dictionary DOT:      415 bytes
+  Compress time:       35.4 ms (0.354 ms/obs)
+
+  COMPARISON:
+    Plain chain (EXP-20):          23,709 bytes
+    Compressed (dict + XOR):       20,615 bytes
+    Savings:                        13.0%
+
+  All DOTs individually verified: True
+
+  ✅ EXP-21 PASSED
+======================================================================

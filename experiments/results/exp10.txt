@@ -1,0 +1,27 @@
+=================================================================
+  EXPERIMENT 10: DICTIONARY COMPRESSION — RESULTS
+=================================================================
+
+  Corpus:              500 observations
+  Unique phrases:      3456 found
+  Dictionary entries:  200 (top 200 by frequency)
+
+  Dictionary DOT size: 6750 bytes
+  Dict JSON size:      6628 bytes
+
+  Payload stats:
+    Avg before:        66 bytes
+    Avg after:         40 bytes
+    Compression ratio: 0.606
+
+  Archive totals:
+    Raw payloads:      33,205 bytes
+    Dict + compressed: 88,138 bytes
+    Reduction:         -165.4%
+    Dictionary overhead: 7.7% of archive
+
+  Dict DOT verified:   True
+  First DOT verified:  True
+
+  EXPERIMENT 10 COMPLETE
+=================================================================

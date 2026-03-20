@@ -1,0 +1,32 @@
+======================================================================
+  EXPERIMENT 14: CONTESTED KNOWLEDGE GRAPH
+======================================================================
+
+  Query: Newton → Einstein relationship
+
+  TWO COEXISTING OBSERVATIONS (no conflict error):
+  ─── Alice (verified) ───
+    Creator key:  018bc30e1be68aea...
+    Relation:     INFLUENCED
+    Evidence:     Einstein cited Newton's Principia in 1905
+    Chain length: 5 DOTs (trust weight)
+  ─── Bob (verified) ───
+    Creator key:  fb82b563d01d9a96...
+    Relation:     DID_NOT_INFLUENCE
+    Evidence:     Einstein's special relativity arose independently from Lorentz/Poincare
+    Chain length: 3 DOTs (trust weight)
+
+  WEIGHTED CONSENSUS (chain length = trust weight):
+    Alice     :  62.5%  ████████████  (INFLUENCED)
+    Bob       :  37.5%  ███████  (DID_NOT_INFLUENCE)
+
+  Total weight: 8 (Alice: 5, Bob: 3)
+
+  All DOTs verifiable: True
+  Total DOTs: 10
+
+  KEY INSIGHT: Both claims coexist. No conflict error.
+  Disagreement IS data. The protocol records truth AND contradiction.
+
+  EXPERIMENT 14 PASSED
+======================================================================
