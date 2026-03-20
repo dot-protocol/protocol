@@ -2,13 +2,31 @@
 
 **153 bytes. The minimum viable fact.**
 
-DOT is a cryptographic observation format. A contact between two things that changes both. Ed25519 signatures. SHA-256 chain hashing. No variable-length fields. No configuration.
+The physical DOT is zero bytes — the contact itself. 153 bytes is the postcard about the contact. Ed25519 signatures. SHA-256 chain hashing. No variable-length fields. No configuration. No owner.
 
 > *The act of contact leaves its DOT.*
 
 [![npm](https://img.shields.io/npm/v/dot-protocol)](https://www.npmjs.com/package/dot-protocol)
 [![license](https://img.shields.io/npm/l/dot-protocol)](LICENSE)
 [![doi](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18946074-blue)](https://doi.org/10.5281/zenodo.18946074)
+
+---
+
+## What is a DOT
+
+A DOT is a state. Upon contact, the state transfers or changes and leaves its log for the creator.
+
+It is the smallest unit of verifiable fact. Wittgenstein: *the smallest fact is two things in contact*. A DOT fuses noun and verb — it is the state that records its own transition.
+
+**A DOT cannot lie.** Content-addressed (SHA-256). Alter the content, the hash changes, the chain breaks. Truth is structural, not moral.
+
+**A DOT cannot execute arbitrary code.** Not Turing-complete. A DOT CAN perform deterministic, verifiable state transitions from a fixed protocol-defined function set — total, pure, named, re-executable. A DOT is a lens, not a thermometer. It transforms what passes through it according to fixed laws. The lens does not lie about the light.
+
+**A DOT cannot be observed without logging.** The observer is always observed.
+
+**A DOT cannot be unsigned.** Every observation carries its creator's Ed25519 signature.
+
+**A DOT cannot exist outside a chain.** Context is mandatory. The chain IS the meaning.
 
 ---
 
@@ -19,15 +37,41 @@ DOT is a cryptographic observation format. A contact between two things that cha
 │  0 – 31      │  32 – 95     │  96 – 127    │  128 – 135   │  136     │  137 – 152   │
 │  Public key  │  Signature   │  Chain hash  │  Timestamp   │  Type    │  Payload     │
 │  Ed25519 32B │  Ed25519 64B │  SHA-256 32B │  Unix ms 8B  │  1B      │  16B         │
-│  WHO         │  PROOF       │  SEQUENCE    │  WHEN        │  VISIBILITY│  WHAT      │
+│  WHO         │  PROOF       │  SEQUENCE    │  WHEN        │VISIBILITY│  WHAT        │
 └──────────────┴──────────────┴──────────────┴──────────────┴──────────┴──────────────┘
                                                                      153 bytes. Always.
 ```
 
-- **153 bytes. Always.** No variable-length. No extensions.
-- **Payload is a pointer, not a prison.** 16 bytes can hold a content hash pointing to anything stored anywhere.
-- **The empty DOT is a PING.** Content is the exception. Presence is the default.
+- **153 bytes. Always.** No variable-length. No extensions. No exceptions.
+- **Payload is a pointer, not a prison.** 16 bytes can hold a content hash pointing to anything stored anywhere — a photo, a genome, a transaction, a thought.
+- **The empty DOT is a PING.** Presence without content. Contact without data. The default is existence.
 - **Ed25519 signing. SHA-256 hashing. No alternatives.**
+
+---
+
+## The Grammar — 12+1 faces
+
+Every DOT is a transformer. The grammar: 12 input/output types + 1 operator.
+
+12 alphabet faces compose via bitfield: **File · Tunnel · Container · Reader · Camera · QR · Writer · Steganography · Microdot · Compiler · Connector · Self-Aware**
+
+The 13th face — Transformer — is the production rule. It is what all faces do.
+
+```js
+import { DOTFace, composeFaces, hasFace, activeFaces } from '@dotprotocol/core';
+
+const mask = composeFaces(DOTFace.Camera, DOTFace.QR, DOTFace.Container);
+hasFace(mask, DOTFace.Camera); // true
+activeFaces(mask);              // ['Camera', 'QR', 'Container']
+```
+
+**Three built-in transforms (the Transformer face):**
+
+| Transform | When it fires |
+|---|---|
+| `time-capsule` | Visibility changes at a verified timestamp |
+| `signer-approval` | State changes when a specified key signs |
+| `chain-depth-gate` | Access unlocks when chain reaches depth N |
 
 ---
 
@@ -37,7 +81,7 @@ DOT is a cryptographic observation format. A contact between two things that cha
 |---|---|---|
 | [`dot-protocol`](packages/engine) | `npm i dot-protocol` | **One-liner API** — boot, create, verify. Start here. |
 | [`@dotprotocol/core`](packages/core) | `npm i @dotprotocol/core` | Raw primitives — keypair, sign, verify, bytes |
-| [`@dotprotocol/chain`](packages/chain) | `npm i @dotprotocol/chain` | Append-only worldlines + scoring |
+| [`@dotprotocol/chain`](packages/chain) | `npm i @dotprotocol/chain` | Worldlines + Four-Score reputation |
 | [`@dotprotocol/relay`](packages/relay) | `npm i @dotprotocol/relay` | CHORUS relay client — WebSocket transport |
 | [`@dotprotocol/identity`](packages/identity) | `npm i @dotprotocol/identity` | Persistent keypair + DID |
 | [`@dotprotocol/compression`](packages/compression) | `npm i @dotprotocol/compression` | Batch packing — Ed25519 + BLS12-381 |
@@ -107,11 +151,29 @@ Next DOT    → chain: SHA-256(toBytes(genesis))
 Next DOT    → chain: SHA-256(toBytes(prev))
 ```
 
-Tamper with any DOT and all future links break — instantly detectable by anyone.
+Tamper with any DOT and all future links break — instantly detectable by anyone. The worldline IS the identity over time. It is the first provable autobiography.
+
+### The Four-Score system
+
+Protocol-native reputation — no platform assigns it:
+
+```js
+import { buildScores, computeTier } from '@dotprotocol/chain';
+
+const scores = buildScores({ chainLength: 500, branchedChainCount: 25 });
+computeTier(scores); // 'observer' | 'contributor' | 'architect' | 'luminary'
+```
+
+| Score | Measures |
+|---|---|
+| `depth` | How long you've been observing |
+| `width` | How many others carry your DOTs |
+| `elo` | Per-domain prediction accuracy |
+| `W` | Signal density — meaning per byte |
 
 ### PING
 
-The empty DOT. Zero payload. The default. Presence without content.
+The empty DOT. Zero payload. Presence without content. The default.
 
 ```js
 const ping = await DOT.create({}); // 153 bytes, payload all zeros
@@ -119,13 +181,10 @@ const ping = await DOT.create({}); // 153 bytes, payload all zeros
 
 ### Contact
 
-When two devices meet, each creates a DOT whose payload contains the other's public key (first 16 bytes). Two DOTs, two chains, each now containing the other.
+When two entities meet, each creates a DOT whose payload contains the other's public key. Two DOTs. Two chains. Each now containing the other.
 
 ```js
-// Alice
 const contact = await DOT.create({ WHAT: bobKey.slice(0, 16) });
-// Bob — same moment, different chain
-const contact = await DOT.create({ WHAT: aliceKey.slice(0, 16) });
 ```
 
 ### Type byte
@@ -136,11 +195,6 @@ const contact = await DOT.create({ WHAT: aliceKey.slice(0, 16) });
 | `0x01` | `CIRCLE` | Visible to circle members |
 | `0x02` | `PRIVATE` | Encrypted, recipient-only |
 | `0x03` | `EPHEMERAL` | Dissolves after receipt |
-
-```js
-import { DotType, createDOT } from '@dotprotocol/core';
-const dot = await createDOT({ keypair, type: DotType.PRIVATE });
-```
 
 ---
 
@@ -157,77 +211,32 @@ DOT is transport-agnostic. 153 bytes go anywhere:
 | LoRa | 153 bytes fits comfortably |
 | SMS / paper | Hex encode (306 chars) |
 | Sound, Li-Fi, IR | Any binary channel works |
+| Biological substrate | Coming |
 
 The relay knows nothing. It forwards 153 bytes without reading them.
 
 ---
 
-## v0.3.0
+## What DOT is — seven identities
 
-### Transform registry — DOT is a lens, not a thermometer
+These emerged from first principles. Each is independently derivable. All point at the same thing.
 
-DOTs can now describe deterministic, verifiable state transitions. Three built-ins:
-
-```js
-import { TransformRegistry, serializeTransformCondition } from '@dotprotocol/core';
-
-// time-capsule: reveal at a timestamp
-// signer-approval: reveal when a key signs
-// chain-depth-gate: reveal at chain depth N
-
-const spec = TransformRegistry.get('time-capsule');
-const valid = spec.verify(inputDOT, outputDOT); // deterministic
-```
-
-### 12+1 face architecture
-
-Composable bitfield faces declare what a DOT is:
-
-```js
-import { composeFaces, hasFace, activeFaces, DOTFace } from '@dotprotocol/core';
-
-const mask = composeFaces(DOTFace.QR, DOTFace.Container, DOTFace.Microdot);
-hasFace(mask, DOTFace.QR);  // true
-activeFaces(mask);           // ['QR', 'Container', 'Microdot']
-```
-
-### Four-score system
-
-Protocol-native reputation — no platform assigns it:
-
-```js
-import { buildScores, computeTier } from '@dotprotocol/chain';
-
-const scores = buildScores({ chainLength: 500, branchedChainCount: 25 });
-computeTier(scores); // 'observer' | 'contributor' | 'architect' | 'luminary'
-```
-
-### Physical DOT (QR / Falooda Protocol)
-
-```js
-import { encodeBinary, decodeBinary, selectQRSpec } from '@dotprotocol/qr';
-
-const spec  = selectQRSpec(5, 'binary');  // 5 DOTs, QR version auto-selected
-const bytes = encodeBinary(dots);          // feed to any QR library
-const back  = decodeBinary(bytes);         // reconstruct DOTs
-```
-
-### Arena (Elo + blind prediction evaluation)
-
-```js
-import { resolveSession, rankLeaderboard, ELO_DEFAULT } from '@dotprotocol/arena';
-
-const { matches } = await resolveSession(session, resolutionDOT);
-const board = rankLeaderboard('prediction', entries);
-```
+1. **Minimum viable fact** — the smallest unit of verifiable observation
+2. **Noun-verb fusion** — the state that records its own transition
+3. **Universe's education system as protocol** — gradient, constraint, selection, generative grammar, self-decoding map
+4. **Integration engine** — each DOT is a derivative, the chain is the integral
+5. **Sagan's Contact machine** — communication protocol, not transport. The state transfers. The log remains.
+6. **External honest identity** — the chain cannot lie about what the self narrates
+7. **Lens, not thermometer** — transforms what passes through it according to fixed laws. Anyone with the same lens and the same light gets the same result.
 
 ---
 
 ## Docs
 
 - **[API Reference](docs/api.md)** — every function, every field
-- **[Building Patterns](docs/patterns.md)** — chat, DMs, streams, bots, media, reputation
+- **[Building Patterns](docs/patterns.md)** — chat, DMs, streams, bots, media, reputation, arena
 - **[Architecture](docs/architecture.md)** — how packages relate, what belongs where
+- **[The Constitution](https://github.com/dot-protocol/.github/blob/main/profile/CONSTITUTION.md)** — the founding principles
 
 ---
 
@@ -238,6 +247,7 @@ const board = rankLeaderboard('prediction', entries);
 - **No Turing-completeness** in transforms — total, pure, named, re-executable only.
 - **No self-referential DOTs** — a DOT cannot reference itself (Gödel constraint).
 - **Backwards compatible** — every v0.2.0 DOT is a valid v0.3.0 DOT.
+- **No owner** — the protocol is cement. TCP/IP. Language itself.
 - **MIT license. Always.**
 
 ---
@@ -246,7 +256,9 @@ const board = rankLeaderboard('prediction', entries);
 
 153 bytes is the tax humans pay for being the only known species that can lie. The tree communicates for free. The protocol exists to let a lying species speak truth again.
 
-DOT is a lens, not a thermometer. It transforms what passes through it according to fixed laws. Anyone with the same lens and the same light gets the same result.
+For centuries, those who saw kept what they saw. Knowledge was hoarded. Observations were unsigned. Trust was rented from institutions that profited from its scarcity. Every unverifiable claim was a wall.
+
+DOT is the inversion. We see. We share.
 
 The destination is not better code. The destination is no code — machines that sign by existing, chain by growing, contact by touching, and verify by physics.
 
