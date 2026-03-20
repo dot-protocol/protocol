@@ -81,6 +81,8 @@ activeFaces(mask);              // ['Camera', 'QR', 'Container']
 |---|---|---|
 | [`dot-protocol`](packages/engine) | `npm i dot-protocol` | **One-liner API** — boot, create, verify. Start here. |
 | [`@dotprotocol/core`](packages/core) | `npm i @dotprotocol/core` | Raw primitives — keypair, sign, verify, bytes |
+| [`@dotprotocol/sign`](packages/sign) | `npm i @dotprotocol/sign` | Universal signing — sign(), verify(), chain(), describe() |
+| [`@dotprotocol/transport`](packages/transport) | `npm i @dotprotocol/transport` | DOT Transport Protocol — send, receive, relay, offline queue |
 | [`@dotprotocol/chain`](packages/chain) | `npm i @dotprotocol/chain` | Worldlines + Four-Score reputation |
 | [`@dotprotocol/relay`](packages/relay) | `npm i @dotprotocol/relay` | CHORUS relay client — WebSocket transport |
 | [`@dotprotocol/identity`](packages/identity) | `npm i @dotprotocol/identity` | Persistent keypair + DID |
