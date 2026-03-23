@@ -236,8 +236,11 @@ These emerged from first principles. Each is independently derivable. All point 
 ## Docs
 
 - **[API Reference](docs/api.md)** — every function, every field
+- **[Sign & Transport Guide](docs/guide-sign-transport.md)** — universal signing, DOT transport protocol, cross-package patterns
 - **[Building Patterns](docs/patterns.md)** — chat, DMs, streams, bots, media, reputation, arena
 - **[Architecture](docs/architecture.md)** — how packages relate, what belongs where
+- **[Contributing](docs/CONTRIBUTING.md)** — development workflow, testing, writing transport adapters
+- **[Project State](docs/STATE.md)** — current capabilities, test counts, what can be built
 - **[The Constitution](https://github.com/dot-protocol/.github/blob/main/profile/CONSTITUTION.md)** — the founding principles
 
 ---

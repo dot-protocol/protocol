@@ -156,6 +156,200 @@ await DOT.shutdown();
 
 ---
 
+## `@dotprotocol/sign` — v0.4.0-alpha
+
+Universal DOT signing — content-aware, face-composable, chain-linking.
+
+```js
+import { sign, verify, chain, describe, createKeypair, Face, AccessLevel, TeachByte } from '@dotprotocol/sign';
+```
+
+### `sign(input)`
+
+Create a signed DOT. Default is a PING (empty DOT).
+
+```js
+const key = await createKeypair();
+const ping = await sign({ key });                              // PING
+const dot  = await sign({ key, content: 'hello' });            // direct content
+const dot  = await sign({ key, content: largeBuffer });        // hash pointer
+const dot  = await sign({ key, content: 'msg', prev: d1.bytes }); // chained
+const dot  = await sign({ key, face: Face.Camera | Face.QR }); // with faces
+const dot  = await sign({ key, access: AccessLevel.PRIVATE }); // private
+const dot  = await sign({ key, teach: TeachByte.HumanReadable }); // TEACH byte
+```
+
+Returns `SignedDOT`:
+```ts
+{
+  dot: DOT;                  // parsed DOT object
+  bytes: Uint8Array;         // 153-byte wire format
+  hash: Uint8Array;          // SHA-256 of wire bytes
+  face: number;              // face bitfield
+  teach: TeachByte;
+  transform?: string;
+  contentHash?: Uint8Array;  // full SHA-256 (only if content > 16 bytes)
+}
+```
+
+---
+
+### `verify(input)` (sign package)
+
+Verify Ed25519 signature. Accepts `SignedDOT`, `DOT`, or `Uint8Array(153)`.
+
+```js
+await verify(signedDot);         // true
+await verify(signedDot.dot);     // true
+await verify(signedDot.bytes);   // true
+await verify(tamperedBytes);     // false
+```
+
+---
+
+### `chain(dots)` (sign package)
+
+Validate chain integrity. Accepts mixed formats.
+
+```js
+const result = await chain([d1, d2.bytes, d3.dot]);
+// { valid: true, length: 3 }
+// { valid: false, brokenAt: 1, reason: '...' }
+```
+
+---
+
+### `describe(input)` (sign package)
+
+Human-readable DOT description.
+
+```js
+const desc = describe(dot);
+// desc.isPing, desc.isGenesis, desc.access, desc.faces, desc.teach, desc.time, desc.key
+```
+
+---
+
+### `contentHash(data)` / `truncatedHash(data)`
+
+SHA-256 hashing utilities.
+
+```js
+const full  = await contentHash(data);     // Uint8Array(32)
+const trunc = await truncatedHash(data);   // Uint8Array(16)
+```
+
+---
+
+## `@dotprotocol/transport` — v0.4.0-alpha
+
+DOT Transport Protocol (DTP). No handshake. No session. No TLS.
+
+```js
+import { send, receive, Relay, OfflineQueue, MemoryAdapter, MemoryBus, WebSocketAdapter } from '@dotprotocol/transport';
+```
+
+### `send(input, adapter, options?, queue?)`
+
+Fire a DOT over any transport adapter.
+
+```js
+await send(signedDot, adapter);                              // broadcast
+await send(signedDot, adapter, { channel: 'room' });         // to channel
+await send(signedDot, adapter, { recipientKey: pubkey });    // to recipient
+const ok = await send(dot, adapter, undefined, queue);       // with offline queue
+```
+
+---
+
+### `receive(adapter, handler, options?)`
+
+Listen for incoming DOTs. Auto-verifies. Drops invalid.
+
+```js
+const unsub = receive(adapter, (dot) => {
+  dot.verified;     // true
+  dot.transport;    // 'memory' | 'websocket'
+  dot.bytes.length; // 153
+  dot.receivedAt;   // Unix ms
+});
+
+// Filter by sender key
+receive(adapter, handler, { filterKey: alicePublicKey });
+
+unsub(); // stop listening
+```
+
+---
+
+### `Relay`
+
+Stateless relay — passes 153 bytes without reading them.
+
+```js
+const relay = new Relay({ verify: true, maxRate: 100 });
+relay.addAdapter(adapter1);
+relay.addAdapter(adapter2);
+await relay.start();
+
+relay.getStats(); // { relayed, rejected, peers, uptime }
+
+await relay.stop();
+```
+
+---
+
+### `OfflineQueue`
+
+Queue DOTs when disconnected, flush on reconnect.
+
+```js
+const queue = new OfflineQueue({ maxSize: 10_000, maxRetries: 5 });
+queue.size;     // number of queued DOTs
+queue.peek();   // read-only view
+const { sent, failed } = await queue.flush(adapter);
+queue.clear();
+```
+
+---
+
+### `MemoryAdapter` / `MemoryBus`
+
+In-memory transport for testing.
+
+```js
+const bus = new MemoryBus();
+const adapter = new MemoryAdapter('my-address', bus);
+await adapter.connect();
+await adapter.send(bytes, 'destination');
+adapter.onReceive((bytes, source) => { /* ... */ });
+await adapter.disconnect();
+```
+
+---
+
+### `WebSocketAdapter`
+
+Production WebSocket transport with auto-reconnect.
+
+```js
+const ws = new WebSocketAdapter({
+  url: 'wss://dotdotdot.rocks',
+  reconnect: true,
+  maxReconnectAttempts: 10,
+  reconnectDelay: 1000,
+  peerId: 'my-node',
+});
+
+await ws.connect();
+ws.state; // 'connected'
+await ws.send(dotBytes, 'channel');
+ws.onReceive((bytes, source) => { /* 153-byte DOTs only */ });
+await ws.disconnect();
+```
+
+---
+
 ## `@dotprotocol/core`
 
 Raw cryptographic primitives. Zero dependencies.
